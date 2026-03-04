@@ -1,0 +1,135 @@
+#' AnAge Database and Metadata for Universal Pan-Mammalian Clocks
+#'
+#' This dataset contains taxonomic information and life history traits (longevity,
+#' maturity, gestation) required to apply the Universal Pan-Mammalian Clocks
+#' developed by the Mammalian Methylation Consortium.
+#'
+#' @format A data frame with 116 rows and 108 variables:
+#' \describe{
+#'   \item{anAgeHorvathLabID}{Internal identifier used by the Horvath Lab.}
+#'   \item{profiled}{Logical indicator showing if the species was profiled in the study.}
+#'   \item{labelsCaesar}{Internal labeling scheme (Caesar project).}
+#'   \item{SpeciesLatinName}{Scientific name used for merging with clock coefficients.}
+#'   \item{Folders}{Path or folder name associated with the raw data.}
+#'   \item{Tissues}{Number or type of tissues available (internal count).}
+#'   \item{CommonNames}{Common name(s) of the species.}
+#'   \item{HAGRID}{Human Ageing Genomic Resources ID (HAGRID) for cross-referencing.}
+#'   \item{Kingdom}{Taxonomic Kingdom (e.g., Animalia).}
+#'   \item{Phylum}{Taxonomic Phylum (e.g., Chordata).}
+#'   \item{Class}{Taxonomic Class (e.g., Mammalia).}
+#'   \item{Order}{Taxonomic Order.}
+#'   \item{Family}{Taxonomic Family.}
+#'   \item{Genus}{Taxonomic Genus.}
+#'   \item{Species}{Specific epithet of the species.}
+#'   \item{Common.name}{Primary common name from AnAge.}
+#'   \item{Female.maturity..days.}{Time to female sexual maturity in days (AnAge).}
+#'   \item{Male.maturity..days.}{Time to male sexual maturity in days (AnAge).}
+#'   \item{Gestation.Incubation..days.}{Duration of gestation or incubation in days (AnAge).}
+#'   \item{Weaning..days.}{Age at weaning in days (AnAge).}
+#'   \item{Litter.Clutch.size}{Number of offspring per litter or clutch (AnAge).}
+#'   \item{Litters.Clutches.per.year}{Number of reproductive events per year (AnAge).}
+#'   \item{Inter.litter.Interbirth.interval}{Time interval between births in days (AnAge).}
+#'   \item{Birth.weight..g.}{Weight of offspring at birth in grams (AnAge).}
+#'   \item{Weaning.weight..g.}{Weight of offspring at weaning in grams (AnAge).}
+#'   \item{Growth.rate..1.days.}{Postnatal growth rate (1/days) (AnAge).}
+#'   \item{Source}{Bibliographic source of the life history data.}
+#'   \item{Specimen.origin}{Origin of the specimen (e.g., captivity, wild).}
+#'   \item{Sample.size}{Sample size used to determine the maximum longevity.}
+#'   \item{Data.quality}{Quality assessment of the data (e.g., acceptable, questionable).}
+#'   \item{IMR..per.yr.}{Initial Mortality Rate per year (AnAge).}
+#'   \item{MRDT..yrs.}{Mortality Rate Doubling Time in years (AnAge).}
+#'   \item{Metabolic.rate..W.}{Basal metabolic rate in Watts (AnAge).}
+#'   \item{Body.mass..g.}{Adult body mass in grams (AnAge).}
+#'   \item{Temperature..K.}{Body temperature in Kelvin (AnAge).}
+#'   \item{References}{Citation indices for AnAge data sources.}
+#'   \item{PanTHERIA.ActivityCycle}{Activity cycle (1=nocturnal, 2=crepuscular, 3=diurnal) (PanTHERIA).}
+#'   \item{PanTHERIA.AdultBodyMass_g}{Adult body mass in grams (PanTHERIA).}
+#'   \item{PanTHERIA.AdultForearmLen_mm}{Adult forearm length in mm (PanTHERIA).}
+#'   \item{PanTHERIA.AdultHeadBodyLen_mm}{Adult head-body length in mm (PanTHERIA).}
+#'   \item{PanTHERIA.AgeatEyeOpening_d}{Age at eye opening in days (PanTHERIA).}
+#'   \item{PanTHERIA.AgeatFirstBirth_d}{Age at first birth in days (PanTHERIA).}
+#'   \item{PanTHERIA.BasalMetRate_mLO2hr}{Basal metabolic rate in mL O2/hr (PanTHERIA).}
+#'   \item{PanTHERIA.BasalMetRateMass_g}{Body mass associated with BMR measure (PanTHERIA).}
+#'   \item{PanTHERIA.DietBreadth}{Number of dietary categories eaten (PanTHERIA).}
+#'   \item{PanTHERIA.DispersalAge_d}{Age at dispersal in days (PanTHERIA).}
+#'   \item{PanTHERIA.GestationLen_d}{Gestation length in days (PanTHERIA).}
+#'   \item{PanTHERIA.HabitatBreadth}{Number of habitat layers used (PanTHERIA).}
+#'   \item{PanTHERIA.HomeRange_km2}{Home range size in km^2 (PanTHERIA).}
+#'   \item{PanTHERIA.HomeRange_Indiv_km2}{Individual home range size in km^2 (PanTHERIA).}
+#'   \item{PanTHERIA.InterbirthInterval_d}{Interbirth interval in days (PanTHERIA).}
+#'   \item{PanTHERIA.LitterSize}{Number of offspring per litter (PanTHERIA).}
+#'   \item{PanTHERIA.LittersPerYear}{Litters per year (PanTHERIA).}
+#'   \item{PanTHERIA.MaxLongevity_m}{Maximum longevity in months (PanTHERIA).}
+#'   \item{PanTHERIA.NeonateBodyMass_g}{Neonate (birth) body mass in grams (PanTHERIA).}
+#'   \item{PanTHERIA.NeonateHeadBodyLen_mm}{Neonate head-body length in mm (PanTHERIA).}
+#'   \item{PanTHERIA.PopulationDensity_n.km2}{Population density (individuals/km^2) (PanTHERIA).}
+#'   \item{PanTHERIA.PopulationGrpSize}{Mean population group size (PanTHERIA).}
+#'   \item{PanTHERIA.SexualMaturityAge_d}{Age at sexual maturity in days (PanTHERIA).}
+#'   \item{PanTHERIA.SocialGrpSize}{Mean social group size (PanTHERIA).}
+#'   \item{PanTHERIA.TeatNumber}{Number of teats (PanTHERIA).}
+#'   \item{PanTHERIA.Terrestriality}{Index of terrestriality (1=aquatic to 2=terrestrial) (PanTHERIA).}
+#'   \item{PanTHERIA.TrophicLevel}{Trophic level (1=herbivore to 3=carnivore) (PanTHERIA).}
+#'   \item{PanTHERIA.WeaningAge_d}{Age at weaning in days (PanTHERIA).}
+#'   \item{PanTHERIA.WeaningBodyMass_g}{Body mass at weaning in grams (PanTHERIA).}
+#'   \item{PanTHERIA.WeaningHeadBodyLen_mm}{Head-body length at weaning in mm (PanTHERIA).}
+#'   \item{PanTHERIA.References}{Source citations for PanTHERIA data.}
+#'   \item{PanTHERIA.AdultBodyMass_g_EXT}{Extended/Imputed adult body mass (PanTHERIA).}
+#'   \item{PanTHERIA.LittersPerYear_EXT}{Extended/Imputed litters per year (PanTHERIA).}
+#'   \item{PanTHERIA.NeonateBodyMass_g_EXT}{Extended/Imputed neonate mass (PanTHERIA).}
+#'   \item{PanTHERIA.WeaningBodyMass_g_EXT}{Extended/Imputed weaning mass (PanTHERIA).}
+#'   \item{PanTHERIA.GR_Area_km2}{Geographic range area in km^2.}
+#'   \item{PanTHERIA.GR_MaxLat_dd}{Maximum latitude of geographic range (decimal degrees).}
+#'   \item{PanTHERIA.GR_MinLat_dd}{Minimum latitude of geographic range (decimal degrees).}
+#'   \item{PanTHERIA.GR_MidRangeLat_dd}{Mid-range latitude (decimal degrees).}
+#'   \item{PanTHERIA.GR_MaxLong_dd}{Maximum longitude of geographic range.}
+#'   \item{PanTHERIA.GR_MinLong_dd}{Minimum longitude of geographic range.}
+#'   \item{PanTHERIA.GR_MidRangeLong_dd}{Mid-range longitude.}
+#'   \item{PanTHERIA.HuPopDen_Min_n.km2}{Minimum human population density in range.}
+#'   \item{PanTHERIA.HuPopDen_Mean_n.km2}{Mean human population density in range.}
+#'   \item{PanTHERIA.HuPopDen_5p_n.km2}{5th percentile human population density in range.}
+#'   \item{PanTHERIA.HuPopDen_Change}{Change in human population density.}
+#'   \item{PanTHERIA.Precip_Mean_mm}{Mean precipitation in range (mm).}
+#'   \item{PanTHERIA.Temp_Mean_01degC}{Mean temperature in range (0.1 degrees C).}
+#'   \item{PanTHERIA.AET_Mean_mm}{Mean Actual Evapotranspiration in range (mm).}
+#'   \item{PanTHERIA.PET_Mean_mm}{Mean Potential Evapotranspiration in range (mm).}
+#'   \item{maxanAge}{Maximum recorded age in years (primary longevity metric).}
+#'   \item{weightanAge}{Weight associated with the max age record.}
+#'   \item{maxAgeFromFolder}{Max age derived from folder metadata.}
+#'   \item{weightFromFolder}{Weight derived from folder metadata.}
+#'   \item{maxAge}{Final maximum longevity estimate used for analysis (years).}
+#'   \item{weightCaesar}{Weight metric from Caesar dataset.}
+#'   \item{averagedMaturity.yrs}{Averaged age at sexual maturity (converted to years).}
+#'   \item{Hibernation}{Hibernation status (Logic/Factor).}
+#'   \item{SpeciesAbbreviation}{Abbreviated species code (e.g., 'Hsapiens').}
+#'   \item{PanTHERIA.MaxLongevity}{Raw max longevity from PanTHERIA (unconverted).}
+#'   \item{MammalNumberHorvath}{Numeric ID for mammals in Horvath clocks.}
+#'   \item{OrderNumberHorvath}{Numeric ID for taxonomic Order.}
+#'   \item{FamilyNumberHorvath}{Numeric ID for taxonomic Family.}
+#'   \item{SpeciesNumberHorvath}{Numeric ID for Species.}
+#'   \item{CancerMortalityRisk.Vinczeo2021}{Cancer mortality risk from Vincze et al. 2021.}
+#'   \item{CumulativeIncidenceCancerMortality.Vincze2021}{Cumulative incidence of cancer mortality (Vincze et al. 2021).}
+#'   \item{Diet..Animal.}{Percentage of diet consisting of animals.}
+#'   \item{Diet..Invertebrate.}{Percentage of diet consisting of invertebrates.}
+#'   \item{Diet..Vertebrate.}{Percentage of diet consisting of vertebrates.}
+#'   \item{Diet..Fish.}{Percentage of diet consisting of fish.}
+#'   \item{Diet..Reptile.}{Percentage of diet consisting of reptiles.}
+#'   \item{Diet..Bird.}{Percentage of diet consisting of birds.}
+#'   \item{GestationTimeInYears}{Gestation period converted to years.}
+#' }
+#'
+#' @details
+#' The data is primarily structured to support the application of epigenetic
+#' clocks (e.g., Clock 2 and Clock 3) from Lu et al. (2023). It facilitates the
+#' transformation of DNA methylation values into chronological age estimates
+#' across diverse mammalian species by providing necessary biological constants.
+#'
+#' @source This dataset is adapted from the Mammalian Methylation Consortium's
+#' repository: \url{https://github.com/shorvath/MammalianMethylationConsortium}
+#'
+#' @references
+#' Lu, A.T., Fei, Z., Haghani, A. et al.
+#' Universal DNA methylation age across mammalian tissues.
+#' \emph{Nat Aging.} 2023
+#'
+#' @keywords datasets
+"anage_data"

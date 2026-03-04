@@ -1,0 +1,13 @@
+utils::globalVariables(c(
+  "donor_id",
+  "Prediction",
+  "SpeciesLatinName",
+  "GestationTimeInYears",
+  "averagedMaturity.yrs",
+  "maxAge",
+  "celltype",
+  "age",
+  "feature_name",
+  "imputation_value",
+  "pseudocells"
+))
