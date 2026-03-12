@@ -37,5 +37,6 @@ biocViews: Software,
     Transcription, 
     GeneExpression,
     ComparativeGenomics, 
-    Genetics, 
-    Regression
+    Regression,
+    MethylationArray,
+    Transcriptomics

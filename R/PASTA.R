@@ -316,7 +316,7 @@ makePseudobulksPasta <- function(seu, poolBy = c("cell_type", "age"),
     seuBulk$chunkSize <- chunkSize
 
     if (verbose) {
-        msg <- capture.output(table(seuBulk[[poolBy[1]]]))
+        msg <- utils::capture.output(table(seuBulk[[poolBy[1]]]))
         message(paste(msg, collapse = "\n"))
     }
 

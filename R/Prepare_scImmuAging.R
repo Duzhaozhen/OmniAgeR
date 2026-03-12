@@ -279,7 +279,7 @@ scImmuAgingCalculator <- function(preprocessedData, model, markerGenes,
 #' donorAges <- ageDonor(mockPredictRes)
 #'
 #' # 3. View the result
-#' print(donor_ages)
+#' print(donorAges)
 #'
 ageDonor <- function(predictRes) {
     donorDf <- predictRes %>%

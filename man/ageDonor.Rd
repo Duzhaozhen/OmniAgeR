@@ -27,6 +27,6 @@ mockPredictRes <- data.frame(
 donorAges <- ageDonor(mockPredictRes)
 
 # 3. View the result
-print(donor_ages)
+print(donorAges)
 
 }
