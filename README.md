@@ -9,6 +9,8 @@ You can install the development version of OmniAgeR from GitHub with:
 ```r
 # install.packages("devtools")
 devtools::install_github("Duzhaozhen/OmniAgeR")
+```
+
 ## 📖 Quick Start
 ```r
 library(OmniAgeR)
