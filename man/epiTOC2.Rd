@@ -46,9 +46,13 @@ of stem cell divisions in a tissue. The details of the algorithm are
 described in Teschendorff et al. 2020.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-epitoc2Out <- epiTOC2(betaM = bmiq.m, age = df$Age)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+phenoDf <- lungInv$PhenoTypes
+epitoc2Out <- epiTOC2(betaM = lungInvM, age = phenoDf$Age)
 
 }
 \references{

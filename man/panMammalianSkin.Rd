@@ -43,16 +43,23 @@ It requires the 'PanMammalianSkinCoef' data object to be available
 in the R package's data directory.
 }
 \examples{
+tursiopsExample <- loadOmniAgeRdata(
+    "omniager_tursiops_example",
+    verbose = FALSE
+)
 
-downloadOmniAgeRExample("Tursiops_example")
-loadOmniAgeRExample("Tursiops_example")
-data("anage_data")
+## This anage_data is from
+## https://github.com/shorvath/MammalianMethylationConsortium
+anageData <- loadOmniAgeRdata(
+    "omniager_anage_data",
+    verbose = FALSE
+)
 
 # Run the calculation with progress messages
 clockResults <- panMammalianSkin(
- betaM = example_beta_m,
- speciesName = example_sample_info$SpeciesLatinName,
- anageData = anage_data
+    betaM = tursiopsExample$beta_m,
+    speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+    anageData = anageData
 )
 
 }

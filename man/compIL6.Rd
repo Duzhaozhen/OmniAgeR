@@ -26,13 +26,14 @@ protein levels.
 }
 \details{
 This function calculates the IL-6 proxy score by applying a pre-defined
-set of coefficients to the input beta-value matrix. The coefficients
-are loaded from the internal \code{IL6Coef} data object.
+set of coefficients to the input beta-value matrix.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-compil6Out <- compIL6(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+compil6Out <- compIL6(hannumBmiqM)
 }
 \references{
 Stevenson AJ et al.

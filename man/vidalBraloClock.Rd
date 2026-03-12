@@ -31,9 +31,11 @@ for use in adult whole blood samples. The model is a linear predictor
 based on 8 specific CpG sites.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-vidalBraloClockOut <- vidalBraloClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+vidalBraloClockOut <- vidalBraloClock(hannumBmiqM)
 }
 \references{
 Vidal-Bralo L, Lopez-Golan Y, Gonzalez A.

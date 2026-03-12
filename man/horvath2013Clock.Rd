@@ -30,16 +30,14 @@ matrix and then transforms this value using a non-linear function to
 return the final DNAm age.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-horvath2013ClockOut <- horvath2013Clock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+horvath2013ClockOut <- horvath2013Clock(hannumBmiqM)
 }
 \references{
 Horvath S.
 DNA methylation age of human tissues and cell types.
 \emph{Genome Biol.} 2013
-}
-\seealso{
-The main function \code{\link{EpiAge}} can be used to
-calculate multiple clocks simultaneously.
 }

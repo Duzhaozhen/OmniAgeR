@@ -31,9 +31,11 @@ probe across all samples, and then computes the score as:
 Probes with zero variance across samples are excluded.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-compchipOut <- compCHIP(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+compchipOut <- compCHIP(hannumBmiqM)
 }
 \references{
 Kirmani, S., Huan, T., Van Amburg, J.C. et al.

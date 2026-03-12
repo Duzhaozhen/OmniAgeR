@@ -28,9 +28,12 @@ localize to Polycomb group target genes that are unmethylated in 11
 different fetal tissue types.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-eppitoc1Out <- epiTOC1(betaM = bmiq.m)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+epitoc1Out <- epiTOC1(betaM = lungInvM)
 
 }
 \references{

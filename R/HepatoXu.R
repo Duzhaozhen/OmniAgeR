@@ -1,4 +1,4 @@
-#' @title Calculate HepatoXu ctDNA Methylation Scores 
+#' @title Calculate HepatoXu ctDNA Methylation Scores
 #' for Hepatocellular Carcinoma
 #'
 #' @description
@@ -19,7 +19,7 @@
 #' @param betaM A numeric matrix of DNA methylation beta values.
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
@@ -31,22 +31,27 @@
 #'
 #' @references
 #' Xu, Rh., Wei, W., Krawczyk, M. et al.
-#' Circulating tumour DNA methylation markers for diagnosis and prognosis of 
+#' Circulating tumour DNA methylation markers for diagnosis and prognosis of
 #' hepatocellular carcinoma.
 #' \emph{Nature Mater} 2017
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' HepatoXu_o <- HepatoXu(hannum_bmiq_m)
-#' 
-
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' hepatoXuRiskO <- hepatoXuRisk(hannumBmiqM)
+#'
 hepatoXuRisk <- function(betaM,
-                     minCoverage = 0.5, 
-                     verbose = TRUE) {
-  data("HepatoXuCoef", envir = environment())
-  predAgev <- .calLinearClock(betaM, HepatoXuCoef, "hepatoXuRisk", 
-                              minCoverage, verbose)
-  return(predAgev)
-  
+                         minCoverage = 0.5,
+                         verbose = TRUE) {
+    hepatoXuCoef <- loadOmniAgeRdata(
+        "omniager_hepato_xu_coef",
+        verbose = verbose
+    )
+    predAgev <- .calLinearClock(
+        betaM, hepatoXuCoef, "hepatoXuRisk",
+        minCoverage, verbose
+    )
+    return(predAgev)
 }

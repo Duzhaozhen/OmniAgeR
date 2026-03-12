@@ -22,9 +22,9 @@
 #'   \item `Body_fat_Perc` (Body Fat Percentage)
 #' }
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and 
+#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
@@ -53,56 +53,46 @@
 #' \emph{Genome Biol.} 2018
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' mcCartneyTraitOut <- mcCartneyTrait(hannum_bmiq_m)
-#' 
-
-
-
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' mcCartneyTraitOut <- mcCartneyTrait(hannumBmiqM)
+#'
 mcCartneyTrait <- function(betaM,
-                        minCoverage = 0.5, 
-                        verbose = TRUE) {
-  # --- Step 1: Load Coefficients ---
-  data("McCartneyTraitCoef", envir = environment())
-  
-  # Define the specific names
-  clockNames <- names(McCartneyTraitCoef)
-  
-  # --- Step 2: Calculate Scores for Each Clock ---
-  estLv <- list() 
-  
-  # Loop through the list of coefficients
-  # using seq_along instead of 1:length for safety
-  for (i in seq_along(McCartneyTraitCoef)) {
-    
-    tmpCoef <- McCartneyTraitCoef[[i]]
-    colnames(tmpCoef) <- c("probe","coef")
-    tmpCoef<- rbind(data.frame(probe="(Intercept)",coef=0),tmpCoef)
-    
-    # Call the internal helper to handle all calculation and logging
-    estLv[[i]] <- .calLinearClock(
-      betaM = betaM,
-      coefData = tmpCoef,
-      clockLabel = clockNames[i],
-      minCoverage = minCoverage, 
-      verbose = verbose
+                           minCoverage = 0.5,
+                           verbose = TRUE) {
+    # --- Step 1: Load Coefficients ---
+    mcCartneyTraitCoef <- loadOmniAgeRdata(
+        "omniager_mccartney_trait_coef",
+        verbose = verbose
     )
-  }
-  
-  # Assign names to the result list
-  names(estLv) <- clockNames
-  
-  return(estLv)
+
+    # Define the specific names
+    clockNames <- names(mcCartneyTraitCoef)
+
+    # --- Step 2: Calculate Scores for Each Clock ---
+    estLv <- list()
+
+    # Loop through the list of coefficients
+    # using seq_along instead of 1:length for safety
+    for (i in seq_along(mcCartneyTraitCoef)) {
+        tmpCoef <- mcCartneyTraitCoef[[i]]
+        colnames(tmpCoef) <- c("probe", "coef")
+        tmpCoef <- rbind(data.frame(probe = "(Intercept)", coef = 0), tmpCoef)
+
+        # Call the internal helper to handle all calculation and logging
+        estLv[[i]] <- .calLinearClock(
+            betaM = betaM,
+            coefData = tmpCoef,
+            clockLabel = clockNames[i],
+            minCoverage = minCoverage,
+            verbose = verbose
+        )
+    }
+
+    # Assign names to the result list
+    names(estLv) <- clockNames
+
+    return(estLv)
 }
-
-
-
-
-
-
-
-
-
-
-

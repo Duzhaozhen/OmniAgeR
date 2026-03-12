@@ -28,9 +28,11 @@ originally designed for pyrosequencing data derived from blood samples,
 but it can also be applied to microarray data.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-weidnerClockOut <- weidnerClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+weidnerClockOut <- weidnerClock(hannumBmiqM)
 }
 \references{
 Weidner, C.I., Lin, Q., Koch, C.M. et al.

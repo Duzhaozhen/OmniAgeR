@@ -28,8 +28,7 @@ calculated (e.g., \code{HumanMouse_HumanMouse}, \code{Static_Static}, etc.).
 \description{
 Calculates epigenetic age using the EnsembleAge multi-clock framework
 (Haghani et al., 2025). This function computes one of the three available
-clock versions (Static, Dynamic, or HumanMouse) by loading the
-pre-calculated coefficients from the \code{EnsembleAgeCoef} package data object.
+clock versions (Static, Dynamic, or HumanMouse).
 }
 \note{
 \strong{Understanding the \code{clock_version} output:}
@@ -52,11 +51,13 @@ This function provides the necessary \emph{basis} for this calculation.
 }
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
 # Ensure it's CpGs=rows, Samples=cols
 # Calculate the HumanMouse clock version
-ensembleAgeOut <- ensembleAge(hannum_bmiq_m, clockVersion = "HumanMouse")
+ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
 
 }
 \references{

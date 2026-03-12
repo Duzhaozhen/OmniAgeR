@@ -48,9 +48,11 @@ CpGs (e.g., 546 for \code{LeeControl}) with the columns in the input matrix,
 and calculates a linear prediction of GA.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-LeeGaOut <- LeeGa(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+LeeGaOut <- LeeGa(hannumBmiqM)
 
 }
 \references{

@@ -22,9 +22,11 @@ A named vector of predicted Gestational Ages (in weeks).
 A function to calculate the Knight gestational age
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-knightGaOut <- knightGa(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+knightGaOut <- knightGa(hannumBmiqM)
 
 }
 \references{

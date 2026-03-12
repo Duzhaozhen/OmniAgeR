@@ -41,9 +41,11 @@ across Illumina 27K, 450K, and EPIC arrays.
 Internally applies Horvath's (2013) log-linear age transformation.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-pipekElasticNetOut <- pipekElasticNet(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+pipekElasticNetOut <- pipekElasticNet(hannumBmiqM)
 
 }
 \references{

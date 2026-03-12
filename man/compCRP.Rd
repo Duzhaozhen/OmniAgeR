@@ -36,9 +36,11 @@ naive T-cells. The resulting output is a relative score that captures the
 methylation pattern associated with CRP levels.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-compcrpOut <- compCRP(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+compcrpOut <- compCRP(hannumBmiqM)
 }
 \references{
 Wielscher, M., Mandaviya, P.R., Kuehnel, B. et al.

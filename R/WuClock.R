@@ -21,10 +21,10 @@
 #' @param betaM A numeric matrix of DNA methylation beta values.
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
-#' 
+#'
 #' @return A numeric vector of predicted biological ages. The vector is
 #' named using the sample IDs from the \code{rownames} of \code{betaM}.
 #'
@@ -36,23 +36,25 @@
 #' \emph{Aging} 2019
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' wuClockOut <- wuClock(hannum_bmiq_m)
-
-
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' wuClockOut <- wuClock(hannumBmiqM)
 wuClock <- function(betaM,
-                    minCoverage = 0.5, 
+                    minCoverage = 0.5,
                     verbose = TRUE) {
-  data("WuClockCoef", envir = environment())
-  
-  predAgev <- .calLinearClock(betaM, WuClockCoef, "wuClock", 
-                              minCoverage,verbose)
-  predAgev <- .antiTrafo(predAgev,48)
-  ## transform to years
-  predAgev <- predAgev/12
-  return(predAgev)
-  
+    wuClockCoef <- loadOmniAgeRdata(
+        "omniager_wu_clock_coef",
+        verbose = verbose
+    )
+
+    predAgev <- .calLinearClock(
+        betaM, wuClockCoef, "wuClock",
+        minCoverage, verbose
+    )
+    predAgev <- .antiTrafo(predAgev, 48)
+    ## transform to years
+    predAgev <- predAgev / 12
+    return(predAgev)
 }
-
-

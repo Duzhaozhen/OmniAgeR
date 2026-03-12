@@ -7,8 +7,13 @@
 intrinClock(betaM, minCoverage = 0.5, verbose = TRUE)
 }
 \arguments{
-\item{beta.m}{A numeric matrix of beta values. Rows should be CpG probes
+\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes
 and columns should be individual samples.}
+
+\item{minCoverage}{A numeric value (0-1). The minimum proportion of
+required CpGs that must be present. Default is 0.5.}
+
+\item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }
 \value{
 A numeric vector of predicted DNAm ages, with names corresponding
@@ -32,9 +37,11 @@ The model coefficients are stored in \code{IntrinClockCoef}, which contains:
 }
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-intrinClockO <- intrinClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+intrinClockO <- intrinClock(hannumBmiqM)
 }
 \references{
 Tomusiak, A., Floro, A., Tiwari, R. et al.

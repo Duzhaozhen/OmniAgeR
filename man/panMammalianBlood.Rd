@@ -35,28 +35,27 @@ and the calculated ages: 'DNAmRelativeAge',
 from the input \code{sampleInfo} (like 'Age', 'Tissue') will also be returned.
 }
 \description{
-Applies the two universal pan-mammalian BLOOD clocks (Clock 2 and 3)
+Applies the two universal pan-mammalian blood clocks (Clock 2 and 3)
 from Lu et al. (2023) to a given dataset of DNA methylation values.
 }
-\details{
-This function is a specific adaptation for the Blood-only clocks.
-It requires the 'PanMammalianBloodCoef' data object to be available
-in the R package's data directory.
-}
 \examples{
+tursiopsExample <- loadOmniAgeRdata(
+    "omniager_tursiops_example",
+    verbose = FALSE
+)
 
-downloadOmniAgeRExample("Tursiops_example")
-loadOmniAgeRExample("Tursiops_example")
-
-## This anage_data is from https://github.com/shorvath/MammalianMethylationConsortium
-data("anage_data")
+## This anage_data is from
+## https://github.com/shorvath/MammalianMethylationConsortium
+anageData <- loadOmniAgeRdata(
+    "omniager_anage_data",
+    verbose = FALSE
+)
 
 # Run the calculation with progress messages
-
 clockResults <- panMammalianBlood(
- betaM = example_beta_m,
- speciesName = example_sample_info$SpeciesLatinName,
- anageData = anage_data
+    betaM = tursiopsExample$beta_m,
+    speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+    anageData = anageData
 )
 }
 \references{

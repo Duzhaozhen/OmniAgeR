@@ -31,10 +31,11 @@ DNAm biomarker trained on clinical evaluations of physical and mental
 capacities
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-icClockO <- icClock(hannum_bmiq_m)
-
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+icClockO <- icClock(hannumBmiqM)
 
 }
 \references{

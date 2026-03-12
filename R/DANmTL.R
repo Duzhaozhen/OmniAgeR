@@ -1,14 +1,14 @@
 #' @title The epigenetic age used for calculating the Leukocyte telomere length.
 #'
-#' @description A function to calculate the the Leukocyte telomere length (2019) 
+#' @description A function to calculate the the Leukocyte telomere length (2019)
 #' from a DNA methylation beta value matrix.
 #'
-#' @param beta.m A numeric matrix of beta values. Rows should be CpG probes and 
+#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
-#' 
+#'
 #' @return A named vector of predicted Leukocyte telomere length.
 #'
 #' @export
@@ -19,18 +19,21 @@
 #' \emph{Aging} 2019
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' dnamTlO <- dnamTL(hannum_bmiq_m)
-
-
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' dnamTlO <- dnamTL(hannumBmiqM)
 dnamTL <- function(betaM,
-                   minCoverage = 0.5, 
+                   minCoverage = 0.5,
                    verbose = TRUE) {
-  data("DNAmTLCoef", envir = environment()) 
-  predAgev <- .calLinearClock(betaM, DNAmTLCoef, "dnamTL", 
-                              minCoverage, verbose)
-  return(predAgev)
-  
+    dnamTLCoef <- loadOmniAgeRdata(
+        "omniager_dnamtl_coef",
+        verbose = verbose
+    )
+    predAgev <- .calLinearClock(
+        betaM, dnamTLCoef, "dnamTL",
+        minCoverage, verbose
+    )
+    return(predAgev)
 }
-

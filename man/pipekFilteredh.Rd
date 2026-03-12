@@ -49,9 +49,11 @@ but requiring updated calibration.
 Internally applies Horvath's (2013) log-linear age transformation.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-pipekFilteredhOut <- pipekFilteredh(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+pipekFilteredhOut <- pipekFilteredh(hannumBmiqM)
 
 }
 \references{

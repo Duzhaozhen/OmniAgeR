@@ -25,9 +25,11 @@ Implements the 62-CpG placental epigenetic clock for estimating gestational
 age (GA), as described by Mayne et al. (2017).
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-Mayne_GA.out <- Mayne_GA(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+mayneGaOut <- mayneGa(hannumBmiqM)
 }
 \references{
 Mayne BT, Leemaqz SY, Smith AK, Breen J, Roberts CT, Bianco-Miotto T.

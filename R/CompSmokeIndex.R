@@ -10,13 +10,13 @@
 #' transformation) across samples for each CpG site, and then computing a weighted
 #' average based on the provided signature coefficients.
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and 
+#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
-#' @return A named \code{numeric} vector of smoking index for each sample 
+#' @return A named \code{numeric} vector of smoking index for each sample
 #' in \code{data.m}.
 #'
 #'
@@ -25,61 +25,65 @@
 #'
 #' @references
 #' Teschendorff, Andrew E et al.
-#' Correlation of Smoking-Associated DNA Methylation Changes in Buccal Cells 
+#' Correlation of Smoking-Associated DNA Methylation Changes in Buccal Cells
 #' With DNA Methylation Changes in Epithelial Cancer
 #' \emph{JAMA oncology} 2015
 #'
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' CompSmokeIndex_o <- compSmokeIndex(hannum_bmiq_m)
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' SmokeIndexOut <- compSmokeIndex(hannumBmiqM)
 #'
+compSmokeIndex <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+    coeffSmkIdx <- loadOmniAgeRdata(
+        "omniager_coeff_smk_idx",
+        verbose = verbose
+    )
 
+    # Perform coverage check
+    coverage <- .checkCpGCoverage(
+        betaM = betaM,
+        allWeights = coeffSmkIdx,
+        clockName = "SmokeIndex",
+        minCoverage = minCoverage,
+        verbose = verbose
+    )
 
-compSmokeIndex <- function(betaMat, minCoverage = 0.5, verbose = TRUE) {
-  
-  data("coeffSmkIdx", envir = environment())
-  
-  # Perform coverage check
-  coverage <- .checkCpGCoverage(
-    betaM = betaMat, 
-    allWeights = coeffSmkIdx.v, 
-    clockName = "SmokeIndex", 
-    minCoverage = minCoverage, 
-    verbose = verbose
-  )
-  
-  if (!coverage$pass) {
-    scores <- rep(NA_real_, ncol(betaMat))
-    names(scores) <- colnames(betaMat)
-    return(scores)
-  }
-  
-
-  subBeta <- betaMat[coverage$betaIdx, , drop = FALSE]
-  weights <- coverage$weightsSubset
-  
-  # Z-score 
-  rowMeansV <- rowMeans(subBeta, na.rm = TRUE)
-  rowSdsV <- apply(subBeta, 1, sd, na.rm = TRUE)
-  
-  keepIdx <- which(rowSdsV > 0)
-  if (length(keepIdx) < length(rowSdsV)) {
-    if (verbose) {
-      message(sprintf("[SmokeIndex] Excluding %d constant probes.", 
-                      length(rowSdsV) - length(keepIdx)))
+    if (!coverage$pass) {
+        scores <- rep(NA_real_, ncol(betaM))
+        names(scores) <- colnames(betaM)
+        return(scores)
     }
-    subBeta <- subBeta[keepIdx, , drop = FALSE]
-    rowMeansV <- rowMeansV[keepIdx]
-    rowSdsV <- rowSdsV[keepIdx]
-    weights <- weights[keepIdx]
-  }
-  
-  zMatrix <- (subBeta - rowMeansV) / rowSdsV
-  
-  # 7. Calculate the final score
-  scores <- colMeans(weights * zMatrix, na.rm = TRUE)
-  
-  return(scores)
+
+
+    subBeta <- betaM[coverage$betaIdx, , drop = FALSE]
+    weights <- coverage$weightsSubset
+
+    # Z-score
+    rowMeansV <- rowMeans(subBeta, na.rm = TRUE)
+    rowSdsV <- apply(subBeta, 1, sd, na.rm = TRUE)
+
+    keepIdx <- which(rowSdsV > 0)
+    if (length(keepIdx) < length(rowSdsV)) {
+        if (verbose) {
+            message(sprintf(
+                "[SmokeIndex] Excluding %d constant probes.",
+                length(rowSdsV) - length(keepIdx)
+            ))
+        }
+        subBeta <- subBeta[keepIdx, , drop = FALSE]
+        rowMeansV <- rowMeansV[keepIdx]
+        rowSdsV <- rowSdsV[keepIdx]
+        weights <- weights[keepIdx]
+    }
+
+    zMatrix <- (subBeta - rowMeansV) / rowSdsV
+
+    # Calculate the final score
+    scores <- colMeans(weights * zMatrix, na.rm = TRUE)
+
+    return(scores)
 }

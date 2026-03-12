@@ -25,9 +25,11 @@ Implements the epigenetic clock for predicting gestational age (GA) using
 newborn cord blood, as described by Bohlin et al. (2016).
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-bohlinGaOut <- bohlinGa(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+bohlinGaOut <- bohlinGa(hannumBmiqM)
 }
 \references{
 Bohlin J, Håberg SE, Magnus P, et al.

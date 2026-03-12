@@ -39,9 +39,11 @@ The input \code{beta.m} must be a matrix of Beta values (0 to 1). The function
 expects CpG probes as row names.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-wuClockOut <- wuClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+wuClockOut <- wuClock(hannumBmiqM)
 }
 \references{
 Wu, Xiaohui et al.

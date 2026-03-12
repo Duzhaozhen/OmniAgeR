@@ -27,9 +27,12 @@ The function will return the 0.95 upper quantile of
 the 629 stemTOCvitro CpGs.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-stemTOCvitroOut <- stemTOCvitro(data.m = bmiq.m)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+stemTOCvitroOut <- stemTOCvitro(betaM = lungInvM)
 
 }
 \references{

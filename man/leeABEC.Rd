@@ -33,9 +33,11 @@ It uses an internal helper to handle missing probes and compute the
 final age estimates.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-ABECo <- leeABEC(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+abecOut <- leeABEC(hannumBmiqM)
 
 }
 \references{

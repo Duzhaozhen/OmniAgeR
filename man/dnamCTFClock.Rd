@@ -4,7 +4,7 @@
 \alias{dnamCTFClock}
 \title{DNA Methylation Cell-Type Fraction (CTF) Aging Clock}
 \usage{
-dnamCTFClock(object)
+dnamCTFClock(ctfM)
 }
 \arguments{
 \item{ctfM}{A numeric matrix or data frame where rows are samples and columns are cell types.
@@ -19,8 +19,10 @@ DNA methylation data.
 }
 \examples{
 
-downloadOmniAgeRExample("TZH_example_CTF")
-loadOmniAgeRExample("TZH_example_CTF")
-dnamCTFClockOut <- dnamCTFClock(ctfM = TZH_Frac_m)
+tzhFracM <- loadOmniAgeRdata(
+    "omniager_tzh_example_ctf",
+    verbose = FALSE
+)[[2]]
+dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
 
 }

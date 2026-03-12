@@ -27,9 +27,11 @@ chronological age, based on the models developed by Ndhlovu et al. (2024).
 This function computes both Version 1 (V1) and Version 2 (V2) of the clock.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-Retro_age.o <- Retro_age(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+retroAgeRes <- retroAge(hannumBmiqM)
 }
 \references{
 Ndhlovu LC, Bendall ML, Dwaraka V, et al.

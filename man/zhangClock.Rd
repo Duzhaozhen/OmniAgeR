@@ -36,9 +36,11 @@ by taking the weighted sum of these standardized values using the model's
 pre-defined coefficients.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-zhangClockOut <- zhangClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+zhangClockOut <- zhangClock(hannumBmiqM)
 
 }
 \references{

@@ -25,3 +25,24 @@ input could be interested gene list. Each row is one gene and columns are
 "gene" and "value". "value" could be log2FC or specific value.
 colnames of other metadata should be "subtype".
 }
+\examples{
+# 1. Create a small mock dataset representing cells and genes
+# (e.g., 20 cells as rows, 3 genes as columns)
+set.seed(123) # Set seed for reproducibility in example
+mock_input <- data.frame(
+    GeneA = runif(20),
+    GeneB = runif(20),
+    GeneC = runif(20)
+)
+rownames(mock_input) <- paste0("Cell_", 1:20)
+
+# 2. Generate 3 pseudocells, each averaging 5 random cells
+pseudo_res <- pseudocellScImmuAging(
+    inputData = mock_input,
+    size = 5,
+    n = 3
+)
+
+# 3. View the generated pseudocells
+print(pseudo_res)
+}

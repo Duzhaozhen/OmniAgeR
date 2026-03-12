@@ -29,9 +29,11 @@ serves as a wrapper that loads the internal clock coefficients and computes
 the linear predictors for each clock using the helper function.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-CentenarianClock.out <- centenarianClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+centenarianClockOut <- centenarianClock(hannumBmiqM)
 
 }
 \references{

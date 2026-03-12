@@ -13,10 +13,10 @@
 #' @param betaM A numeric matrix of DNA methylation beta values.
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
-#' 
+#'
 #' @return
 #' A **numeric vector** containing the predicted chronological age (in years)
 #' for each sample. The vector is named with the sample IDs from the `rownames`
@@ -30,20 +30,22 @@
 #' \emph{Front Genet.} 2016
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
-#' vidalBraloClockOut <- vidalBraloClock(hannum_bmiq_m)
-
-
-
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
+#' vidalBraloClockOut <- vidalBraloClock(hannumBmiqM)
 vidalBraloClock <- function(betaM,
-                            minCoverage = 0.5, 
+                            minCoverage = 0.5,
                             verbose = TRUE) {
-  data("VidalBraloCoef", envir = environment())
-  
-  predAgev <- .calLinearClock(betaM, VidalBraloCoef, "vidalBraloClock", 
-                              minCoverage,verbose)
-  return(predAgev)
-  
-}
+    vidalBraloCoef <- loadOmniAgeRdata(
+        "omniager_vidalbralo_coef",
+        verbose = verbose
+    )
 
+    predAgev <- .calLinearClock(
+        betaM, vidalBraloCoef, "vidalBraloClock",
+        minCoverage, verbose
+    )
+    return(predAgev)
+}

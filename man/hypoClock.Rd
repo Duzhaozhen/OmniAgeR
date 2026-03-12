@@ -27,9 +27,12 @@ The hypoClock score is defined by Teschendorff (2020) and is calculated
 as 1 minus the average beta value of 678 solo-WCGW sites.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-hypoClockOut <- hypoClock(betaM = bmiq.m)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+hypoClockOut <- hypoClock(betaM = lungInvM)
 
 }
 \references{

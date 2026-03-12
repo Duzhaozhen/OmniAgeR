@@ -32,9 +32,12 @@ The EpiCMIT function calculates the average DNAm of the two groups separately
 and returns the EpiCMIT_hyper and EpiCMIT_hypo scores.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-epicmitOut <- epiCMIT(betaM = bmiq.m)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+epicmitOut <- epiCMIT(betaM = lungInvM)
 }
 \references{
 Duran-Ferrer M, Clot G, Nadeu F, et al.

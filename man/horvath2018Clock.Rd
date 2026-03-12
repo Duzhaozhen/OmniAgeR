@@ -35,9 +35,11 @@ using the same non-linear function as the Horvath (2013) clock to
 return the final DNAm age.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-horvath2018ClockOut <- horvath2018Clock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+horvath2018ClockOut <- horvath2018Clock(hannumBmiqM)
 }
 \references{
 Horvath S, Oshima J, Martin GM, et al.

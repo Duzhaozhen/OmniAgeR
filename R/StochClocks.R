@@ -12,20 +12,20 @@
 #' cell type or whole blood, as the DNAm data is standardized prior to
 #' clock application.
 #'
-#' The stochastic clocks may serve as a useful complement to the original 
+#' The stochastic clocks may serve as a useful complement to the original
 #' clocks, providing a method to assess if specific age-acceleration patterns
 #' (or decelerations) could be driven by an underlying stochastic process.
 #' This may offer insights into the biological mechanisms of phenotypes
 #' linked to epigenetic age acceleration.
 #'
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and 
+#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
-#' @param minCoverage A numeric value (0-1). The minimum proportion of 
+#' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.5.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
-#' @return A \code{list} containing three numeric vectors: \code{StocH}, 
+#' @return A \code{list} containing three numeric vectors: \code{StocH},
 #'   \code{StocP}, and \code{StocZ}, representing predicted DNAm ages.
 #'
 #' @import glmnet
@@ -39,47 +39,32 @@
 #'
 #' @examples
 #' # Load example data
-#' hannumBmiqM <- loadOmniAgeRdata("omniager_hannum_example.rds")
-#' stochClocksOut <- stochClocks(hannumBmiqM)
-
-
-
-
+#' hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
+#' stochClocksOut <- stochClocks(hannumExample[[1]])
 stochClocks <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
-  
-  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks")
-  
-  
-  stocNames <- paste0("Stoc", names(stocAll))
-  mageList <- list()
-  
-  # 3. Calculate each clock in a loop
-  for (i in seq_along(stocAll)) {
-    clockLabel <- stocNames[i]
-    glmObj <- stocAll[[i]]
-    
-    fullCoef <- stats::coef(glmObj)
-    intercept <- fullCoef[1, ncol(fullCoef)]
-    weights <- fullCoef[-1, ncol(fullCoef)]
-    
-    coefLv <- list(intercept, weights)
-    
-    mageList[[clockLabel]] <- .calculateLinearPredictor(
-      betaM = betaM,
-      coefLv = coefLv,
-      clockName = clockLabel,
-      minCoverage = minCoverage,
-      verbose = verbose
-    )
-  }
-  
-  return(mageList)
+    stocAll <- loadOmniAgeRdata("omniager_stoch_clocks")
+
+    stocNames <- paste0("Stoc", names(stocAll))
+    mageList <- list()
+
+    for (i in seq_along(stocAll)) {
+        clockLabel <- stocNames[i]
+        glmObj <- stocAll[[i]]
+
+        fullCoef <- stats::coef(glmObj)
+        intercept <- fullCoef[1, ncol(fullCoef)]
+        weights <- fullCoef[-1, ncol(fullCoef)]
+
+        coefLv <- list(intercept, weights)
+
+        mageList[[clockLabel]] <- .calculateLinearPredictor(
+            betaM = betaM,
+            coefLv = coefLv,
+            clockName = clockLabel,
+            minCoverage = minCoverage,
+            verbose = verbose
+        )
+    }
+
+    return(mageList)
 }
-
-
-
-
-
-
-
-

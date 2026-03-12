@@ -4,16 +4,16 @@
 \alias{compSmokeIndex}
 \title{Compute a DNAm-based Smoking Index}
 \usage{
-compSmokeIndex(betaMat, minCoverage = 0.5, verbose = TRUE)
+compSmokeIndex(betaM, minCoverage = 0.5, verbose = TRUE)
 }
 \arguments{
+\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
+columns should be individual samples.}
+
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.5.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
-
-\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
-columns should be individual samples.}
 }
 \value{
 A named \code{numeric} vector of smoking index for each sample
@@ -30,9 +30,11 @@ transformation) across samples for each CpG site, and then computing a weighted
 average based on the provided signature coefficients.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-CompSmokeIndex_o <- compSmokeIndex(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+SmokeIndexOut <- compSmokeIndex(hannumBmiqM)
 
 }
 \references{

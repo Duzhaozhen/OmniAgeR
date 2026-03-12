@@ -34,9 +34,11 @@ The function automatically loads the required model coefficients,
 matches them with the CpGs in the input matrix, and computes the age.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-phenoAgeOut <- phenoAge(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+phenoAgeOut <- phenoAge(hannumBmiqM)
 
 }
 \references{

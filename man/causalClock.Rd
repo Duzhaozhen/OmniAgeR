@@ -34,9 +34,11 @@ Each score is calculated as a weighted linear sum of beta values from
 its specific set of CpG sites.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-causalClockO <- causalClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+causalClockO <- causalClock(hannumBmiqM)
 }
 \references{
 Ying K, Liu H, Tarkhov AE, et al.

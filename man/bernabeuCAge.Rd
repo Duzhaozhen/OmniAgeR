@@ -31,9 +31,11 @@ It also automatically handles missing CpGs and NA values
 via mean imputation.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-bernabeuCAgeO <- bernabeuCAge(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+bernabeuCAgeO <- bernabeuCAge(hannumBmiqM)
 }
 \references{
 Bernabeu, E., McCartney, D.L., Gadd, D.A. et al.

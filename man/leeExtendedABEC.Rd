@@ -32,8 +32,10 @@ dataset. It is designed for applications where a wider range of adult
 ages is expected.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-eABEC_o <- leeExtendedABEC(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+eabecOut <- leeExtendedABEC(hannumBmiqM)
 
 }

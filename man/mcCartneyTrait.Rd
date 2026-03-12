@@ -55,9 +55,11 @@ The function iterates through and calculates scores for the following traits:
 }
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-mcCartneyTraitOut <- mcCartneyTrait(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+mcCartneyTraitOut <- mcCartneyTrait(hannumBmiqM)
 
 }
 \references{

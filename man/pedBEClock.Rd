@@ -15,6 +15,11 @@ required CpGs that must be present. Default is 0.5.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }
+\value{
+A \strong{numeric vector} containing the predicted DNAm age
+for each sample. The vector is named with the sample IDs from the \code{rownames}
+of \code{betaM}.
+}
 \description{
 Implements the Pediatric Buccal Epigenetic (PedBE) clock, specifically
 developed to estimate DNA methylation age in
@@ -32,9 +37,11 @@ a final estimate of chronological age in years.
 }
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-pedBEClockOut <- pedBEClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+pedBEClockOut <- pedBEClock(hannumBmiqM)
 
 }
 \references{

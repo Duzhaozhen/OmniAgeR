@@ -39,8 +39,8 @@ linked to epigenetic age acceleration.
 }
 \examples{
 # Load example data
-hannumBmiqM <- loadOmniAgeRdata("omniager_hannum_example.rds")
-stochClocksOut <- stochClocks(hannumBmiqM)
+hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
+stochClocksOut <- stochClocks(hannumExample[[1]])
 }
 \references{
 Tong, H., Dwaraka, V.B., Chen, Q. et al.

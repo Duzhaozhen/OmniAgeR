@@ -36,9 +36,11 @@ logistic regression intercept to differentiate HCC patients from healthy
 controls or those with non-malignant liver diseases.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-HepatoXu_o <- HepatoXu(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+hepatoXuRiskO <- hepatoXuRisk(hannumBmiqM)
 
 }
 \references{

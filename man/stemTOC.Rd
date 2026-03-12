@@ -29,9 +29,12 @@ significant DNA hypermethylation with chronological age
 in large in-vivo datasets
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-stemtocOut <- stemTOC(betaM = bmiq.m)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+stemtocOut <- stemTOC(betaM = lungInvM)
 
 }
 \references{

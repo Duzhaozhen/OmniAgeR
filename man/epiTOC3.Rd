@@ -45,8 +45,12 @@ population doubling associated CpGs, epiTOC3 can directly estimate the
 cumulative number of stem cell divisions in a tissue.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-epitoc3Out <- epiTOC3(betaM = bmiq.m, age = df$Age)
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+phenoDf <- lungInv$PhenoTypes
+epitoc3Out <- epiTOC3(betaM = lungInvM, age = phenoDf$Age)
 
 }

@@ -29,17 +29,15 @@ a weighted linear predictor from 71 CpGs found in the input matrix.
 This clock is a direct linear model without non-linear transformation.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-Hannum.out <- Hannum(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+hannumClockOut <- hannumClock(hannumBmiqM)
 
 }
 \references{
 Hannum G, Guinney J, Zhao L, et al.
 Genome-wide methylation profiles reveal quantitative views of human aging rates.
 \emph{Mol Cell.} 2013
-}
-\seealso{
-The main function \code{\link{EpiAge}} can be used to calculate
-multiple clocks simultaneously.
 }

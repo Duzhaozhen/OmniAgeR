@@ -25,9 +25,11 @@ A function to calculate the Zhang10 epigenetic clock age (2017)
 from a DNA methylation beta value matrix.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-zhang10Out <- zhang10(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+zhang10Out <- zhang10(hannumBmiqM)
 
 }
 \references{
@@ -35,8 +37,4 @@ Zhang Y, Wilson R, Heiss J, et al.
 DNA methylation signatures in peripheral blood strongly predict
 all-cause mortality.
 \emph{Nat Commun.} 2017
-}
-\seealso{
-The main function \code{\link{EpiAge}} can be used to calculate
-multiple clocks simultaneously.
 }

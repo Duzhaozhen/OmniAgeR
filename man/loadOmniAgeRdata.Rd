@@ -4,11 +4,13 @@
 \alias{loadOmniAgeRdata}
 \title{Load Pre-trained Models and Example Data for OmniAgeR}
 \usage{
-loadOmniAgeRdata(title)
+loadOmniAgeRdata(title, verbose = TRUE)
 }
 \arguments{
 \item{title}{A character string specifying the exact name of the model
 or resource to load (e.g., \code{"omniager_horvath2013_coef"}).}
+
+\item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }
 \value{
 An R object (typically a \code{data.frame}, \code{matrix},

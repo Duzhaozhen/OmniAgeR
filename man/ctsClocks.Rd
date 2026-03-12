@@ -6,7 +6,7 @@
 \usage{
 ctsClocks(
   betaM,
-  ctsClocks = c("Neu-In"),
+  compClocks = c("Neu-In"),
   dataType = c("bulk", "sorted"),
   ctfM = NULL,
   tissue = c("brain", "otherTissue"),
@@ -18,6 +18,9 @@ ctsClocks(
 \item{betaM}{A DNAm matrix (row: CpGs, column: samples) of the samples you
 want to get  DNAm age predicted by a CTS clock.}
 
+\item{compClocks}{A character vector of one or more clocks to apply.
+(e.g., 'Neu-In', 'Hep', c('Neu-In', 'Neu-Sin', 'Brain')).}
+
 \item{dataType}{Type of the samples ('bulk' or 'sorted').}
 
 \item{ctfM}{Optional cell type fraction matrix
@@ -26,11 +29,11 @@ Required for 'Intrinsic' bulk clocks if tissue is not 'brain'.}
 
 \item{tissue}{What tissue are your samples from ('brain' or 'otherTissue').}
 
+\item{minCoverage}{A numeric value (0-1). The minimum proportion of
+required CpGs that must be present. Default is 0.5.}
+
 \item{verbose}{Logical. If \code{TRUE} (default), the function will print
 progress messages to the console.}
-
-\item{CTSclocks}{A character vector of one or more clocks to apply.
-(e.g., 'Neu-In', 'Hep', c('Neu-In', 'Neu-Sin', 'Brain')).}
 }
 \value{
 A data.frame of predicted DNAm ages (samples x clocks).
@@ -82,33 +85,41 @@ These clocks are trained to measure aging in specific cell populations.
 }
 }
 \examples{
-downloadOmniAgeRExample("CTS_MurphyGSE88890")
-loadOmniAgeRExample("CTS_MurphyGSE88890")
+murphyBetaM <- loadOmniAgeRdata(
+    "omniager_cts_murphy_gse88890",
+    verbose = FALSE
+)[[1]]
+
 agePred_df <- ctsClocks(
- Murphy_beta_m,
- ctsClocks = c("Neu-In", "Neu-Sin"),
- dataType = "bulk",
- ctfM = NULL,
- tissue = "brain"
- )
-downloadOmniAgeRExample("CTS_PaiGSE112179")
-loadOmniAgeRExample("CTS_PaiGSE112179")
-agePred_df <- ctsClocks(
-  Pai_beta_m,
-  ctsClocks = c("Neu-In", "Neu-Sin"),
-  dataType = "sorted",
-  ctfM = NULL,
-  tissue = "brain"
+    murphyBetaM,
+    compClocks = c("Neu-In", "Neu-Sin"),
+    dataType = "bulk",
+    ctfM = NULL,
+    tissue = "brain"
 )
 
-downloadOmniAgeRExample("CTS_ExampleData_Liver")
-loadOmniAgeRExample("CTS_ExampleData_Liver")
+paiBetaM <- loadOmniAgeRdata(
+    "omniager_cts_pai_gse112179",
+    verbose = FALSE
+)[[1]]
 agePred_df <- ctsClocks(
-  Liver_beta_m,
-  ctsClocks = c("Hep", "Liver"),
-  dataType = "bulk",
-  ctfM = NULL,
-  tissue = "otherTissue"
+    paiBetaM,
+    compClocks = c("Neu-In", "Neu-Sin"),
+    dataType = "sorted",
+    ctfM = NULL,
+    tissue = "brain"
+)
+
+liverBetaM <- loadOmniAgeRdata(
+    "omniager_cts_example_data_liver",
+    verbose = FALSE
+)[[1]]
+agePred_df <- ctsClocks(
+    liverBetaM,
+    compClocks = c("Hep", "Liver"),
+    dataType = "bulk",
+    ctfM = NULL,
+    tissue = "otherTissue"
 )
 
 }

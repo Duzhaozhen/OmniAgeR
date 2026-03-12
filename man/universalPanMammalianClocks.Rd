@@ -46,14 +46,23 @@ models, and performs the necessary inverse mathematical transformations
 to report age in years.
 }
 \examples{
+tursiopsExample <- loadOmniAgeRdata(
+    "omniager_tursiops_example",
+    verbose = FALSE
+)
 
-downloadOmniAgeRExample("Tursiops_example")
-loadOmniAgeRExample("Tursiops_example")
-
-## This anage_data is from https://github.com/shorvath/MammalianMethylationConsortium
-data("anage_data")
-
+## This anage_data is from
+## https://github.com/shorvath/MammalianMethylationConsortium
+anageData <- loadOmniAgeRdata(
+    "omniager_anage_data",
+    verbose = FALSE
+)
 # Run the calculation with progress messages
+clockResults <- universalPanMammalianClocks(
+    betaM = tursiopsExample$beta_m,
+    speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+    anageData = anageData
+)
 
 }
 \references{

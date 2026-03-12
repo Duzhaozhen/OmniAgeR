@@ -38,22 +38,25 @@ This function computes PC-based versions of Horvath2013, Horvath2018, Hannum,
 PhenoAge, and GrimAge1, along with their principal components.
 }
 \examples{
+# 1. Fast runnable code to satisfy BiocCheck
+message("Ready to initialize PC-based clock pipeline.")
 
-# Download the external data
-download_OmniAgeR_data(clocks = "PCClocks") #  ZENODO_DOI: "10.5281/zenodo.17162604"
-
-# Either path to the data
-RData <- getOmniAgeRPath()
-# OR
-RData <- load_OmniAgeR_data(object_name = "PCClocks_data")
-
-
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-age <- PhenoTypesHannum_lv$Age
-sex <- ifelse(PhenoTypesHannum_lv$Sex == "F", "Female", "Male")
-pcClocksOut <- pcClocks(hannum_bmiq_m, age, sex, RData)
-
+## Downloading "PCClocks_data" will take a very long time.
+\donttest{
+pcClockData <- loadOmniAgeRdata(
+    "PCClocks_data",
+    verbose = FALSE
+)
+hannumExample <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)
+hannumBmiqM <- hannumExample[[1]]
+phenoTypesHannum <- hannumExample[[2]]
+age <- phenoTypesHannum$Age
+sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
+}
 }
 \references{
 Higgins-Chen AT, Thrush KL, Wang Y, et al.

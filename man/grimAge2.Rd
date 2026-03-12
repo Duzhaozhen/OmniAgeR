@@ -7,8 +7,11 @@
 grimAge2(betaM, age, sex, minCoverage = 0.5, verbose = TRUE)
 }
 \arguments{
+\item{betaM}{A numeric matrix of DNA methylation beta values. Rows should
+represent CpG sites and columns should represent individual samples.}
+
 \item{age}{A numeric vector of chronological ages for the samples corresponding
-to the columns in \code{beta_matrix}.}
+to the columns in \code{betaM}.}
 
 \item{sex}{A character vector of sample sexes. Must contain "Male" or "Female"
 for each sample.}
@@ -17,9 +20,6 @@ for each sample.}
 required CpGs that must be present. Default is 0.5.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
-
-\item{beta_matrix}{A numeric matrix of DNA methylation beta values. Rows should
-represent CpG sites and columns should represent individual samples.}
 }
 \value{
 A data.frame containing the following columns:
@@ -45,11 +45,15 @@ This score is calibrated to the scale of chronological age to produce the
 final \code{DNAmGrimAge2}.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-age <- PhenoTypesHannum_lv$Age
-sex <- ifelse(PhenoTypesHannum_lv$Sex == "F", "Female", "Male")
-grimAge2Out <- grimAge2(betaM = hannum_bmiq_m, age, sex)
+hannumExample <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)
+hannumBmiqM <- hannumExample[[1]]
+phenoTypesHannum <- hannumExample[[2]]
+age <- phenoTypesHannum$Age
+sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+GrimAge2Oout <- grimAge2(betaM = hannumBmiqM, age, sex)
 }
 \references{
 Lu AT, Binder AM, Zhang J, et al.

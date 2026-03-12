@@ -29,18 +29,16 @@ as defined by Gadd et al. (2022).
 \details{
 This function implements the method from Gadd et al. (2022) to
 calculate the \strong{109 validated EpiScores} for circulating plasma proteins.
-The coefficients for these 109 predictors are loaded from the
-internal \code{EpiScoresCoef.rda} data object.
 
 \strong{Imputation Handling:}
 This function features a robust \strong{two-stage imputation process} for
 handling missing CpG data:
 \enumerate{
 \item \strong{Sample-level NA Imputation:} Any existing \code{NA} values within the
-provided \code{beta.m} matrix are imputed to the \strong{row-wise mean}
+provided \code{betaM} matrix are imputed to the \strong{row-wise mean}
 (the mean of that specific CpG across all samples in the input data).
 \item \strong{Missing CpG Imputation:} CpGs required for the scores but
-\emph{entirely absent} from \code{beta.m} are added. Their values are imputed
+\emph{entirely absent} from \code{betaM} are added. Their values are imputed
 using the \strong{mean beta value from the original training cohort}
 (stored in \code{EpiScoresCoef}).
 }
@@ -51,10 +49,11 @@ using the \code{calculateLinearPredictor} helper function.
 }
 \examples{
 
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-
-allEpiscoresOut <- compEpiScores(betaM, verbose = TRUE)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+allEpiscoresOut <- compEpiScores(hannumBmiqM)
 }
 \references{
 Gadd DA, Hillary RF, McCartney DL, et al.

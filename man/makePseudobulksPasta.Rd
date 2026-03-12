@@ -2,15 +2,8 @@
 % Please edit documentation in R/PASTA.R
 \name{makePseudobulksPasta}
 \alias{makePseudobulksPasta}
-\title{Calculate PASTA-based transcriptomic age scores}
+\title{Create Pseudobulk Samples from Seurat Object}
 \usage{
-makePseudobulksPasta(
-  seu,
-  poolBy = c("cell_type", "age"),
-  chunkSize = 1000,
-  verbose = TRUE
-)
-
 makePseudobulksPasta(
   seu,
   poolBy = c("cell_type", "age"),
@@ -31,72 +24,45 @@ object is returned (with metadata updated). Default: \code{1000}.}
 
 \item{verbose}{Logical. If \code{TRUE}, prints a summary table detailing the
 number of pseudobulk samples generated per group. Default: \code{TRUE}.}
-
-\item{mat}{An expression matrix (numeric) with \strong{genes as rows} and
-\strong{samples as columns}.}
-
-\item{filterGenes}{Logical. If \code{TRUE} (default), the matrix is
-subsetted to retain only the genes utilized by the pre-trained models.}
-
-\item{rankNorm}{Logical. If \code{TRUE} (default), applies a rank-based
-inverse normal transformation (rank-normalization) to the expression data.}
-
-\item{reg}{Logical. If \code{TRUE} (default), computes the REG (regression)
-age score.}
-
-\item{pasta}{Logical. If \code{TRUE} (default), computes the PASTA age score.}
-
-\item{ct46}{Logical. If \code{TRUE} (default), computes the CT46 age score.}
 }
 \value{
-A \code{list} where each element is a numeric vector of predicted age scores
-for the requested model(s) (e.g., \code{res_list$PASTA}, \code{res_list$REG}).
-
 A new Seurat object where columns represent pseudobulk samples.
 The meta.data slot includes the original \code{poolBy} variables and the
 \code{chunkSize} used for aggregation.
 }
 \description{
-This function computes transcriptomic age acceleration scores based on the
-models described by Salignon et al. (2025), including the primary PASTA
-score, a standard regression (REG) score, and the CT46 score.
-
 Aggregates single-cell expression data into pseudobulk samples based on
 user-defined metadata variables and a specified chunk size.
 }
 \examples{
-\dontrun{
-library(magrittr)
 library(Seurat)
-library(glmnet)
-downloadOmniAgeRExample("seu_gabitto_2024_filtered")
-loadOmniAgeRExample("seu_gabitto_2024_filtered")
 
-seu$age <- seu$development_stage \%>\%
-  gsub("-year.*", "", .) \%>\%
-  gsub("-", " ", .) \%>\%
-  gsub("80 year old and over stage", "85", .)
+# 1. Create a tiny mock count matrix (5 genes, 20 cells)
+set.seed(123)
+mock_counts <- matrix(rpois(100, lambda = 5), nrow = 5, ncol = 20)
+rownames(mock_counts) <- paste0("Gene", 1:5)
+colnames(mock_counts) <- paste0("Cell_", 1:20)
 
-set.seed(42)
-seuBulk <- makePseudobulksPasta(
-  seu,
-  poolBy = c("cell_type", "age"),
-  chunkSize = 512,
-  verbose = FALSE
+# 2. Create mock metadata with the default 'poolBy' columns
+mock_meta <- data.frame(
+    cell_type = rep(c("T_cell", "B_cell"), each = 10),
+    age = rep(c(30, 40), times = c(10, 10)),
+    row.names = colnames(mock_counts)
 )
 
-lognormMatrix <- GetAssayData(seuBulk, assay = "RNA", layer = "data")
-lognormMatrix <- as.matrix(lognormMatrix)
+# 3. Build the Seurat object
+seu_mock <- CreateSeuratObject(counts = mock_counts, meta.data = mock_meta)
 
-seuBulkMeta <- seuBulk[[c("chunk_size", "cell_type", "age")]]
-seuBulkMeta$age <- as.numeric(seuBulkMeta$age)
-pastaRes <- pastaScores(lognormMatrix, filterGenes = TRUE, rankNorm = TRUE)
-}
+# 4. Run the pseudobulk function
+# We have 10 cells per group. With chunkSize = 5, we expect exactly
+# 2 pseudobulks for T_cell and 2 pseudobulks for B_cell.
+seu_pb <- makePseudobulksPasta(
+    seu = seu_mock,
+    poolBy = c("cell_type", "age"),
+    chunkSize = 5,
+    verbose = FALSE
+)
 
-
-}
-\references{
-Salignon, J., Tsiokou, M., Marqués, P. et al.
-Pasta, an age-shift transcriptomic clock, maps the chemical and genetic determinants of aging and rejuvenation.
-\emph{bioRxiv.} 2025
+# 5. View the metadata of the resulting pseudobulked object
+print(seu_pb[[]])
 }

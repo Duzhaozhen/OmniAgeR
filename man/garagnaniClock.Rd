@@ -7,13 +7,13 @@
 garagnaniClock(betaM, minCoverage = 0.5, verbose = TRUE)
 }
 \arguments{
+\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes
+and columns should be individual samples.}
+
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.5.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
-
-\item{beta.m}{A numeric matrix of beta values. Rows should be CpG probes
-and columns should be individual samples.}
 }
 \value{
 A numeric vector of the predicted epigenetic score.
@@ -33,9 +33,11 @@ function currently returns the methylation beta value of the single most
 significant CpG site located in the promoter of ELOVL2: \strong{cg16867657}.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-garagnaniClockOut <- garagnaniClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+garagnaniClockOut <- garagnaniClock(hannumBmiqM)
 }
 \references{
 Garagnani, P. et al.

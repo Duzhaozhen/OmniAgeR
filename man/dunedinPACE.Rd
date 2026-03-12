@@ -35,9 +35,11 @@ The process involves several key steps:
 }
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-dunedinPACEOut <- dunedinPACE(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+dunedinPACEOut <- dunedinPACE(hannumBmiqM)
 }
 \references{
 Belsky DW, Caspi A, Corcoran DL, et al.

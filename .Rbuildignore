@@ -1,0 +1,6 @@
+^.*\.Rproj$
+^\.gitignore$
+^doc$
+^Meta$
+^\.Rproj\.user$
+^OmniAgeR\.BiocCheck$

@@ -3,8 +3,7 @@
 #' @description
 #' Calculates epigenetic age using the EnsembleAge multi-clock framework
 #' (Haghani et al., 2025). This function computes one of the three available
-#' clock versions (Static, Dynamic, or HumanMouse) by loading the
-#' pre-calculated coefficients from the `EnsembleAgeCoef` package data object.
+#' clock versions (Static, Dynamic, or HumanMouse).
 #'
 #' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples) or \code{SummarizedExperiment}.
 #' @param clockVersion Character. One of \code{"Dynamic"}, \code{"Static"}, or \code{"HumanMouse"}.
@@ -34,7 +33,7 @@
 #'
 #' @references
 #' Haghani, A., Lu, A.T., Yan, Q. et al.
-#' EnsembleAge: enhancing epigenetic age assessment with a 
+#' EnsembleAge: enhancing epigenetic age assessment with a
 #' multi-clock framework.
 #' \emph{GeroScience} 2025.
 #'
@@ -42,55 +41,57 @@
 #' @importFrom utils data
 #'
 #' @examples
-#' downloadOmniAgeRExample("Hannum_example")
-#' loadOmniAgeRExample("Hannum_example")
+#' hannumBmiqM <- loadOmniAgeRdata(
+#'     "omniager_hannum_example",
+#'     verbose = FALSE
+#' )[[1]]
 #' # Ensure it's CpGs=rows, Samples=cols
 #' # Calculate the HumanMouse clock version
-#' ensembleAgeOut <- ensembleAge(hannum_bmiq_m, clockVersion = "HumanMouse")
+#' ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
 #'
-
-
-ensembleAge <- function(betaM, clockVersion = c("HumanMouse", "Static", "Dynamic"), 
+ensembleAge <- function(betaM, clockVersion = c("HumanMouse", "Static", "Dynamic"),
                         minCoverage = 0.5, verbose = TRUE) {
-  
-  clockVersion <- match.arg(clockVersion)
-  
-  # --- 1. Data Loading --
-  data("EnsembleAgeCoef", envir = environment())
-  
-  if (verbose) {
-    message("[EnsembleAge] Initializing EnsembleAge_", clockVersion, " calculation...")
-  }
-  
-  # --- 2. Validation & SE Support ---
-  if (!clockVersion %in% names(EnsembleAgeCoef)) {
-    stop("[EnsembleAge] Loaded coefficients do not contain version: ", clockVersion)
-  }
-  
-  coefList <- EnsembleAgeCoef[[clockVersion]]
-  resList <- list()
-  
-  # --- 3. Iterate through sub-clocks in the Ensemble ---
-  for (i in seq_along(coefList)) {
-    clockSubName <- names(coefList)[i]
-    coefData <- coefList[[i]] 
-    
-    fullLabel <- paste0(clockVersion, "_", clockSubName)
-    
-    if (is.null(coefData) || nrow(coefData) < 2) {
-      if (verbose) message(sprintf("[%s] Skipping: Invalid coefficient table.", fullLabel))
-      next
-    }
-    
-    # --- 4. Call Internal Wrappers ---
-    resList[[fullLabel]] <- .calLinearClock(
-      betaM = betaM,
-      coefData = coefData,
-      clockLabel = fullLabel,
-      minCoverage = minCoverage,
-      verbose = verbose
+    clockVersion <- match.arg(clockVersion)
+
+    # --- 1. Data Loading --
+    ensembleAgeCoef <- loadOmniAgeRdata(
+        "omniager_ensembleage_coef",
+        verbose = verbose
     )
-  }
-  
-  return(resList)
+
+    if (verbose) {
+        message("[EnsembleAge] Initializing EnsembleAge_", clockVersion, " calculation...")
+    }
+
+    # --- 2. Validation & SE Support ---
+    if (!clockVersion %in% names(ensembleAgeCoef)) {
+        stop("[EnsembleAge] Loaded coefficients do not contain version: ", clockVersion)
+    }
+
+    coefList <- ensembleAgeCoef[[clockVersion]]
+    resList <- list()
+
+    # --- 3. Iterate through sub-clocks in the Ensemble ---
+    for (i in seq_along(coefList)) {
+        clockSubName <- names(coefList)[i]
+        coefData <- coefList[[i]]
+
+        fullLabel <- paste0(clockVersion, "_", clockSubName)
+
+        if (is.null(coefData) || nrow(coefData) < 2) {
+            if (verbose) message(sprintf("[%s] Skipping: Invalid coefficient table.", fullLabel))
+            next
+        }
+
+        # --- 4. Call Internal Wrappers ---
+        resList[[fullLabel]] <- .calLinearClock(
+            betaM = betaM,
+            coefData = coefData,
+            clockLabel = fullLabel,
+            minCoverage = minCoverage,
+            verbose = verbose
+        )
+    }
+
+    return(resList)
 }

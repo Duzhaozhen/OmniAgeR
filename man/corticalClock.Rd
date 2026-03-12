@@ -25,17 +25,15 @@ Predicts DNAm age in cortical samples using the elastic net
 model by Shireby et al. (2020).
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-corticalClockOut <- corticalClock(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+corticalClockOut <- corticalClock(hannumBmiqM)
 }
 \references{
 Shireby GL, Davies JP, Francis PT, et al.
 Recalibrating the epigenetic clock: implications for assessing
 biological age in the human cortex.
 \emph{Brain.} 2020
-}
-\seealso{
-The main function \code{\link{EpiAge}} can be used to calculate
-multiple clocks simultaneously.
 }

@@ -22,9 +22,11 @@ A named vector of predicted Gestational Ages (in weeks).
 The Gestational Age (GA) clock based on 176 Illumina EPIC CpGs
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-epicGaOut <- epicGA(hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+epicGaOut <- epicGa(hannumBmiqM, minCoverage = 0)
 
 }
 \references{

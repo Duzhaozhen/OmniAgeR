@@ -18,6 +18,44 @@ epiMarker(
 \item{betaM}{DNAm beta value matrix with rows labeling Illumina 450k/EPIC
 CpGs and columns labeling samples.}
 
+\item{clockNames}{A character vector specifying which clocks to calculate.
+This can include individual clock names (e.g., "Horvath2013") or special
+keywords:
+\itemize{
+\item \code{"all"}: (Default) Calculates all available clocks:
+\code{cellular_aging} + \code{chronological} + \code{biological} + \code{causal}+
+\code{stochastic} + \code{ensemble} + \code{cross_species} + \code{cellTypeSpecific}.
+\item \code{"cellular_aging"}: Calculates all cellular aging clocks
+(both \code{mitotic} and \code{dnamtl}).
+\item \code{"mitotic"}: Calculates only the mitotic clocks (e.g., \code{epiTOC1}).
+\item \code{"dnamtl"}: Calculates only the DNAm Telomere Length clock (\code{DNAmTL},
+\code{PCDNAmTL}).
+\item \code{"mitotic"}: Calculates all defined mitotic clocks (e.g., \code{epiTOC1}).
+\item \code{"chronological"}: Calculates chronological age clocks (e.g.,
+\code{Horvath2013}, \code{Hannum}, \code{ZhangClock}).
+\item \code{"biological"}: Calculates biological age clocks (e.g., \code{PhenoAge},
+\code{DunedinPACE}, \code{GrimAge1}, \code{GrimAge2}).
+\item \code{"causal"}: Calculates causality-related clocks (\code{CausalAge}).
+\item \code{"stochastic"}: Calculates the stochastic clocks (StocH, StocP, StocZ)
+as a single bundle.
+\item \code{"cellTypeSpecific"}: Calculates all cell-type-specific clocks
+(\code{Neu-In}, \code{Glia-Sin}, etc.) as a single bundle.
+\item \code{"gestationalAge"}: Calculates all gestational age clocks
+(\code{BohlinGA}, \code{KnightGA}, etc.) as a single bundle.
+\item \code{"surrogateBiomarkers"}: Calculates all surrogate biomarkers
+(\code{CRP}, \code{CHIP}, etc.) as a single bundle.
+\item \code{"traitPred"}: Calculates trait predictor (\code{McCartneyTrait}, etc.)
+as a single bundle.
+\item \code{"diseaseRisk"}: Calculates disease risk predictions (\code{SmokeIndex}, etc.)
+as a single bundle.
+\item \code{"crossSpecies"}: Calculates all cross species clocks
+(\code{UniversalPanMammalianClocks}, etc.) as a single bundle.
+}
+
+Multiple keywords and individual names can be combined (e.g.,
+\code{c("Horvath2013", "GrimAge2")}).
+Use \code{listEpiMarker()} to see a categorized list of all available clocks.}
+
 \item{chronAge}{Optional numeric vector of chronological ages.
 Required for some clocks.}
 
@@ -32,34 +70,6 @@ present. Default 0.5.}
 \item{...}{Additional parameters: \code{pcClockData}, \code{systemsAgeData},
 \code{ctsDataType}, \code{ctsTissue}, \code{anageData}, \code{speciesName}
 \code{ensembleVersion}.}
-
-\item{clock_names}{A character vector specifying which clocks to calculate.
-This can include individual clock names (e.g., "Horvath2013") or special
-keywords:
-\itemize{
-\item \code{"all"}: (Default) Calculates all available clocks:
-\code{cellular_aging} + \code{chronological} + \code{biological} + \code{causal}+
-\code{stochastic} + \code{ensemble} + \code{cross_species} + \code{celltype_specific}.
-\item \code{"cellular_aging"}: Calculates all cellular aging clocks
-(both \code{mitotic} and \code{dnamtl}).
-\item \code{"mitotic"}: Calculates only the mitotic clocks (e.g., \code{epiTOC1}).
-\item \code{"dnamtl"}: Calculates only the DNAm Telomere Length clock (\code{DNAmTL},
-\code{PCDNAmTL}).
-\item \code{"mitotic"}: Calculates all defined mitotic clocks (e.g., \code{epiTOC1}).
-\item \code{"chronological"}: Calculates chronological age clocks (e.g.,
-\code{Horvath2013}, \code{Hannum}, \code{ZhangClock}).
-\item \code{"biological"}: Calculates biological age clocks (e.g., \code{PhenoAge},
-\code{DunedinPACE}, \code{GrimAge1}, \code{GrimAge2}).
-\item \code{"causal"}: Calculates causality-related clocks (\code{CausalAge}).
-\item \code{"stochastic"}: Calculates the stochastic clocks (StocH, StocP, StocZ)
-as a single bundle.
-\item \code{"celltype_specific"}: Calculates all cell-type-specific clocks
-(\code{Neu-In}, \code{Glia-Sin}, etc.) as a single bundle.
-}
-
-Multiple keywords and individual names can be combined (e.g.,
-\code{c("Horvath2013", "GrimAge2")}).
-Use \code{listEpiAge()} to see a categorized list of all available clocks.}
 }
 \value{
 A list containing the entries for the calculated clocks.
@@ -100,16 +110,16 @@ A list containing the entries for the calculated clocks.
 \item \code{Weidner}: Weidner age
 \item \code{IntrinClock}: IntrinClock Age Prediction.
 \item \code{Garagnani}: Garagnani Age Score.
-\item \code{Bohlin_GA}: Bohlin Gestational Age
-\item \code{EPIC_GA}: EPIC Gestational Age
-\item \code{Knight_GA}:  Knight Gestational Age
-\item \code{Lee_GA}:  A list (LeeControl, LeeRobust, LeeRefinedRobust).
-\item \code{Mayne_GA}: Mayne Gestational Age
+\item \code{BohlinGA}: Bohlin Gestational Age
+\item \code{EPICGA}: EPIC Gestational Age
+\item \code{KnightGA}:  Knight Gestational Age
+\item \code{LeeGA}:  A list (LeeControl, LeeRobust, LeeRefinedRobust).
+\item \code{MayneGA}: Mayne Gestational Age
 \item \code{CRP}: A list (CRP, intCRP).
 \item \code{CHIP}: A list (AnyCHIP, DNMT3A, TET2, ASXL1).
 \item \code{IL6}:  IL-6 proxy score
 \item \code{EpiScores}:  A list including 109 protein score.
-\item \code{McCartney_Trait}: A list containing 10 named elements, one for each trait.
+\item \code{McCartneyTrait}: A list containing 10 named elements, one for each trait.
 \item \code{SmokeIndex}: A DNAm-based Smoking Index.
 \item \code{HepatoXuRisk}: The HepatoXuRisk scores for hepatocellular carcinoma.
 \item \code{EnsembleAge}: A list where each element is a named numeric vector of
@@ -147,7 +157,7 @@ causality-related clocks ( \code{CausalAge}, \code{DamAge}, \code{AdaptAge}),
 stochastic clocks(\code{StocH}, \code{StocP}, \code{StocZ}), cell-type specific clocks
 (e.g., \code{Neu-In}, \code{Glia-In}), gestational age clocks(e.g., \code{BohlinGA},
 \code{KnightGA}), surrogate biomarkers(e.g., \code{CRP}, \code{IL6}), trait prediction
-(\code{McCartney_Trait}), disease risk prediction(e.g., \code{HepatoXuRisk}),
+(\code{McCartneyTrait}), disease risk prediction(e.g., \code{HepatoXuRisk}),
 and cross species clocks(e.g., \code{UniversalPanMammalianClocks}).
 
 === Cellular Aging Clocks ===
@@ -287,7 +297,7 @@ Circulating Proteome
 
 === Trait Prediction ===
 \itemize{
-\item \code{McCartney_Trait}: (McCartney et al. 2018) The Epigenetic Surrogates for
+\item \code{McCartneyTrait}: (McCartney et al. 2018) The Epigenetic Surrogates for
 Complex Traits.
 }
 
@@ -312,31 +322,53 @@ Epigenetic Clocks.
 Each vector is named with the sample IDs from the \code{rownames} of \code{betaM}.
 }
 \examples{
-downloadOmniAgeRExample("LungInv")
-loadOmniAgeRExample("LungInv")
-EpiAge.o <- epiMarker(betaM = bmiq.m, 
-                      clockNames = "mitotic", 
-                      chronAge = df$Age)
-
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-age <- PhenoTypesHannum_lv$Age
-sex <- ifelse(PhenoTypesHannum_lv$Sex == "F", "Female", "Male")
-PCClocks_RData <- load_OmniAgeR_data(object_name = "PCClocks_data")
-SystemsAge_RData <- load_OmniAgeR_data(object_name = "SystemsAge_data")
-
-clock_names <- c("cellular_aging", "chronological", "biological", "causal", 
-"stochastic")
-
+lungInv <- loadOmniAgeRdata(
+    "omniager_lung_inv",
+    verbose = FALSE
+)
+lungInvM <- lungInv$bmiq_m
+phenoDf <- lungInv$PhenoTypes
 epiMarkerOut <- epiMarker(
-  betaM = hannum_bmiq_m,
-  clockNames = clock_names,
-  chronAge = age,
-  sexVec = sex,
-  pcClockData = PCClocks_RData,
-  systemsAgeData = SystemsAge_RData
+    betaM = lungInvM,
+    clockNames = "mitotic",
+    chronAge = phenoDf$Age,
+    minCoverage = 0
+)
+## Downloading "PCClocks_data" and "SystemsAge_data" will take a very long time.
+\donttest{
+hannumExample <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)
+hannumBmiqM <- hannumExample[[1]]
+phenoTypesHannum <- hannumExample[[2]]
+age <- phenoTypesHannum$Age
+sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+
+pcClockData <- loadOmniAgeRdata(
+    "PCClocks_data",
+    verbose = FALSE
+)
+systemsAgeData <- loadOmniAgeRdata(
+    "SystemsAge_data",
+    verbose = FALSE
 )
 
+clockNames <- c(
+    "cellularAging", "chronological", "biological", "causal",
+    "stochastic"
+)
+
+epiMarkerOut <- epiMarker(
+    betaM = hannumBmiqM,
+    clockNames = clockNames,
+    chronAge = age,
+    sexVec = sex,
+    minCoverage = 0,
+    pcClockData = pcClockData,
+    systemsAgeData = systemsAgeData
+)
+}
 }
 \references{
 Yang Z, Wong A, Kuh D, et al.
@@ -348,18 +380,21 @@ A comparison of epigenetic mitotic-like clocks for cancer risk prediction.
 \emph{Genome Med.} 2020
 
 Endicott JL, Nolte PA, Shen H, Laird PW.
-Cell division drives DNA methylation loss in late-replicating domains in primary human cells.
+Cell division drives DNA methylation loss in late-replicating domains in
+primary human cells.
 \emph{Nat Commun.} 2022
 
 Duran-Ferrer M, Clot G, Nadeu F, et al.
-The proliferative history shapes the DNA methylome of B-cell tumors and predicts clinical outcome.
+The proliferative history shapes the DNA methylome of B-cell tumors and
+predicts clinical outcome.
 \emph{Nat Cancer} 2020
 Horvath S.
 DNA methylation age of human tissues and cell types.
 \emph{Genome Biol.} 2013
 
 Zhang Q, Vallerga CL, Walker RM, et al.
-Improved precision of epigenetic clock estimates across tissues and its implication for biological ageing.
+Improved precision of epigenetic clock estimates across tissues and its
+implication for biological ageing.
 \emph{Genome Med.} 2019
 
 Levine ME, Lu AT, Quach A, et al.
@@ -387,7 +422,8 @@ Genome-wide methylation profiles reveal quantitative views of human aging rates.
 \emph{Mol Cell.} 2013
 
 Lin Q, Weidner CI, Costa IG, et al.
-DNA methylation levels at individual age-associated CpG sites can be indicative for life expectancy.
+DNA methylation levels at individual age-associated CpG sites can be
+indicative for life expectancy.
 \emph{Aging} 2016
 
 Vidal-Bralo L, Lopez-Golan Y, Gonzalez A.
@@ -399,7 +435,8 @@ DNA methylation signatures in peripheral blood strongly predict all-cause mortal
 \emph{Nat Commun.} 2017
 
 Horvath S, Oshima J, Martin GM, et al.
-Epigenetic clock for skin and blood cells applied to Hutchinson Gilford Progeria Syndrome and ex vivo studies.
+Epigenetic clock for skin and blood cells applied to Hutchinson Gilford
+Progeria Syndrome and ex vivo studies.
 \emph{Aging} 2018
 
 McEwen LM, O'Donnell KJ, McGill MG, et al.
@@ -411,15 +448,18 @@ Centenarian clocks: epigenetic clocks for validating claims of exceptional longe
 \emph{GeroScience} 2023
 
 Ndhlovu LC, Bendall ML, Dwaraka V, et al.
-Retro-age: A unique epigenetic biomarker of aging captured by DNA methylation states of retroelements.
+Retro-age: A unique epigenetic biomarker of aging captured by DNA methylation
+states of retroelements.
 \emph{Aging Cell.} 2024
 
 Higgins-Chen AT, Thrush KL, Wang Y, et al.
-A computational solution for bolstering reliability of epigenetic clocks: Implications for clinical trials and longitudinal tracking.
+A computational solution for bolstering reliability of epigenetic clocks:
+Implications for clinical trials and longitudinal tracking.
 \emph{Nat Aging.} (2022).
 
 Sehgal, R., Markov, Y., Qin, C. et al.
-Systems Age: a single blood methylation test to quantify aging heterogeneity across 11 physiological systems.
+Systems Age: a single blood methylation test to quantify aging heterogeneity
+across 11 physiological systems.
 \emph{Nat Aging} (2025).
 
 Tong, H., Dwaraka, V.B., Chen, Q. et al.
@@ -427,7 +467,8 @@ Quantifying the stochastic component of epigenetic aging.
 \emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00636-6}
 
 Fuentealba M, Rouch L, Guyonnet S, et al.
-A blood-based epigenetic clock for intrinsic capacity predicts mortality and is associated with clinical, immunological and lifestyle factors.
+A blood-based epigenetic clock for intrinsic capacity predicts mortality and
+is associated with clinical, immunological and lifestyle factors.
 \emph{Nature Aging.} 2025
 
 McGreevy KM, Radak Z, Torma F, et al.
@@ -439,27 +480,33 @@ DNA methylation-based estimator of telomere length
 \emph{Aging} 2019
 
 Tong H, Guo X, Jacques M, Luo Q, Eynon N, Teschendorff AE.
-Cell-type specific epigenetic clocks to quantify biological age at cell-type resolution.
+Cell-type specific epigenetic clocks to quantify biological age at cell-type
+resolution.
 \emph{Aging} 2024
 
 Lee, Y., Haftorn, K.L., Denault, W.R.P. et al.
-Blood-based epigenetic estimators of chronological age in human adults using DNA methylation data from the Illumina MethylationEPIC array.
+Blood-based epigenetic estimators of chronological age in human adults using
+DNA methylation data from the Illumina MethylationEPIC array.
 \emph{BMC Genomics} 2020
 
 Pipek, O.A., Csabai, I.
-A revised multi-tissue, multi-platform epigenetic clock model for methylation array data.
+A revised multi-tissue, multi-platform epigenetic clock model for
+methylation array data.
 \emph{J Math Chem} 2023
 
 Wu, Xiaohui et al.
-DNA methylation profile is a quantitative measure of biological aging in children
+DNA methylation profile is a quantitative measure of biological aging in
+children
 \emph{Aging} 2019
 
 Weidner, C.I., Lin, Q., Koch, C.M. et al.
-Aging of blood can be tracked by DNA methylation changes at just three CpG sites.
+Aging of blood can be tracked by DNA methylation changes at just three
+CpG sites.
 \emph{Genome Biol} 2014
 
 Tomusiak, A., Floro, A., Tiwari, R. et al.
-Development of an epigenetic clock resistant to changes in immune cell composition.
+Development of an epigenetic clock resistant to changes in immune cell
+composition.
 \emph{Commun Biol} 2024
 
 Garagnani, P. et al.

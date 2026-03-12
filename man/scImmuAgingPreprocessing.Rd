@@ -15,3 +15,29 @@ Return pre-processed input
 \description{
 input is a seurat object. meta.data should have "donor_id" and "age" columns.
 }
+\examples{
+library(Seurat)
+
+# 1. Create a tiny mock count matrix (5 genes, 10 cells)
+mock_counts <- matrix(rpois(50, lambda = 10), nrow = 5, ncol = 10)
+rownames(mock_counts) <- paste0("Gene", 1:5)
+colnames(mock_counts) <- paste0("Cell", 1:10)
+
+# 2. Create mock metadata with required columns
+mock_meta <- data.frame(
+    donor_id = rep(c("Donor_A", "Donor_B"), each = 5),
+    age = rep(c(25, 65), each = 5),
+    row.names = colnames(mock_counts)
+)
+
+# 3. Create Seurat object and run basic normalization
+# (since your function extracts the "data" layer)
+mock_seurat <- CreateSeuratObject(counts = mock_counts, meta.data = mock_meta)
+mock_seurat <- NormalizeData(mock_seurat, verbose = FALSE)
+
+# 4. Run your preprocessing function
+processedData <- scImmuAgingPreprocessing(mock_seurat)
+
+# 5. View result
+print(processedData)
+}

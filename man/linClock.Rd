@@ -24,17 +24,15 @@ A function to calculate the Lin epigenetic clock age (2016)
 from a DNA methylation beta value matrix.
 }
 \examples{
-downloadOmniAgeRExample("Hannum_example")
-loadOmniAgeRExample("Hannum_example")
-linClockOut <- linClock(beta.m = hannum_bmiq_m)
+hannumBmiqM <- loadOmniAgeRdata(
+    "omniager_hannum_example",
+    verbose = FALSE
+)[[1]]
+linClockOut <- linClock(betaM = hannumBmiqM)
 }
 \references{
 Lin Q, Weidner CI, Costa IG, et al.
 DNA methylation levels at individual age-associated CpG sites can be
 indicative for life expectancy.
 \emph{Aging} 2016
-}
-\seealso{
-The main function \code{\link{EpiAge}} can be used to calculate
-multiple clocks simultaneously.
 }
