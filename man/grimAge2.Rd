@@ -24,9 +24,7 @@ required CpGs that must be present. Default is 0.5.}
 \value{
 A data.frame containing the following columns:
 \itemize{
-\item \code{Sample}: Identifier for each sample.
-\item \code{Age}: The input chronological age.
-\item \code{Female}: A numeric indicator for sex (1 = Female, 0 = Male).
+\item \code{SampleID}: Identifier for each sample.
 \item \code{DNAm...}: Columns for each of the predicted surrogate biomarkers
 (e.g., \code{DNAmADM}, \code{DNAmGDF15}).
 \item \code{DNAmGrimAge2}: The final calibrated GrimAge2 score.

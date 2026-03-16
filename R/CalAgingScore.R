@@ -336,13 +336,13 @@ listEpiMarker <- function() {
 #' * `PanMammalianSkin`: A data.frame (Sample, SpeciesLatinName, ...,
 #' DNAmAgePanMammalianSkin3).
 #' * `PCClocks`: (If requested) A data.frame containing the original
-#' `Sample_ID`, `Age`, and `Female` columns, appended with 14 new columns for
+#' `SampleID` columns, appended with 14 new columns for
 #' the calculated PC clock values (including `PCHorvath2013`, `PCPhenoAge`,
 #' `PCDNAmTL`, etc.).
 #' * `SystemsAge`: (If requested) A data.frame where the first column is
-#' `Sample_ID` and the subsequent 13 columns contain the calculated scores
-#' * `DNAmFitAge`: (If requested) A single data.frame containing DNAmFitAge,
-#' FitAgeAccel, and all 6 related fitness biomarkers.
+#' `SampleID` and the subsequent 13 columns contain the calculated scores
+#' * `DNAmFitAge`: (If requested) A single data.frame containing DNAmFitAge, 
+#' and all 6 related fitness biomarkers.
 #' * `StochClocks`: A list containing three numeric vectors: StocH, StocP, and
 #' StocZ, representing predicted DNAm ages.#'
 #'

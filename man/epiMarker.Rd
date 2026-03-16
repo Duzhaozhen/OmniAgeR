@@ -131,13 +131,13 @@ DNAmAgePanMammalianBlood3).
 \item \code{PanMammalianSkin}: A data.frame (Sample, SpeciesLatinName, ...,
 DNAmAgePanMammalianSkin3).
 \item \code{PCClocks}: (If requested) A data.frame containing the original
-\code{Sample_ID}, \code{Age}, and \code{Female} columns, appended with 14 new columns for
+\code{SampleID} columns, appended with 14 new columns for
 the calculated PC clock values (including \code{PCHorvath2013}, \code{PCPhenoAge},
 \code{PCDNAmTL}, etc.).
 \item \code{SystemsAge}: (If requested) A data.frame where the first column is
-\code{Sample_ID} and the subsequent 13 columns contain the calculated scores
+\code{SampleID} and the subsequent 13 columns contain the calculated scores
 \item \code{DNAmFitAge}: (If requested) A single data.frame containing DNAmFitAge,
-FitAgeAccel, and all 6 related fitness biomarkers.
+and all 6 related fitness biomarkers.
 \item \code{StochClocks}: A list containing three numeric vectors: StocH, StocP, and
 StocZ, representing predicted DNAm ages.#'
 }

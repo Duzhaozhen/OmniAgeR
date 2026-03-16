@@ -22,13 +22,10 @@
 #' A `data.frame` with 12 columns:
 #' \itemize{
 #'   \item `SampleID`: The sample identifiers.
-#'   \item `Age`: The input chronological age.
-#'   \item `Female`: The input sex, coded as 1 for Female, 0 for Male.
 #'   \item `DNAmGait_noAge`, `DNAmGrip_noAge`, `DNAmVO2max`: Fitness biomarkers.
 #'   \item `DNAmGait_wAge`, `DNAmGrip_wAge`, `DNAmFEV1_wAge`: Age-adjusted fitness biomarkers.
 #'   \item `DNAmGrimAge`: The input DNAmGrimAge.
 #'   \item `DNAmFitAge`: The calculated biological fitness age.
-#'   \item `FitAgeAccel`: The fitness age acceleration (residual of DNAmFitAge regressed on Age).
 #' }
 #'
 #' @export
@@ -78,8 +75,8 @@ dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0.5,
 
 
     if (is.null(dataPrep)) {
-        res <- data.frame(SampleID = sampleIds, Age = age, Female = femaleNumeric)
-        res[, c("DNAmFitAge", "FitAgeAccel")] <- NA_real_
+        res <- data.frame(SampleID = sampleIds)
+        res[, c("DNAmFitAge")] <- NA_real_
         return(res)
     }
 
@@ -274,12 +271,7 @@ dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0.5,
             0.5228411 * ((d$DNAmGrimAge - 9.549733) / 0.835120557)
     }
 
-    # Calculate Acceleration (Residuals vs Age)
-    data$FitAgeAccel <- NA_real_
-    if (any(!is.na(data$DNAmFitAge))) {
-        fit <- stats::lm(DNAmFitAge ~ Age, data = data, na.action = "na.exclude")
-        data$FitAgeAccel <- stats::residuals(fit)
-    }
-
+    cols_to_remove <- c("Age", "Female")
+    data <- data[, !(names(data) %in% cols_to_remove)]
     return(data)
 }

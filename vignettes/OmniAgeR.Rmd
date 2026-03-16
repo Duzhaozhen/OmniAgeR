@@ -190,7 +190,7 @@ transcriptomic (RNA-seq) clocks:
 -   `sc-ImmuAging`: A single-cell, immune-cell-type-specific aging clock.
 -   `Brain_CT_clock`: A brain-cell-type-specific aging clock based on 
     Single-Nuclei Transcriptomics.
--   `Pasta`: A robust, multi-tissue transcriptomic clock based on a novel 
+-   `PASTA`: A robust, multi-tissue transcriptomic clock based on a novel 
     age-shift learning strategy. It utilizes rank-normalization to ensure broad 
     applicability across heterogeneous datasets, including bulk RNA-seq, 
     single-cell pseudobulks, and microarrays.
@@ -302,9 +302,9 @@ on cell-type composition.
 
 | Clock Name       | Category                  | Calculator / Function |
 |:-----------------|:--------------------------|:----------------------|
-| `sc-ImmuAging`   | Immune-cell-type-specific | `scImmuAging()`       |
-| `Brain_CT_clock` | Brain-cell-type-specific  | `brainCtClock()`    |
-| `Pasta`          | Multi-tissue              | `pastaScores()`      |
+| `scImmuAging`   | Immune-cell-type-specific  | `scImmuAging()`       |
+| `Brain_CT_Clock` | Brain-cell-type-specific  | `brainCtClock()`      |
+| `PASTA`          | Multi-tissue              | `pastaScores()`       |
 
 ## Surrogate Biomarkers & Scores
 
@@ -776,6 +776,24 @@ print(lapply(crpRes, head, 5))
 chipRes <- compCHIP(hannumBmiqM)
 print(lapply(chipRes, head, 5))
 ```
+
+
+# Tutorial Example 8: Get freatures from Various Aging Biomarkers
+
+
+```{r getMarkerWeights}
+library(OmniAgeR)
+# 1. Get probes for a specific chronological aging predictor
+chronologicalProbes <- getMarkerWeights(clockNames = "Horvath2013")
+print(head(chronologicalProbes$Horvath2013))
+# 3. Get probes for all biomaker
+allFeatures<- getMarkerWeights(clockNames = "all")
+names(allFeatures)[1:10]
+```
+
+
+
+
 
 # Tutorial Example 9: Celltype fraction clock based on DNAm
 We apply the DNAm Cell-type Fraction (CTF) Clock to 50 blood samples (EPIC array) from the TZH cohort to predict chronological age.

@@ -26,8 +26,8 @@ Default is 0.5.}
 \item{verbose}{Logical. Whether to print status messages.}
 }
 \value{
-A data.frame containing the original \code{Sample_ID}, \code{Age}, and \code{Female}
-columns, appended with 14 new columns for the calculated PC clock values
+A data.frame containing the original \code{SampleID} columns,
+appended with 14 new columns for the calculated PC clock values
 (e.g., \code{PCHorvath2013}, \code{PCHannum}, \code{PCGrimAge1}, etc.).
 }
 \description{

@@ -24,9 +24,7 @@
 #' @return
 #' A data.frame containing the following columns:
 #' \itemize{
-#'   \item `Sample`: Identifier for each sample.
-#'   \item `Age`: The input chronological age.
-#'   \item `Female`: A numeric indicator for sex (1 = Female, 0 = Male).
+#'   \item `SampleID`: Identifier for each sample.
 #'   \item `DNAm...`: Columns for each of the predicted surrogate biomarkers
 #'   (e.g., `DNAmADM`, `DNAmGDF15`).
 #'   \item `DNAmGrimAge2`: The final calibrated GrimAge2 score.
@@ -133,9 +131,7 @@ grimAge2 <- function(betaM, age, sex,
 
     # 7. Final Formatting and Renaming
     res <- data.frame(
-        Sample = colnames(betaM),
-        Age = age,
-        Female = femaleVec,
+        SampleID = colnames(betaM),
         protDf,
         DNAmGrimAge2 = grimAge2Score,
         stringsAsFactors = FALSE

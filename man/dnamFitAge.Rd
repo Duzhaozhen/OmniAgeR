@@ -29,13 +29,10 @@ required CpGs that must be present. Default is 0.5.}
 A \code{data.frame} with 12 columns:
 \itemize{
 \item \code{SampleID}: The sample identifiers.
-\item \code{Age}: The input chronological age.
-\item \code{Female}: The input sex, coded as 1 for Female, 0 for Male.
 \item \code{DNAmGait_noAge}, \code{DNAmGrip_noAge}, \code{DNAmVO2max}: Fitness biomarkers.
 \item \code{DNAmGait_wAge}, \code{DNAmGrip_wAge}, \code{DNAmFEV1_wAge}: Age-adjusted fitness biomarkers.
 \item \code{DNAmGrimAge}: The input DNAmGrimAge.
 \item \code{DNAmFitAge}: The calculated biological fitness age.
-\item \code{FitAgeAccel}: The fitness age acceleration (residual of DNAmFitAge regressed on Age).
 }
 }
 \description{

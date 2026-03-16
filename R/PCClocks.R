@@ -22,8 +22,8 @@
 #'
 #'
 #' @return
-#' A data.frame containing the original `Sample_ID`, `Age`, and `Female`
-#' columns, appended with 14 new columns for the calculated PC clock values
+#' A data.frame containing the original `SampleID` columns, 
+#' appended with 14 new columns for the calculated PC clock values
 #' (e.g., `PCHorvath2013`, `PCHannum`, `PCGrimAge1`, etc.).
 #'
 #' @references
@@ -131,5 +131,8 @@ pcClocks <- function(betaM, age, sex, clockData, minCoverage = 0.5, verbose = TR
     # Final integrated PCGrimAge1
     grimComp <- pheno[, clockData$CalcPCGrimAge$components]
     pheno$PCGrimAge1 <- as.numeric(as.matrix(grimComp) %*% clockData$CalcPCGrimAge$PCGrimAge.model + clockData$CalcPCGrimAge$PCGrimAge.intercept)
+    
+    pheno$Age <-NULL
+    pheno$Female <-NULL
     return(pheno)
 }
