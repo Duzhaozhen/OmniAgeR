@@ -291,7 +291,9 @@ on cell-type composition.
 | `LeeGA` | Gestational | `epiMarker()`,`LeeGa()` |
 | `KnightGA` | Gestational | `epiMarker()`,`knightGa()` |
 | `MayneGA` | Gestational | `epiMarker()`,`mayneGa()` |
-| `EnsembleAge` | Mouse & Human | `epiMarker()`,`ensembleAge()` |
+| `EnsembleAge_HumanMouse` | Mouse & Human | `epiMarker()`,`ensembleAge()` |
+| `EnsembleAge_Static` | Mouse & Human | `epiMarker()`,`ensembleAge()` |
+| `EnsembleAge_Dynamic` | Mouse & Human | `epiMarker()`,`ensembleAge()` |
 | `UniversalPanMammalianClocks` | PanMammalian | `epiMarker()`,`universalPanMammalianClocks()` |
 | `PanMammalianBlood` | PanMammalian | `epiMarker()`,`panMammalianBlood()` |
 | `PanMammalianSkin` | PanMammalian | `epiMarker()`,`panMammalianSkin()` |

@@ -38,11 +38,17 @@ listEpiMarker <- function() {
     cts_clock <- c("Neu-In", "Neu-Sin", "Glia-In", "Glia-Sin", "Hep")
 
     ga_clocks <- c("BohlinGA", "EPICGA", "KnightGA", "LeeGA", "MayneGA")
+    
+    ensembleAge <- c("EnsembleAge_HumanMouse", 
+                     "EnsembleAge_Static", 
+                     "EnsembleAge_Dynamic")
+    
     crossSpecies <- c(
-        "EnsembleAge",
+        ensembleAge,
         "UniversalPanMammalianClocks",
         "PanMammalianBlood", "PanMammalianSkin"
     )
+    
     cts_clock <- c("Neu-In", "Neu-Sin", "Glia-In", "Glia-Sin", "Hep")
     surrogateBiomarkers <- c("CRP", "CHIP", "IL6", "EpiScores")
     traitPred <- c("McCartneyTrait")
@@ -120,9 +126,9 @@ listEpiMarker <- function() {
 #' present. Default 0.5.
 #' @param verbose Logical. Whether to print progress messages.
 #' @param ... Additional parameters: \code{pcClockData}, \code{systemsAgeData},
-#' \code{ctsDataType}, \code{ctsTissue}, \code{anageData}, \code{speciesName}
-#' \code{ensembleVersion}.
-#'
+#' \code{ctsDataType}, \code{ctsTissue}, \code{ctfM}, \code{anageData}, 
+#' \code{speciesName}.
+#' 
 #' @details
 #' The EpiMarker function implements a wide range of epigenetic clocks.
 #' This includes cellular aging clocks (e.g., `epiTOC2`, `DNAmTL`),
@@ -265,6 +271,7 @@ listEpiMarker <- function() {
 #'
 #' === Cross Species ===
 #' * `EnsembleAge`: (Haghani et al. 2025) The EnsembleAge Epigenetic Clocks.
+#' 
 #' * `UniversalPanMammalianClocks`: (Lu et al. 2023) The Universal Pan-Mammalian
 #'  Epigenetic Clocks.
 #' * `PanMammalianBlood`: (Lu et al. 2023) The Universal Pan-Mammalian Blood
@@ -327,7 +334,11 @@ listEpiMarker <- function() {
 #' * `McCartneyTrait`: A list containing 10 named elements, one for each trait.
 #' * `SmokeIndex`: A DNAm-based Smoking Index.
 #' * `HepatoXuRisk`: The HepatoXuRisk scores for hepatocellular carcinoma.
-#' * `EnsembleAge`: A list where each element is a named numeric vector of
+#' * `EnsembleAge_HumanMouse`: A list where each element is a named numeric vector of
+#' predicted values.
+#' * `EnsembleAge_Static`: A list where each element is a named numeric vector of
+#' predicted values.
+#' * `EnsembleAge_Dynamic`: A list where each element is a named numeric vector of
 #' predicted values.
 #' * `UniversalPanMammalianClocks`: A data.frame (Sample, SpeciesLatinName, ...,
 #' DNAmAgePanMammalianClock3).
@@ -670,25 +681,24 @@ epiMarker <- function(betaM,
         clocksToRun <- setdiff(clocksToRun, clockMap$stochClocks)
     }
     # 6. EnsembleAge
-    if ("EnsembleAge" %in% clocksToRun) {
-        ver <- if (!is.null(extraArgs$ensembleVersion)) {
-            extraArgs$ensembleVersion
-        } else {
-            "HumanMouse"
-        }
-        validVersions <- c("HumanMouse", "Static", "Dynamic")
-        if (!(ver %in% validVersions)) {
-            warning("[EpiMarker] Invalid ensembleVersion:", ver, ". Defaulting to 'HumanMouse'.")
-            ver <- "HumanMouse"
-        }
-        resultsList$EnsembleAge <- ensembleAge(
-            betaM = betaM,
-            clockVersion = ver,
-            minCoverage = minCoverage,
-            verbose = verbose
+    ensembleRequested <- intersect(clocksToRun, clockMap$ensembleAge)
+    
+    if (length(ensembleRequested) > 0) {
+      if (verbose) message("[EpiMarker] Calculating requested EnsembleAge clocks...")
+      
+      for (ensClock in ensembleRequested) {
+        versionName <- sub("EnsembleAge_", "", ensClock)
+        
+        resultsList[[ensClock]] <- ensembleAge(
+          betaM = betaM,
+          clockVersion = versionName,
+          minCoverage = minCoverage,
+          verbose = verbose
         )
-        clocksToRun <- setdiff(clocksToRun, "EnsembleAge")
+      }
+      clocksToRun <- setdiff(clocksToRun, clockMap$ensembleAge)
     }
+ 
     # 7. Pan-Mammalian
     panRequested <- intersect(clocksToRun, clockMap$panMammalian)
     if (length(panRequested) > 0) {
@@ -709,6 +719,7 @@ epiMarker <- function(betaM,
             compClocks = ctsGroup,
             dataType = extraArgs$ctsDataType,
             tissue = extraArgs$ctsTissue,
+            ctfM = extraArgs$ctfM,
             minCoverage = minCoverage,
             verbose = verbose
         )
@@ -762,7 +773,11 @@ epiMarker <- function(betaM,
     )
     dnamtl <- c("DNAmTL", "PCDNAmTL")
     stochastic <- c("StocH", "StocZ", "StocP")
-    panMammalian <- c("UniversalPanMammalianClocks", "PanMammalianBlood", "PanMammalianSkin")
+    panMammalian <- c("UniversalPanMammalianClocks", "PanMammalianBlood", 
+                      "PanMammalianSkin")
+    ensembleAge <- c("EnsembleAge_HumanMouse", 
+                     "EnsembleAge_Static", 
+                     "EnsembleAge_Dynamic")
     cts <- c("Neu-In", "Glia-In", "Neu-Sin", "Glia-Sin", "Hep")
     causal <- c("CausalAge", "DamAge", "AdaptAge")
 
@@ -790,10 +805,11 @@ epiMarker <- function(betaM,
         surrogateBiomarkers = c("CRP", "CHIP", "IL6", "EpiScores"),
         traitPred = c("McCartneyTrait"),
         diseaseRisk = c("SmokeIndex", "HepatoXuRisk"),
-        crossSpecies = c("EnsembleAge", panMammalian),
+        crossSpecies = c(ensembleAge, panMammalian),
         pcClocks = c("PCHorvath2013", "PCHorvath2018", "PCHannum", "PCPhenoAge", "PCGrimAge1", "PCDNAmTL"),
         stochClocks = stochastic,
         panMammalian = panMammalian,
+        ensembleAge = ensembleAge,
         epicmitGroup = c("EpiCMIT_Hyper", "EpiCMIT_Hypo")
     )
 }

@@ -68,8 +68,8 @@ present. Default 0.5.}
 \item{verbose}{Logical. Whether to print progress messages.}
 
 \item{...}{Additional parameters: \code{pcClockData}, \code{systemsAgeData},
-\code{ctsDataType}, \code{ctsTissue}, \code{anageData}, \code{speciesName}
-\code{ensembleVersion}.}
+\code{ctsDataType}, \code{ctsTissue}, \code{ctfM}, \code{anageData},
+\code{speciesName}.}
 }
 \value{
 A list containing the entries for the calculated clocks.
@@ -122,7 +122,11 @@ A list containing the entries for the calculated clocks.
 \item \code{McCartneyTrait}: A list containing 10 named elements, one for each trait.
 \item \code{SmokeIndex}: A DNAm-based Smoking Index.
 \item \code{HepatoXuRisk}: The HepatoXuRisk scores for hepatocellular carcinoma.
-\item \code{EnsembleAge}: A list where each element is a named numeric vector of
+\item \code{EnsembleAge_HumanMouse}: A list where each element is a named numeric vector of
+predicted values.
+\item \code{EnsembleAge_Static}: A list where each element is a named numeric vector of
+predicted values.
+\item \code{EnsembleAge_Dynamic}: A list where each element is a named numeric vector of
 predicted values.
 \item \code{UniversalPanMammalianClocks}: A data.frame (Sample, SpeciesLatinName, ...,
 DNAmAgePanMammalianClock3).
