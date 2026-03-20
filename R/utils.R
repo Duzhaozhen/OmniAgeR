@@ -38,7 +38,14 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
 
     # 2. Ultra-fast development mode: Read directly from the local folder
     # Define the local test path and check if the directory exists
-    devPath <- "~/AgingBiomarker_work/GitHub/OmniAgeR_backup_data/data28Feb26_rds"
+    dockerPath <- "/data/OmniAgeData"
+    localDevPath <- "~/AgingBiomarker_work/GitHub/OmniAgeR_backup_data/data28Feb26_rds"
+    if (dir.exists(dockerPath)) {
+      devPath <- dockerPath
+    } else {
+      devPath <- localDevPath
+    }
+    
     # devtools::install("~/AgingBiomarker_work/GitHub/OmniAgeRData")
     if (dir.exists(devPath)) {
         # Attempt to load locally; return if successful, otherwise proceed to the next step
