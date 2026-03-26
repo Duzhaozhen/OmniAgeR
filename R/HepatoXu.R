@@ -20,7 +20,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A named numeric vector containing the calculated methylation scores
@@ -43,7 +43,7 @@
 #' hepatoXuRiskO <- hepatoXuRisk(hannumBmiqM)
 #'
 hepatoXuRisk <- function(betaM,
-                         minCoverage = 0.5,
+                         minCoverage = 0,
                          verbose = TRUE) {
     hepatoXuCoef <- loadOmniAgeRdata(
         "omniager_hepato_xu_coef",

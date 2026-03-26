@@ -4,14 +4,14 @@
 \alias{mcCartneyTrait}
 \title{Calculate Epigenetic Surrogates for Complex Traits (McCartney et al. 2018)}
 \usage{
-mcCartneyTrait(betaM, minCoverage = 0.5, verbose = TRUE)
+mcCartneyTrait(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
 columns should be individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

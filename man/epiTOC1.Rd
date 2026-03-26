@@ -4,13 +4,13 @@
 \alias{epiTOC1}
 \title{Estimate epiTOC1 score}
 \usage{
-epiTOC1(betaM, minCoverage = 0.5, verbose = TRUE)
+epiTOC1(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNAm beta values (probes as rows).}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print coverage statistics.}
 }

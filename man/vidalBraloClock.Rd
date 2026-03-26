@@ -4,7 +4,7 @@
 \alias{vidalBraloClock}
 \title{Calculate the Vidal-Bralo Epigenetic Clock (8-CpG Model)}
 \usage{
-vidalBraloClock(betaM, minCoverage = 0.5, verbose = TRUE)
+vidalBraloClock(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNA methylation beta values.
@@ -12,7 +12,7 @@ vidalBraloClock(betaM, minCoverage = 0.5, verbose = TRUE)
 The matrix should not contain \code{NA} values.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

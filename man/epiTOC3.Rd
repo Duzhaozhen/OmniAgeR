@@ -4,7 +4,7 @@
 \alias{epiTOC3}
 \title{Estimate epiTOC3 scores}
 \usage{
-epiTOC3(betaM, age = NULL, minCoverage = 0.5, verbose = TRUE)
+epiTOC3(betaM, age = NULL, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNAm beta values (probes as rows).}
@@ -13,7 +13,7 @@ epiTOC3(betaM, age = NULL, minCoverage = 0.5, verbose = TRUE)
 of the samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print coverage statistics.}
 }

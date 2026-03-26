@@ -17,7 +17,7 @@
 #' @param clockData The pre-loaded data object from
 #'  \code{loadOmniAgeRData("PCClocks_data")}.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'  Default is 0.5.
+#'  Default is 0.
 #' @param verbose Logical. Whether to print status messages.
 #'
 #'
@@ -55,7 +55,7 @@
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
 #'}
-pcClocks <- function(betaM, age, sex, clockData, minCoverage = 0.5, verbose = TRUE) {
+pcClocks <- function(betaM, age, sex, clockData, minCoverage = 0, verbose = TRUE) {
     if (verbose) message("[PCClocks] Initializing PC-based clock pipeline...")
 
     # --- 1. Input Validation and Conversion ---

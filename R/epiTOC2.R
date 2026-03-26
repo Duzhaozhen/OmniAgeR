@@ -11,7 +11,7 @@
 #' @param age Optional numeric vector representing chronological ages
 #'   of the samples.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'   Default is 0.5.
+#'   Default is 0.
 #' @param verbose Logical. Whether to print coverage statistics.
 #'
 #' @details
@@ -56,7 +56,7 @@
 #' @export
 #'
 
-epiTOC2 <- function(betaM, age = NULL, minCoverage = 0.5, verbose = TRUE) {
+epiTOC2 <- function(betaM, age = NULL, minCoverage = 0, verbose = TRUE) {
     estParams <- loadOmniAgeRdata(
         "omniager_epitoc2_model",
         verbose = verbose

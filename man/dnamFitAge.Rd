@@ -4,7 +4,7 @@
 \alias{dnamFitAge}
 \title{Calculate DNAmFitAge and related fitness biomarkers}
 \usage{
-dnamFitAge(betaM, age, sex, grimageVector, minCoverage = 0.5, verbose = TRUE)
+dnamFitAge(betaM, age, sex, grimageVector, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix. \strong{Rows must be CpGs, Columns must be Samples.}
@@ -21,7 +21,7 @@ of \code{beta_matrix}.}
 The order \strong{must match the column order} of \code{betaM}.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages}
 }

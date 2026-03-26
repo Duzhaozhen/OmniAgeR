@@ -15,7 +15,7 @@
 #' @param grimageVector A numeric vector of pre-calculated DNAmGrimAge values.
 #'   The order **must match the column order** of `betaM`.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages
 #'
 #' @return
@@ -46,7 +46,7 @@
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' GrimAge1O <- grimAge1(hannumBmiqM, age, sex)
 #' dnamFitAgeOut <- dnamFitAge(hannumBmiqM, age, sex, GrimAge1O$DNAmGrimAge1)
-dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0.5,
+dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0,
                        verbose = TRUE) {
     # --- 1. Object conversion and validation ---
     DNAmFitnessModels <- loadOmniAgeRdata(

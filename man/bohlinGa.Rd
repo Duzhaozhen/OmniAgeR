@@ -4,14 +4,14 @@
 \alias{bohlinGa}
 \title{Calculate the Bohlin Gestational Age (Cord Blood)}
 \usage{
-bohlinGa(betaM, minCoverage = 0.5, verbose = TRUE)
+bohlinGa(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{a matrix of methylation beta values.
 Needs to be rows = samples and columns = CpGs, with rownames and colnames.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

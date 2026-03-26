@@ -6,6 +6,7 @@
 #'
 #' @param ctfM A numeric matrix or data frame where rows are samples and columns are cell types.
 #'   Must contain the specific cell types required by the model (e.g., predicted by EpiDISH).
+#' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A named numeric vector of predicted ages.
 #' @export
@@ -20,7 +21,7 @@
 #' )[[2]]
 #' dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
 #'
-dnamCTFClock <- function(ctfM) {
+dnamCTFClock <- function(ctfM, verbose = TRUE) {
     # --- 1. Load the internal model ---
     dnamCtfModel <- loadOmniAgeRdata(
         "omniager_dnam_ctf_model",

@@ -11,7 +11,7 @@
 #' predict age.Example: `c("CD4T", "CD8T", "MONO")`. Valid types are "CD4T",
 #' "CD8T", "MONO", "NK", "B".
 #' @param minCoverage Numeric (0-1). Minimum required feature coverage.
-#' Default 0.5.
+#' Default 0.
 #' @param verbose Logical. Whether to print status messages.
 #'
 #' @details
@@ -56,7 +56,7 @@
 #'
 #' scImmuAgingOut <- scImmuAging(seuratObj, c("CD4T", "CD8T"))
 #' }
-scImmuAging <- function(seuratObj, cellTypes, minCoverage = 0.5, verbose = TRUE) {
+scImmuAging <- function(seuratObj, cellTypes, minCoverage = 0, verbose = TRUE) {
     # 1. loading model
 
     scimmuagingModel <- loadOmniAgeRdata(

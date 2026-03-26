@@ -4,7 +4,7 @@
 \alias{pipekFilteredh}
 \title{Pipek's Filtered Horvath Epigenetic Clock (272 CpGs)}
 \usage{
-pipekFilteredh(betaM, minCoverage = 0.5, verbose = TRUE)
+pipekFilteredh(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNA methylation beta values.
@@ -12,7 +12,7 @@ pipekFilteredh(betaM, minCoverage = 0.5, verbose = TRUE)
 The matrix should not contain \code{NA} values.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

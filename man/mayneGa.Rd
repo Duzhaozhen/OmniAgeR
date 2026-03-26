@@ -4,14 +4,14 @@
 \alias{mayneGa}
 \title{Calculate the Mayne Placental Gestational Age.}
 \usage{
-mayneGa(betaM, minCoverage = 0.5, verbose = TRUE)
+mayneGa(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A matrix of beta values (CpGs in rows, samples in columns).
 This matrix must be pre-normalized (e.g., via BMIQ) and imputed.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

@@ -7,7 +7,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @details Implements the Horvath (2013) pan-tissue clock. The function
@@ -40,7 +40,7 @@
 #' )[[1]]
 #' horvath2018ClockOut <- horvath2018Clock(hannumBmiqM)
 horvath2018Clock <- function(betaM,
-                             minCoverage = 0.5,
+                             minCoverage = 0,
                              verbose = TRUE) {
     horvath2018Coef <- loadOmniAgeRdata(
         "omniager_horvath2018_coef",

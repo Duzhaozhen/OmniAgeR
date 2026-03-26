@@ -7,7 +7,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A named numeric vector of predicted cortical DNAm ages for
@@ -27,7 +27,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' corticalClockOut <- corticalClock(hannumBmiqM)
-corticalClock <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+corticalClock <- function(betaM, minCoverage = 0, verbose = TRUE) {
     # --- Step 1: Load and parse coefficients (from package internal data) ---
     CorticalClockList <- loadOmniAgeRdata(
         "omniager_cortical_clock_coef",

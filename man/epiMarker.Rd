@@ -9,7 +9,7 @@ epiMarker(
   clockNames = "all",
   chronAge = NULL,
   sexVec = NULL,
-  minCoverage = 0.5,
+  minCoverage = 0,
   verbose = TRUE,
   ...
 )
@@ -57,19 +57,34 @@ Multiple keywords and individual names can be combined (e.g.,
 Use \code{listEpiMarker()} to see a categorized list of all available clocks.}
 
 \item{chronAge}{Optional numeric vector of chronological ages.
-Required for some clocks.}
+\bold{Note:} This is mandatory for \code{GrimAge}, \code{DNAmFitAge}, and \code{epiTOC} versions 2 & 3.}
 
 \item{sexVec}{Optional character vector ('Male', 'Female').
-Required for some clocks.}
+\bold{Note:} Required for \code{GrimAge} and \code{DNAmFitAge}.}
 
 \item{minCoverage}{Numeric (0-1). Minimum proportion of required CpGs
-present. Default 0.5.}
+present. Default 0.}
 
 \item{verbose}{Logical. Whether to print progress messages.}
 
-\item{...}{Additional parameters: \code{pcClockData}, \code{systemsAgeData},
-\code{ctsDataType}, \code{ctsTissue}, \code{ctfM}, \code{anageData},
-\code{speciesName}.}
+\item{...}{Additional context-specific arguments:
+\describe{
+\item{\code{pcClockData}}{External data object for PC clocks.}
+\item{\code{systemsAgeData}}{External data object for SystemsAge calculations.}
+\item{\code{ctsDataType}}{Character. Required for \code{"cellTypeSpecific"} clocks.
+Either \code{"bulk"} (default) or \code{"sorted"}.}
+\item{\code{ctsTissue}}{Character. Required for \code{"cellTypeSpecific"} clocks.
+Either \code{"brain"} (allows auto-deconvolution) or \code{"otherTissue"}.}
+\item{\code{ctfM}}{Numeric matrix. Optional cell type fraction matrix (samples x cell types).
+Required for \code{"Intrinsic"} CTS clocks (e.g., \code{"Neu-In"}) when \code{ctsDataType = "bulk"} and
+\code{ctsTissue = "otherTissue"}.}
+\item{\code{speciesName}}{Character string (e.g., "Mus musculus") for cross-species clocks.}
+\item{\code{anageData}}{A data.frame containing mammalian lifespan information.
+Required for panMammalian clocks. It is recommended to use the internal database:
+\code{anageData = loadOmniAgeRdata("omniager_anage_data")}.
+If providing custom data, it must include columns: \code{SpeciesLatinName},
+\code{GestationTimeInYears}, \code{averagedMaturity.yrs}, and \code{maxAge}.}
+}}
 }
 \value{
 A list containing the entries for the calculated clocks.

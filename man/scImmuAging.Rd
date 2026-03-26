@@ -4,7 +4,7 @@
 \alias{scImmuAging}
 \title{Run the scImmuAging prediction pipeline for multiple cell types}
 \usage{
-scImmuAging(seuratObj, cellTypes, minCoverage = 0.5, verbose = TRUE)
+scImmuAging(seuratObj, cellTypes, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{seuratObj}{A Seurat object. The meta.data must contain "donor_id",
@@ -15,7 +15,7 @@ predict age.Example: \code{c("CD4T", "CD8T", "MONO")}. Valid types are "CD4T",
 "CD8T", "MONO", "NK", "B".}
 
 \item{minCoverage}{Numeric (0-1). Minimum required feature coverage.
-Default 0.5.}
+Default 0.}
 
 \item{verbose}{Logical. Whether to print status messages.}
 }

@@ -4,13 +4,13 @@
 \alias{epiCMIT}
 \title{Estimate EpiCMIT scores}
 \usage{
-epiCMIT(betaM, minCoverage = 0.5, verbose = TRUE)
+epiCMIT(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNAm beta values (probes as rows).}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print coverage statistics.}
 }

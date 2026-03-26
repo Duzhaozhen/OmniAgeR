@@ -4,14 +4,14 @@
 \alias{retroAge}
 \title{Calculate the Retro-age Epigenetic Clock}
 \usage{
-retroAge(betaM, minCoverage = 0.5, verbose = TRUE)
+retroAge(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNA methylation beta values.
 \code{rownames} (CpG probe IDs) and \code{colnames} (Sample IDs) are required.
 The matrix should not contain \code{NA} values.}
 
-\item{minCoverage}{A numeric value between 0 and 1 (default is 0.5).
+\item{minCoverage}{A numeric value between 0 and 1 (default is 0).
 Specifies the minimum proportion of required CpGs that must be present
 in the input matrix for the clock calculation to proceed.}
 

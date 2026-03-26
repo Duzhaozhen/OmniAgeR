@@ -7,7 +7,7 @@
 ensembleAge(
   betaM,
   clockVersion = c("HumanMouse", "Static", "Dynamic"),
-  minCoverage = 0.5,
+  minCoverage = 0,
   verbose = TRUE
 )
 }
@@ -16,7 +16,7 @@ ensembleAge(
 
 \item{clockVersion}{Character. One of \code{"Dynamic"}, \code{"Static"}, or \code{"HumanMouse"}.}
 
-\item{minCoverage}{Numeric (0-1). Minimum required proportion of CpGs present. Default is 0.5.}
+\item{minCoverage}{Numeric (0-1). Minimum required proportion of CpGs present. Default is 0.}
 
 \item{verbose}{Logical. Whether to print status messages.}
 }

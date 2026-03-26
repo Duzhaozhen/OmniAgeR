@@ -4,14 +4,14 @@
 \alias{stemTOCvitro}
 \title{Estimate stemTOCvitro score}
 \usage{
-stemTOCvitro(betaM, minCoverage = 0.5, verbose = TRUE)
+stemTOCvitro(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNAm beta values (probes as rows). Rows
 should be Illumina 450k/EPIC CpG identifiers and columns should be samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print coverage statistics.}
 }

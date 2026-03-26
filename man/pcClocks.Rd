@@ -4,7 +4,7 @@
 \alias{pcClocks}
 \title{Calculate Principal Component (PC) Epigenetic Clocks}
 \usage{
-pcClocks(betaM, age, sex, clockData, minCoverage = 0.5, verbose = TRUE)
+pcClocks(betaM, age, sex, clockData, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNA methylation (beta) values.
@@ -21,7 +21,7 @@ encoded as 1; all other values are encoded as 0.}
 \code{loadOmniAgeRData("PCClocks_data")}.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print status messages.}
 }

@@ -21,7 +21,7 @@
 #' @param betaM DNAm beta value matrix with rows labeling Illumina 450k/EPIC
 #' CpGs and columns labeling samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return
@@ -62,7 +62,7 @@
 #' }
 #'
 LeeGa <- function(betaM,
-                  minCoverage = 0.5,
+                  minCoverage = 0,
                   verbose = TRUE) {
     # --- Step 1: Load Coefficients ---
     leeGACoef <- loadOmniAgeRdata(

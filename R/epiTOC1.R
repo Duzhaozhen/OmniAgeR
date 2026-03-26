@@ -7,7 +7,7 @@
 #'
 #' @param betaM A numeric matrix of DNAm beta values (probes as rows).
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'   Default is 0.5.
+#'   Default is 0.
 #' @param verbose Logical. Whether to print coverage statistics.
 #'
 #' @details
@@ -34,7 +34,7 @@
 #' @export
 #'
 
-epiTOC1 <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+epiTOC1 <- function(betaM, minCoverage = 0, verbose = TRUE) {
     epiTOC1Model <- loadOmniAgeRdata(
         "omniager_epitoc1_model",
         verbose = verbose

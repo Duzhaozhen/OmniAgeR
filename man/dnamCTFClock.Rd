@@ -4,11 +4,13 @@
 \alias{dnamCTFClock}
 \title{DNA Methylation Cell-Type Fraction (CTF) Aging Clock}
 \usage{
-dnamCTFClock(ctfM)
+dnamCTFClock(ctfM, verbose = TRUE)
 }
 \arguments{
 \item{ctfM}{A numeric matrix or data frame where rows are samples and columns are cell types.
 Must contain the specific cell types required by the model (e.g., predicted by EpiDISH).}
+
+\item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }
 \value{
 A named numeric vector of predicted ages.

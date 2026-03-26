@@ -11,7 +11,7 @@
 #'
 #' @param betaM A numeric matrix of DNAm beta values (probes as rows).
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'   Default is 0.5.
+#'   Default is 0.
 #' @param verbose Logical. Whether to print coverage statistics.
 #'
 #'
@@ -37,7 +37,7 @@
 #' @export
 #'
 
-epiCMIT <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+epiCMIT <- function(betaM, minCoverage = 0, verbose = TRUE) {
     epiCMITdf <- loadOmniAgeRdata(
         "omniager_epicmit_model",
         verbose = verbose

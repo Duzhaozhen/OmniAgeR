@@ -9,7 +9,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #'
-#' @param minCoverage A numeric value between 0 and 1 (default is 0.5).
+#' @param minCoverage A numeric value between 0 and 1 (default is 0).
 #' Specifies the minimum proportion of required CpGs that must be present
 #' in the input matrix for the clock calculation to proceed.
 #' @param verbose A logical value. If TRUE (default), the function will
@@ -31,7 +31,7 @@
 #' )[[1]]
 #' retroAgeRes <- retroAge(hannumBmiqM)
 retroAge <- function(betaM,
-                     minCoverage = 0.5,
+                     minCoverage = 0,
                      verbose = TRUE) {
     # --- Step 1: Load Coefficients ---
     retroAgeCoef <- loadOmniAgeRdata(

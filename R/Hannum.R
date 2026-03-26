@@ -6,7 +6,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @details
@@ -32,7 +32,7 @@
 #' hannumClockOut <- hannumClock(hannumBmiqM)
 #'
 hannumClock <- function(betaM,
-                        minCoverage = 0.5,
+                        minCoverage = 0,
                         verbose = TRUE) {
     hannumCoef <- loadOmniAgeRdata(
         "omniager_hannum",

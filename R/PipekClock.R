@@ -24,7 +24,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A numeric vector of predicted biological ages. The vector is
@@ -45,7 +45,7 @@
 #' pipekElasticNetOut <- pipekElasticNet(hannumBmiqM)
 #'
 pipekElasticNet <- function(betaM,
-                            minCoverage = 0.5,
+                            minCoverage = 0,
                             verbose = TRUE) {
     pipekElasticNetCoef <- loadOmniAgeRdata(
         "omniager_pipek_elasticnet_coef",
@@ -96,7 +96,7 @@ pipekElasticNet <- function(betaM,
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A numeric vector of predicted biological ages. The vector is
@@ -117,7 +117,7 @@ pipekElasticNet <- function(betaM,
 #' pipekFilteredhOut <- pipekFilteredh(hannumBmiqM)
 #'
 pipekFilteredh <- function(betaM,
-                           minCoverage = 0.5,
+                           minCoverage = 0,
                            verbose = TRUE) {
     pipekFilteredhCoef <- loadOmniAgeRdata(
         "omniager_pipek_filteredh_coef",
@@ -165,7 +165,7 @@ pipekFilteredh <- function(betaM,
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A numeric vector of predicted biological ages. The vector is
@@ -186,7 +186,7 @@ pipekFilteredh <- function(betaM,
 #' pipekRetrainedhOut <- pipekRetrainedh(hannumBmiqM)
 #'
 pipekRetrainedh <- function(betaM,
-                            minCoverage = 0.5,
+                            minCoverage = 0,
                             verbose = TRUE) {
     pipekRetrainedhCoef <- loadOmniAgeRdata(
         "omniager_pipek_retrainedh_coef",

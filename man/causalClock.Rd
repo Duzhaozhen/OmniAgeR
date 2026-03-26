@@ -4,14 +4,14 @@
 \alias{causalClock}
 \title{Calculate Causal, Damage, and Adaptation Epigenetic Clocks}
 \usage{
-causalClock(betaM, minCoverage = 0.5, verbose = TRUE)
+causalClock(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{DNAm beta value matrix with rows labeling Illumina 450k/EPIC
 CpGs and columns labeling samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

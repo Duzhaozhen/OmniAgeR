@@ -10,7 +10,7 @@
 #'   Must include 'SpeciesLatinName', 'GestationTimeInYears',
 #'   'averagedMaturity.yrs', and 'maxAge'.
 #' @param minCoverage Numeric (0-1). Minimum required proportion of CpGs present.
-#' Default is 0.5.
+#' Default is 0.
 #' @param verbose Logical. Whether to print status messages.
 #'
 #'
@@ -50,7 +50,7 @@
 panMammalianBlood <- function(betaM,
                               speciesName,
                               anageData = NULL,
-                              minCoverage = 0.5,
+                              minCoverage = 0,
                               verbose = TRUE) {
     if (verbose) message("[panMammalianBlood] Initializing calculation...")
 

@@ -7,7 +7,7 @@
 #' @param betaM a matrix of methylation beta values.
 #' Needs to be rows = samples and columns = CpGs, with rownames and colnames.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #'
@@ -29,7 +29,7 @@
 #' )[[1]]
 #' bohlinGaOut <- bohlinGa(hannumBmiqM)
 bohlinGa <- function(betaM,
-                     minCoverage = 0.5,
+                     minCoverage = 0,
                      verbose = TRUE) {
     bohlinGACoef <- loadOmniAgeRdata(
         "omniager_bohlin_ga_coef",

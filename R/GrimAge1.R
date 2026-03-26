@@ -19,7 +19,7 @@
 #' @param sex A character vector of sample sexes. Must contain "Male" or
 #'  "Female" for each sample.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return
@@ -51,7 +51,7 @@
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' GrimAge1Oout <- grimAge1(betaM = hannumBmiqM, age, sex)
 grimAge1 <- function(betaM, age, sex,
-                     minCoverage = 0.5, verbose = TRUE) {
+                     minCoverage = 0, verbose = TRUE) {
     # 1. Load model weights
     grimage1 <- loadOmniAgeRdata(
         "omniager_grimage1_model",

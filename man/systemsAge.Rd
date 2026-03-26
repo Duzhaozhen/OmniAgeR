@@ -4,7 +4,7 @@
 \alias{systemsAge}
 \title{Calculate Systems Age and 11 System-Specific Scores}
 \usage{
-systemsAge(betaM, clockData, minCoverage = 0.5, verbose = TRUE)
+systemsAge(betaM, clockData, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix or data.frame of DNA methylation beta values.
@@ -14,7 +14,7 @@ systemsAge(betaM, clockData, minCoverage = 0.5, verbose = TRUE)
 \code{loadOmniAgeRData("PCClocks_data")}.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
-Default is 0.5.}
+Default is 0.}
 
 \item{verbose}{Logical. Whether to print status messages.}
 }

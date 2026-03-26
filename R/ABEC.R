@@ -16,7 +16,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #'
@@ -40,7 +40,7 @@
 #' abecOut <- leeABEC(hannumBmiqM)
 #'
 leeABEC <- function(betaM,
-                    minCoverage = 0.5,
+                    minCoverage = 0,
                     verbose = TRUE) {
     abecCoef <- loadOmniAgeRdata("omniager_abec_coef", verbose = verbose)
     return(.calLinearClock(betaM, abecCoef, "leeABEC", minCoverage, verbose))
@@ -72,7 +72,7 @@ leeABEC <- function(betaM,
 #' eabecOut <- leeExtendedABEC(hannumBmiqM)
 #'
 leeExtendedABEC <- function(betaM,
-                            minCoverage = 0.5,
+                            minCoverage = 0,
                             verbose = TRUE) {
     eabecCoef <- loadOmniAgeRdata("omniager_eabec_coef", verbose = verbose)
     return(.calLinearClock(betaM, eabecCoef, "leeExtendedABEC", minCoverage, verbose))
@@ -102,7 +102,7 @@ leeExtendedABEC <- function(betaM,
 #' cabecOut <- leeCommonABEC(hannumBmiqM)
 #'
 leeCommonABEC <- function(betaM,
-                          minCoverage = 0.5,
+                          minCoverage = 0,
                           verbose = TRUE) {
     cabecCoef <- loadOmniAgeRdata("omniager_cabec_coef", verbose = verbose)
     return(.calLinearClock(betaM, cabecCoef, "leeCommonABEC", minCoverage, verbose))

@@ -7,7 +7,7 @@
 #' @param betaM A matrix of beta values (CpGs in rows, samples in columns).
 #' This matrix must be pre-normalized (e.g., via BMIQ) and imputed.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return
@@ -30,7 +30,7 @@
 #' )[[1]]
 #' mayneGaOut <- mayneGa(hannumBmiqM)
 mayneGa <- function(betaM,
-                    minCoverage = 0.5,
+                    minCoverage = 0,
                     verbose = TRUE) {
     mayneGACoef <- loadOmniAgeRdata(
         "omniager_mayne_ga_coef",

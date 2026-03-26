@@ -51,7 +51,7 @@
 #'              Required for 'Intrinsic' bulk clocks if tissue is not 'brain'.
 #' @param tissue What tissue are your samples from ('brain' or 'otherTissue').
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose Logical. If `TRUE` (default), the function will print
 #'   progress messages to the console.
 #'
@@ -112,7 +112,7 @@ ctsClocks <- function(betaM,
                       dataType = c("bulk", "sorted"),
                       ctfM = NULL,
                       tissue = c("brain", "otherTissue"),
-                      minCoverage = 0.5,
+                      minCoverage = 0,
                       verbose = TRUE) {
     dataType <- match.arg(dataType)
     tissue <- match.arg(tissue)

@@ -16,7 +16,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes
 #' and columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #'
@@ -37,7 +37,7 @@
 #' )[[1]]
 #' garagnaniClockOut <- garagnaniClock(hannumBmiqM)
 garagnaniClock <- function(betaM,
-                           minCoverage = 0.5,
+                           minCoverage = 0,
                            verbose = TRUE) {
     garagnaniCoef <- loadOmniAgeRdata(
         "omniager_garagnani_coef",

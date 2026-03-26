@@ -22,7 +22,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A \code{list} containing three numeric vectors: \code{StocH},
@@ -41,7 +41,7 @@
 #' # Load example data
 #' hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
 #' stochClocksOut <- stochClocks(hannumExample[[1]])
-stochClocks <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+stochClocks <- function(betaM, minCoverage = 0, verbose = TRUE) {
     stocAll <- loadOmniAgeRdata("omniager_stoch_clocks")
 
     stocNames <- paste0("Stoc", names(stocAll))

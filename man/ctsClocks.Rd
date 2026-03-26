@@ -10,7 +10,7 @@ ctsClocks(
   dataType = c("bulk", "sorted"),
   ctfM = NULL,
   tissue = c("brain", "otherTissue"),
-  minCoverage = 0.5,
+  minCoverage = 0,
   verbose = TRUE
 )
 }
@@ -30,7 +30,7 @@ Required for 'Intrinsic' bulk clocks if tissue is not 'brain'.}
 \item{tissue}{What tissue are your samples from ('brain' or 'otherTissue').}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{Logical. If \code{TRUE} (default), the function will print
 progress messages to the console.}

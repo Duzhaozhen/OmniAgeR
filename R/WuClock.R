@@ -22,7 +22,7 @@
 #'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
 #'   The matrix should not contain `NA` values.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A numeric vector of predicted biological ages. The vector is
@@ -42,7 +42,7 @@
 #' )[[1]]
 #' wuClockOut <- wuClock(hannumBmiqM)
 wuClock <- function(betaM,
-                    minCoverage = 0.5,
+                    minCoverage = 0,
                     verbose = TRUE) {
     wuClockCoef <- loadOmniAgeRdata(
         "omniager_wu_clock_coef",

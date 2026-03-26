@@ -5,7 +5,7 @@
 \title{Calculate HepatoXu ctDNA Methylation Scores
 for Hepatocellular Carcinoma}
 \usage{
-hepatoXuRisk(betaM, minCoverage = 0.5, verbose = TRUE)
+hepatoXuRisk(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix of DNA methylation beta values.
@@ -13,7 +13,7 @@ hepatoXuRisk(betaM, minCoverage = 0.5, verbose = TRUE)
 The matrix should not contain \code{NA} values.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
-required CpGs that must be present. Default is 0.5.}
+required CpGs that must be present. Default is 0.}
 
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }

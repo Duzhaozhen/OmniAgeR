@@ -7,7 +7,7 @@
 #'
 #' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples) or \code{SummarizedExperiment}.
 #' @param clockVersion Character. One of \code{"Dynamic"}, \code{"Static"}, or \code{"HumanMouse"}.
-#' @param minCoverage Numeric (0-1). Minimum required proportion of CpGs present. Default is 0.5.
+#' @param minCoverage Numeric (0-1). Minimum required proportion of CpGs present. Default is 0.
 #' @param verbose Logical. Whether to print status messages.
 #'
 #' @return
@@ -50,7 +50,7 @@
 #' ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
 #'
 ensembleAge <- function(betaM, clockVersion = c("HumanMouse", "Static", "Dynamic"),
-                        minCoverage = 0.5, verbose = TRUE) {
+                        minCoverage = 0, verbose = TRUE) {
     clockVersion <- match.arg(clockVersion)
 
     # --- 1. Data Loading --

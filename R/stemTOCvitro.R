@@ -10,7 +10,7 @@
 #' @param betaM A numeric matrix of DNAm beta values (probes as rows). Rows
 #' should be Illumina 450k/EPIC CpG identifiers and columns should be samples.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'   Default is 0.5.
+#'   Default is 0.
 #' @param verbose Logical. Whether to print coverage statistics.
 #'
 #' @details The function will return the 0.95 upper quantile of
@@ -37,7 +37,7 @@
 #'
 
 
-stemTOCvitro <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+stemTOCvitro <- function(betaM, minCoverage = 0, verbose = TRUE) {
     stemTOCvitroCpG <- loadOmniAgeRdata(
         "omniager_stemtocvitro_cpg",
         verbose = verbose

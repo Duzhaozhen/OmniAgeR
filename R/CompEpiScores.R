@@ -28,7 +28,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A list of length 109. Each element of the list corresponds to one
@@ -52,7 +52,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' allEpiscoresOut <- compEpiScores(hannumBmiqM)
-compEpiScores <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+compEpiScores <- function(betaM, minCoverage = 0, verbose = TRUE) {
     EpiScoresCoef <- loadOmniAgeRdata(
         "omniager_episcores_coef",
         verbose = verbose

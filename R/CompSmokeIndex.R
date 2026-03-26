@@ -13,7 +13,7 @@
 #' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
 #' columns should be individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required CpGs that must be present. Default is 0.5.
+#'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A named \code{numeric} vector of smoking index for each sample
@@ -37,7 +37,7 @@
 #' )[[1]]
 #' SmokeIndexOut <- compSmokeIndex(hannumBmiqM)
 #'
-compSmokeIndex <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+compSmokeIndex <- function(betaM, minCoverage = 0, verbose = TRUE) {
     coeffSmkIdx <- loadOmniAgeRdata(
         "omniager_coeff_smk_idx",
         verbose = verbose

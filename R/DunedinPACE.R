@@ -15,7 +15,7 @@
 #'
 #' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples)
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage for
-#'   imputation and calculation. Default is 0.5.
+#'   imputation and calculation. Default is 0.
 #' @param verbose Logical. Whether to print progress messages.
 #'   Default is \code{TRUE}.
 #'
@@ -36,7 +36,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' dunedinPACEOut <- dunedinPACE(hannumBmiqM)
-dunedinPACE <- function(betaM, minCoverage = 0.5, verbose = TRUE) {
+dunedinPACE <- function(betaM, minCoverage = 0, verbose = TRUE) {
     # Load model data
     modelName <- "DunedinPACE"
     modelSpecs <- loadOmniAgeRdata(

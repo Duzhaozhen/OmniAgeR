@@ -12,7 +12,7 @@
 #' @param clockData The pre-loaded data object from
 #'  \code{loadOmniAgeRData("PCClocks_data")}.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
-#'  Default is 0.5.
+#'  Default is 0.
 #' @param verbose Logical. Whether to print status messages.
 #'
 #'
@@ -59,7 +59,7 @@
 #' hannumBmiqM <- hannumExample[[1]]
 #' systemsAgeOut <- systemsAge(hannumBmiqM, systemsAgeData)
 #'}
-systemsAge <- function(betaM, clockData, minCoverage = 0.5, verbose = TRUE) {
+systemsAge <- function(betaM, clockData, minCoverage = 0, verbose = TRUE) {
     if (verbose) message("[SystemsAge] Initializing multi-system aging analysis...")
 
     # --- 1. Validation & SE Support ---

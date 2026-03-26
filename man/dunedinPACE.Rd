@@ -4,13 +4,13 @@
 \alias{dunedinPACE}
 \title{Calculate DunedinPACE}
 \usage{
-dunedinPACE(betaM, minCoverage = 0.5, verbose = TRUE)
+dunedinPACE(betaM, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
 \item{betaM}{A numeric matrix (Rows: CpGs, Cols: Samples)}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage for
-imputation and calculation. Default is 0.5.}
+imputation and calculation. Default is 0.}
 
 \item{verbose}{Logical. Whether to print progress messages.
 Default is \code{TRUE}.}
