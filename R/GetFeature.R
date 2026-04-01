@@ -239,7 +239,21 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                 "SmokeIndex" = loadOmniAgeRdata("omniager_coeff_smk_idx", verbose),
                 "HepatoXuRisk" = loadOmniAgeRdata("omniager_hepato_xu_coef", verbose),
                 
-                "EnsembleAge" = loadOmniAgeRdata("omniager_ensembleage_coef", verbose),
+                "EnsembleAge_HumanMouse" = {
+                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll$HumanMouse
+                },
+                
+                "EnsembleAge_Static" = {
+                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll$Static
+                },
+                
+                "EnsembleAge_Dynamic" = {
+                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll$Dynamic
+                },
+                
                 "UniversalPanMammalianClocks" = loadOmniAgeRdata("omniager_pan_mammalian_clock_coef", verbose),
                 "PanMammalianBlood" = loadOmniAgeRdata("omniager_pan_mammalian_blood_coef", verbose),
                 "PanMammalianSkin" = loadOmniAgeRdata("omniager_pan_mammalian_skin_coef", verbose),
@@ -344,6 +358,9 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                "RepliTali", "HypoClock", "EpiCMIT_Hyper", "EpiCMIT_Hypo")
   dnamtl <- c("DNAmTL", "PCDNAmTL")
   stochastic <- c("StocH", "StocZ", "StocP")
+  ensembleAge <- c("EnsembleAge_HumanMouse", 
+                   "EnsembleAge_Static", 
+                   "EnsembleAge_Dynamic")
   panMammalian <- c("UniversalPanMammalianClocks", "PanMammalianBlood", "PanMammalianSkin")
   cts <- c("Neu-In", "Glia-In", "Neu-Sin", "Glia-Sin", "Hep")
   causal <- c("CausalAge", "DamAge", "AdaptAge")
@@ -372,12 +389,13 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
     surrogateBiomarkers = c("CRP", "CHIP", "IL6", "EpiScores"),
     traitPred = c("McCartney_Trait"),
     diseaseRisk = c("SmokeIndex","HepatoXuRisk"),
-    crossSpecies =  c("EnsembleAge", panMammalian),
+    crossSpecies =  c(ensembleAge, panMammalian),
     transcriptomic = transcriptomic,
     
     pcClocks = c("PCHorvath2013", "PCHorvath2018", "PCHannum", "PCPhenoAge", "PCGrimAge1", "PCDNAmTL"),
     stochClocks = stochastic,
     panMammalian = panMammalian,
+    ensembleAge = ensembleAge,
     epicmitGroup = c("EpiCMIT_Hyper", "EpiCMIT_Hypo")
   )
 }

@@ -64,6 +64,7 @@ listEpiMarker <- function() {
         stochastic = stochastic_clocks,
         gestationalAge = ga_clocks,
         surrogateBiomarkers = surrogateBiomarkers,
+        traitPred = traitPred,
         diseaseRisk = diseaseRisk,
         crossSpecies = crossSpecies
     ))

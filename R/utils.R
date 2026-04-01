@@ -36,32 +36,8 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
         )
     }
 
-    # 2. Ultra-fast development mode: Read directly from the local folder
-    # Define the local test path and check if the directory exists
-    dockerPath <- "/data/OmniAgeData"
-    localDevPath <- "~/AgingBiomarker_work/GitHub/OmniAgeR_backup_data/data28Feb26_rds"
-    if (dir.exists(dockerPath)) {
-      devPath <- dockerPath
-    } else {
-      devPath <- localDevPath
-    }
-    
-    # devtools::install("~/AgingBiomarker_work/GitHub/OmniAgeRData")
-    if (dir.exists(devPath)) {
-        # Attempt to load locally; return if successful, otherwise proceed to the next step
-        res <- tryCatch(
-            {
-                OmniAgeRData::getOmniAgeData(title, localTest = TRUE, devPath, verbose)
-            },
-            error = function(e) NULL
-        )
 
-        if (!is.null(res)) {
-            return(res)
-        }
-    }
-
-    # 3. Attempt to use the standard ExperimentHub interface of the data package
+    # 2. Attempt to use the standard ExperimentHub interface of the data package
     res <- tryCatch(
         {
             OmniAgeRData::getOmniAgeData(title)
@@ -73,7 +49,7 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
         return(res)
     }
 
-    # 4. Simulate ExperimentHub mode (core fallback mechanism)
+    # 3. Simulate ExperimentHub mode (core fallback mechanism)
     # Read metadata.csv from the locally installed OmniAgeRData package
     metaFile <- system.file("extdata", "metadata.csv", package = "OmniAgeRData")
 
@@ -101,7 +77,7 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
         }
     }
 
-    # 5. If all the above methods fail, throw a clear error
+    # 4. If all the above methods fail, throw a clear error
     stop(
         "[OmniAgeR] Model ", title,
         " could not be loaded via local, Hub, or Cache."
