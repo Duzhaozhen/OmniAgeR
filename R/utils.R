@@ -49,38 +49,12 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
         return(res)
     }
 
-    # 3. Simulate ExperimentHub mode (core fallback mechanism)
-    # Read metadata.csv from the locally installed OmniAgeRData package
-    metaFile <- system.file("extdata", "metadata.csv", package = "OmniAgeRData")
-
-    if (file.exists(metaFile)) {
-        metaData <- read.csv(metaFile, stringsAsFactors = FALSE)
-
-        # Find the corresponding resource row based on the title
-        targetRow <- metaData[metaData$Title == title, ]
-
-        if (nrow(targetRow) > 0) {
-            # Construct the complete download URL
-            targetUrl <- paste0(targetRow$Location_Prefix, targetRow$RDataPath)
-
-            # Ensure BiocFileCache is installed (must be in Imports of DESCRIPTION)
-            if (!requireNamespace("BiocFileCache", quietly = TRUE)) {
-                stop("[OmniAgeR] BiocFileCache is required for downloading data.")
-            }
-
-            # Use BiocFileCache to simulate cached download (downloads once,
-            # loads instantly thereafter)
-            bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
-            cachedPath <- BiocFileCache::bfcrpath(bfc, targetUrl)
-
-            return(readRDS(cachedPath))
-        }
-    }
 
     # 4. If all the above methods fail, throw a clear error
     stop(
-        "[OmniAgeR] Model ", title,
-        " could not be loaded via local, Hub, or Cache."
+      "[OmniAgeR] Model '", title,
+      "' could not be loaded via ExperimentHub. ",
+      "Please ensure the data package is approved and synced."
     )
 }
 
