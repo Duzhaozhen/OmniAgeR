@@ -42,7 +42,7 @@ PhenoAge, and GrimAge1, along with their principal components.
 message("Ready to initialize PC-based clock pipeline.")
 
 ## Downloading "PCClocks_data" will take a very long time.
-\donttest{
+\dontrun{
 pcClockData <- loadOmniAgeRdata(
     "PCClocks_data",
     verbose = FALSE

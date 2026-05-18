@@ -35,6 +35,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' causalClockO <- causalClock(hannumBmiqM)
+
 causalClock <- function(betaM,
                         minCoverage = 0,
                         verbose = TRUE) {

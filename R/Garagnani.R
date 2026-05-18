@@ -36,6 +36,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' garagnaniClockOut <- garagnaniClock(hannumBmiqM)
+
 garagnaniClock <- function(betaM,
                            minCoverage = 0,
                            verbose = TRUE) {

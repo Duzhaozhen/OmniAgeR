@@ -52,7 +52,6 @@
 #' lungInvM <- lungInv$bmiq_m
 #' phenoDf <- lungInv$PhenoTypes
 #' epitoc2Out <- epiTOC2(betaM = lungInvM, age = phenoDf$Age)
-#'
 #' @export
 #'
 

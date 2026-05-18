@@ -41,7 +41,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' hepatoXuRiskO <- hepatoXuRisk(hannumBmiqM)
-#'
+
 hepatoXuRisk <- function(betaM,
                          minCoverage = 0,
                          verbose = TRUE) {

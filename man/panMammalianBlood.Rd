@@ -39,6 +39,7 @@ Applies the two universal pan-mammalian blood clocks (Clock 2 and 3)
 from Lu et al. (2023) to a given dataset of DNA methylation values.
 }
 \examples{
+\dontrun{
 tursiopsExample <- loadOmniAgeRdata(
     "omniager_tursiops_example",
     verbose = FALSE
@@ -57,6 +58,7 @@ clockResults <- panMammalianBlood(
     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
     anageData = anageData
 )
+}
 }
 \references{
 Lu, A.T., Fei, Z., Haghani, A. et al.

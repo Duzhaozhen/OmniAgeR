@@ -2,9 +2,7 @@
 #'
 #' @description
 #' This function seamlessly loads specific aging omic clock models, weights, or
-#' example datasets required by the \pkg{OmniAgeR} package. It automatically
-#' retrieves the data from the companion data package \pkg{OmniAgeRData} via
-#' ExperimentHub.
+#' example datasets required by the \pkg{OmniAgeR} package.
 #'
 #' @param title A character string specifying the exact name of the model
 #' or resource to load (e.g., \code{"omniager_horvath2013_coef"}).
@@ -12,7 +10,7 @@
 #'
 #' @details
 #' To comply with Bioconductor guidelines and minimize the software
-#' package size, heavy data files are managed externally.
+#' package size, heavy data files are managed externally via ExperimentHub.
 #'
 #' @return An R object (typically a \code{data.frame}, \code{matrix},
 #' or \code{list}) containing the requested model parameters or reference data.
@@ -20,42 +18,56 @@
 #' @export
 #'
 #' @examples
-#' # Ensure OmniAgeRData is installed before running
+#' \dontrun{
 #' # Load the Horvath2013 model weights
 #' horvath2013Model <- loadOmniAgeRdata("omniager_horvath2013_coef")
-#'
-#' # View the first few rows of the loaded model parameters
 #' head(horvath2013Model)
+#' }
 loadOmniAgeRdata <- function(title, verbose = TRUE) {
-    # 1. Make sure that the development version of OmniAgeRData has been
-    # installed locally.
-    if (!requireNamespace("OmniAgeRData", quietly = TRUE)) {
-        stop(
-            "[OmniAgeR] OmniAgeRData package is required but not installed. ",
-            "Please install it first."
-        )
+  # 1. Make sure that the underlying Hub dependency packages have been installed
+  if (!requireNamespace("ExperimentHub", quietly = TRUE) ||
+      !requireNamespace("AnnotationHub", quietly = TRUE)) {
+    stop("[OmniAgeR] 'ExperimentHub' and 'AnnotationHub' are required to load data.")
+  }
+  
+  # 2. Instantiate ExperimentHub and query
+  eh <- ExperimentHub::ExperimentHub()
+  res <- AnnotationHub::query(eh, c("OmniAgeRData", title))
+  
+  if (length(res) == 0) {
+    stop(sprintf("[OmniAgeR] Resource '%s' not found in ExperimentHub.", title))
+  }
+  
+  # 3. Instantiate ExperimentHub and query
+  exact_idx <- which(res$title == title)
+  if (length(exact_idx) == 0) {
+    exact_idx <- 1
+  } else {
+    exact_idx <- exact_idx[1]
+  }
+  
+  hubTitle <- res$title[exact_idx]
+  
+  if (verbose) {
+    message("[OmniAgeR] Retrieving resource: ", hubTitle)
+  }
+  
+  # 4. Instantiate ExperimentHub and query
+  dataObjOrPath <- res[[exact_idx]]
+  
+  # 5. Special parsing for the qs2 format
+  if (is.character(dataObjOrPath) && grepl("\\.qs2?$", hubTitle)) {
+    if (!requireNamespace("qs2", quietly = TRUE)) {
+      stop("[OmniAgeR] Package 'qs2' is required to read this resource.")
     }
-
-
-    # 2. Attempt to use the standard ExperimentHub interface of the data package
-    res <- tryCatch(
-        {
-            OmniAgeRData::getOmniAgeData(title)
-        },
-        error = function(e) NULL
-    )
-
-    if (!is.null(res)) {
-        return(res)
-    }
-
-
-    # 4. If all the above methods fail, throw a clear error
-    stop(
-      "[OmniAgeR] Model '", title,
-      "' could not be loaded via ExperimentHub. ",
-      "Please ensure the data package is approved and synced."
-    )
+    dataObjOrPath <- qs2::qs_read(dataObjOrPath)
+  }
+  
+  if (verbose) {
+    message("[OmniAgeR] Successfully loaded '", title, "'.")
+  }
+  
+  return(dataObjOrPath)
 }
 
 #' Developmental Age Transformation

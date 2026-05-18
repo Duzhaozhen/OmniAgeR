@@ -41,7 +41,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 hepatoXuRiskO <- hepatoXuRisk(hannumBmiqM)
-
 }
 \references{
 Xu, Rh., Wei, W., Krawczyk, M. et al.

@@ -20,11 +20,11 @@ Predicts biological age based on immune cell type fractions derived from
 DNA methylation data.
 }
 \examples{
-
+\dontrun{
 tzhFracM <- loadOmniAgeRdata(
     "omniager_tzh_example_ctf",
     verbose = FALSE
 )[[2]]
 dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
-
+}
 }

@@ -29,6 +29,7 @@
 #' \emph{Nat Aging.} 2023
 #'
 #' @examples
+#' \dontrun{
 #' tursiopsExample <- loadOmniAgeRdata(
 #'     "omniager_tursiops_example",
 #'     verbose = FALSE
@@ -47,6 +48,7 @@
 #'     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
 #'     anageData = anageData
 #' )
+#' }
 panMammalianBlood <- function(betaM,
                               speciesName,
                               anageData = NULL,

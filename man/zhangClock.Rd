@@ -41,7 +41,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 zhangClockOut <- zhangClock(hannumBmiqM)
-
 }
 \references{
 Zhang Q, Vallerga CL, Walker RM, et al.

@@ -28,7 +28,6 @@
 #' )
 #' lungInvM <- lungInv$bmiq_m
 #' hypoClockOut <- hypoClock(betaM = lungInvM)
-#'
 #' @export
 #'
 

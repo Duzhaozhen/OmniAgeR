@@ -43,7 +43,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' pipekElasticNetOut <- pipekElasticNet(hannumBmiqM)
-#'
+
 pipekElasticNet <- function(betaM,
                             minCoverage = 0,
                             verbose = TRUE) {

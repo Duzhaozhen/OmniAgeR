@@ -33,7 +33,6 @@ lungInv <- loadOmniAgeRdata(
 )
 lungInvM <- lungInv$bmiq_m
 hypoClockOut <- hypoClock(betaM = lungInvM)
-
 }
 \references{
 Teschendorff AE.

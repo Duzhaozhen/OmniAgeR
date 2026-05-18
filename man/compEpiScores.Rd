@@ -48,12 +48,12 @@ subsetting the appropriate coefficients, and computes a linear predictor
 using the \code{calculateLinearPredictor} helper function.
 }
 \examples{
-
 hannumBmiqM <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
 )[[1]]
 allEpiscoresOut <- compEpiScores(hannumBmiqM)
+
 }
 \references{
 Gadd DA, Hillary RF, McCartney DL, et al.

@@ -53,12 +53,13 @@
 #' \emph{Genome Biol.} 2018
 #'
 #' @examples
+#' \dontrun{
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
 #' )[[1]]
 #' mcCartneyTraitOut <- mcCartneyTrait(hannumBmiqM)
-#'
+#'}
 mcCartneyTrait <- function(betaM,
                            minCoverage = 0,
                            verbose = TRUE) {

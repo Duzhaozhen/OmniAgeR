@@ -30,6 +30,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' retroAgeRes <- retroAge(hannumBmiqM)
+
 retroAge <- function(betaM,
                      minCoverage = 0,
                      verbose = TRUE) {

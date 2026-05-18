@@ -47,7 +47,7 @@ score, a standard regression (REG) score, and the CT46 score.
 # 1. Fast runnable example
 print("Ready to calculate PASTA scores.")
 
-\donttest{
+\dontrun{
 library(magrittr)
 library(Seurat)
 library(glmnet)

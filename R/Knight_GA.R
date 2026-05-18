@@ -24,7 +24,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' knightGaOut <- knightGa(hannumBmiqM)
-#'
+
 knightGa <- function(betaM,
                      minCoverage = 0,
                      verbose = TRUE) {

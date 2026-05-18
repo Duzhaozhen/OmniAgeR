@@ -32,7 +32,6 @@
 #' )
 #' lungInvM <- lungInv$bmiq_m
 #' stemtocOut <- stemTOC(betaM = lungInvM)
-#'
 #' @export
 #'
 

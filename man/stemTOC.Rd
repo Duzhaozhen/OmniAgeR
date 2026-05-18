@@ -35,7 +35,6 @@ lungInv <- loadOmniAgeRdata(
 )
 lungInvM <- lungInv$bmiq_m
 stemtocOut <- stemTOC(betaM = lungInvM)
-
 }
 \references{
 Zhu, T., Tong, H., Du, Z. et al.

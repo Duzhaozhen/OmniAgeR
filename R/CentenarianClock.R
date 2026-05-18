@@ -30,7 +30,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' centenarianClockOut <- centenarianClock(hannumBmiqM)
-#'
+
 centenarianClock <- function(betaM,
                              minCoverage = 0,
                              verbose = TRUE) {

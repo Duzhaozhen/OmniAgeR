@@ -27,6 +27,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' corticalClockOut <- corticalClock(hannumBmiqM)
+
 corticalClock <- function(betaM, minCoverage = 0, verbose = TRUE) {
     # --- Step 1: Load and parse coefficients (from package internal data) ---
     CorticalClockList <- loadOmniAgeRdata(

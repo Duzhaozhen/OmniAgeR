@@ -28,6 +28,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' bohlinGaOut <- bohlinGa(hannumBmiqM)
+
 bohlinGa <- function(betaM,
                      minCoverage = 0,
                      verbose = TRUE) {

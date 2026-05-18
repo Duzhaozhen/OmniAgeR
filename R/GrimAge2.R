@@ -49,6 +49,7 @@
 #' age <- phenoTypesHannum$Age
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' GrimAge2Oout <- grimAge2(betaM = hannumBmiqM, age, sex)
+
 grimAge2 <- function(betaM, age, sex,
                      minCoverage = 0, verbose = TRUE) {
     # 1. Load the model file

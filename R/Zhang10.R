@@ -27,7 +27,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' zhang10Out <- zhang10(hannumBmiqM)
-#'
+
 zhang10 <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {

@@ -37,5 +37,4 @@ weights <- getMarkerWeights(c("Horvath2013", "Hannum"))
 
 # Access specific weights
 head(weights$Horvath2013)
-
 }

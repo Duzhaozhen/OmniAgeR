@@ -33,6 +33,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' weidnerClockOut <- weidnerClock(hannumBmiqM)
+
 weidnerClock <- function(betaM,
                          minCoverage = 0,
                          verbose = TRUE) {

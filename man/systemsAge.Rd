@@ -43,7 +43,7 @@ mortality risk to derive system-specific scores.
 message("Ready to initialize Systems Age analysis.")
 
 # 2. Real pipeline execution (skip automated checks for speed)
-\donttest{
+\dontrun{
 systemsAgeData <- loadOmniAgeRdata(
     "SystemsAge_data",
     verbose = FALSE

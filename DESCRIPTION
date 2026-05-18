@@ -1,6 +1,6 @@
 Package: OmniAgeR
-Title:  Aging Omic Biomarkers from DNA Methylation and Transcriptomics
-Version: 0.99.2
+Title: Aging Omic Biomarkers from DNA Methylation and Transcriptomics
+Version: 0.99.3
 Authors@R: 
     c(person(given = "Zhaozhen",
              family = "Du",
@@ -21,15 +21,28 @@ BugReports: https://github.com/Duzhaozhen/OmniAgeR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends: R (>= 4.5.0)
 Suggests: BiocStyle, ggplot2, ggpubr, knitr, patchwork, rmarkdown,
         testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Imports: dplyr, glmnet, HiBED, magrittr,
-         preprocessCore, purrr, randomForest, rlang, Seurat, tidyr, 
-         BiocFileCache, methods, OmniAgeRData, ExperimentHub
+Imports: 
+    dplyr,
+    glmnet,
+    HiBED,
+    magrittr,
+    preprocessCore,
+    purrr,
+    randomForest,
+    rlang,
+    Seurat,
+    tidyr,
+    BiocFileCache,
+    methods,
+    OmniAgeRData,
+    ExperimentHub,
+    AnnotationHub,
+    qs2
 NeedsCompilation: no
 biocViews: Software, 
     Epigenetics, 
@@ -40,3 +53,4 @@ biocViews: Software,
     Regression,
     MethylationArray,
     Transcriptomics
+Config/roxygen2/version: 8.0.0

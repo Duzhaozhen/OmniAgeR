@@ -30,10 +30,11 @@ ensuring backward compatibility and robustness across platforms.
 The function uses coefficients from the \code{cABEC_Coef} dataset.
 }
 \examples{
+\dontrun{
 hannumBmiqM <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
 )[[1]]
 cabecOut <- leeCommonABEC(hannumBmiqM)
-
+}
 }

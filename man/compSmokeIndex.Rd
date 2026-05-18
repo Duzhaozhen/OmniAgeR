@@ -35,7 +35,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 SmokeIndexOut <- compSmokeIndex(hannumBmiqM)
-
 }
 \references{
 Teschendorff, Andrew E et al.

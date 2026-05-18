@@ -24,6 +24,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' dnamTlO <- dnamTL(hannumBmiqM)
+
 dnamTL <- function(betaM,
                    minCoverage = 0,
                    verbose = TRUE) {

@@ -31,6 +31,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' compil6Out <- compIL6(hannumBmiqM)
+
 compIL6 <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {

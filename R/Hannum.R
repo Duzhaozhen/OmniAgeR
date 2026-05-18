@@ -30,7 +30,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' hannumClockOut <- hannumClock(hannumBmiqM)
-#'
+
 hannumClock <- function(betaM,
                         minCoverage = 0,
                         verbose = TRUE) {

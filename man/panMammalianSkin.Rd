@@ -43,6 +43,7 @@ It requires the 'PanMammalianSkinCoef' data object to be available
 in the R package's data directory.
 }
 \examples{
+\dontrun{
 tursiopsExample <- loadOmniAgeRdata(
     "omniager_tursiops_example",
     verbose = FALSE
@@ -61,7 +62,7 @@ clockResults <- panMammalianSkin(
     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
     anageData = anageData
 )
-
+}
 }
 \references{
 Lu, A.T., Fei, Z., Haghani, A. et al.

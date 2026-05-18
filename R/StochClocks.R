@@ -41,6 +41,7 @@
 #' # Load example data
 #' hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
 #' stochClocksOut <- stochClocks(hannumExample[[1]])
+
 stochClocks <- function(betaM, minCoverage = 0, verbose = TRUE) {
     stocAll <- loadOmniAgeRdata("omniager_stoch_clocks")
 

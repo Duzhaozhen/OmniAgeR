@@ -35,11 +35,13 @@ The process involves several key steps:
 }
 }
 \examples{
+\dontrun{
 hannumBmiqM <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
 )[[1]]
 dunedinPACEOut <- dunedinPACE(hannumBmiqM)
+}
 }
 \references{
 Belsky DW, Caspi A, Corcoran DL, et al.

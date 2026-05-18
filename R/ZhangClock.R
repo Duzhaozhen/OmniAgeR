@@ -39,7 +39,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' zhangClockOut <- zhangClock(hannumBmiqM)
-#'
+
 zhangClock <- function(betaM,
                        minCoverage = 0,
                        verbose = TRUE) {

@@ -41,6 +41,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' intrinClockO <- intrinClock(hannumBmiqM)
+
 intrinClock <- function(betaM,
                         minCoverage = 0,
                         verbose = TRUE) {

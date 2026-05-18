@@ -31,11 +31,13 @@
 #' @importFrom preprocessCore normalize.quantiles.use.target
 #'
 #' @examples
+#' \dontrun{
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
 #' )[[1]]
 #' dunedinPACEOut <- dunedinPACE(hannumBmiqM)
+#' }
 dunedinPACE <- function(betaM, minCoverage = 0, verbose = TRUE) {
     # Load model data
     modelName <- "DunedinPACE"

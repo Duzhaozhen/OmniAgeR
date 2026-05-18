@@ -35,6 +35,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' vidalBraloClockOut <- vidalBraloClock(hannumBmiqM)
+
 vidalBraloClock <- function(betaM,
                             minCoverage = 0,
                             verbose = TRUE) {

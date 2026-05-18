@@ -30,7 +30,6 @@
 #' 
 #' # Access specific weights
 #' head(weights$Horvath2013)
-#'
 #' @export
 getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
   

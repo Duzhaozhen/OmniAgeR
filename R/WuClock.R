@@ -41,6 +41,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' wuClockOut <- wuClock(hannumBmiqM)
+
 wuClock <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {

@@ -27,7 +27,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 knightGaOut <- knightGa(hannumBmiqM)
-
 }
 \references{
 Knight AK, Craig JM, Theda C, et al.

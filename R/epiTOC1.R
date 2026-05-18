@@ -30,7 +30,6 @@
 #' )
 #' lungInvM <- lungInv$bmiq_m
 #' epitoc1Out <- epiTOC1(betaM = lungInvM)
-#'
 #' @export
 #'
 

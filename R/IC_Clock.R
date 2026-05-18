@@ -34,7 +34,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' icClockO <- icClock(hannumBmiqM)
-#'
+
 icClock <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {

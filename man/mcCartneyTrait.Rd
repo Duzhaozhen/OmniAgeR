@@ -55,12 +55,13 @@ The function iterates through and calculates scores for the following traits:
 }
 }
 \examples{
+\dontrun{
 hannumBmiqM <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
 )[[1]]
 mcCartneyTraitOut <- mcCartneyTrait(hannumBmiqM)
-
+}
 }
 \references{
 McCartney DL, Hillary RF, Stevenson AJ, et al.

@@ -60,7 +60,7 @@
 #'   LeeGaOut <- LeeGa(hannumBmiqM)
 #'   print(head(LeeGaOut$LeeControl))
 #' }
-#'
+
 LeeGa <- function(betaM,
                   minCoverage = 0,
                   verbose = TRUE) {

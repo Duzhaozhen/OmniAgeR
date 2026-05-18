@@ -39,7 +39,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' pedBEClockOut <- pedBEClock(hannumBmiqM)
-#'
+
 pedBEClock <- function(betaM,
                        minCoverage = 0,
                        verbose = TRUE) {

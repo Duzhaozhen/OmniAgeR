@@ -30,7 +30,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 zhang10Out <- zhang10(hannumBmiqM)
-
 }
 \references{
 Zhang Y, Wilson R, Heiss J, et al.

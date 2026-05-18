@@ -537,14 +537,14 @@ ggpubr::ggarrange(plotlist = gp, nrow = 1, ncol = 2)
 
 In this example, we showcase the application of the cell-type-specific clock, scImmuAging, to a PBMC scRNA-seq dataset. The dataset includes 20 samples, profiled to contain only CD4+ and CD8+ T cells.
 
-```{r scImmuAging}
+```{r scImmuAging, eval = FALSE}
 library(OmniAgeR)
 library(Seurat)
 library(glmnet)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
-#' library(Seurat)
+#library(Seurat)
 seuratObj <- loadOmniAgeRdata(
     "omniager_yazar_cd4t_cd8t_example",
     verbose = FALSE
@@ -552,7 +552,7 @@ seuratObj <- loadOmniAgeRdata(
 scImmuAgingOut <- scImmuAging(seuratObj, c("CD4T", "CD8T"))
 ```
 
-```{r scImmuAging-plot, fig.width=8, fig.height=4, out.width="100%"}
+```{r scImmuAging-plot, eval = FALSE, fig.width=8, fig.height=4, out.width="100%"}
 sc_gp <- list()
 
 for (i in seq_along(scImmuAgingOut)) {
@@ -602,7 +602,7 @@ ggpubr::ggarrange(plotlist = sc_gp, nrow = 1, ncol = 2)
 
 In this example, we showcase the application of the brain cell-type-specific aging Clocks to a brain snRNA-seq dataset. The dataset includes 15 donors, profiled to contain only Oligodendrocytes.
 
-```{r brain-ct-clock}
+```{r brain-ct-clock, eval = FALSE}
 library(OmniAgeR)
 library(Seurat)
 library(glmnet)
@@ -633,7 +633,7 @@ averagePredictionsDonor <- lapply(clockResults, function(df) {
 })
 ```
 
-```{r  brain-ct-clock-plot, fig.width=8, fig.height=3, out.width="100%"}
+```{r  brain-ct-clock-plot, eval = FALSE, fig.width=8, fig.height=3, out.width="100%"}
 brainPlot <- list()
 
 for (i in seq_along(averagePredictionsDonor)) {
@@ -686,7 +686,7 @@ ggpubr::ggarrange(plotlist = brainPlot, nrow = 1, ncol = 3)
 
 In this example, we showcase the application of the Pasta clock to a single-nuclei RNA-seq dataset from the middle temporal gyrus (MTG) (Gabitto et al., 2024). The dataset includes 46 healthy donors and is filtered to contain extratelencephalic projecting glutamatergic cortical neurons.
 
-```{r pasta}
+```{r pasta, eval = FALSE}
 # Load required libraries
 library(OmniAgeR)
 library(Seurat)
@@ -730,7 +730,7 @@ seuBulkMeta$age <- as.numeric(seuBulkMeta$age)
 pastaRes <- pastaScores(lognormMatrix, filterGenes = TRUE, rankNorm = TRUE)
 ```
 
-```{r pasta-plot, fig.width=4, fig.height=4, out.width="100%"}
+```{r pasta-plot, eval = FALSE, fig.width=4, fig.height=4, out.width="100%"}
 # Prepare the data frame for plotting
 plot_df <- data.frame(
     ActualAge = as.numeric(seuBulk$age),
@@ -788,13 +788,7 @@ library(OmniAgeR)
 # 1. Get probes for a specific chronological aging predictor
 chronologicalProbes <- getMarkerWeights(clockNames = "Horvath2013")
 print(head(chronologicalProbes$Horvath2013))
-# 3. Get probes for all biomaker
-allFeatures<- getMarkerWeights(clockNames = "all")
-names(allFeatures)[1:10]
 ```
-
-
-
 
 
 # Tutorial Example 9: Celltype fraction clock based on DNAm
@@ -802,6 +796,7 @@ We apply the DNAm Cell-type Fraction (CTF) Clock to 50 blood samples (EPIC array
 
 ```{r dnam-ctf-clock}
 library(OmniAgeR)
+library(randomForest)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)

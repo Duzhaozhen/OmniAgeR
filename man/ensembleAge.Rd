@@ -51,6 +51,7 @@ This function provides the necessary \emph{basis} for this calculation.
 }
 }
 \examples{
+\dontrun{ 
 hannumBmiqM <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
@@ -58,7 +59,7 @@ hannumBmiqM <- loadOmniAgeRdata(
 # Ensure it's CpGs=rows, Samples=cols
 # Calculate the HumanMouse clock version
 ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
-
+}
 }
 \references{
 Haghani, A., Lu, A.T., Yan, Q. et al.

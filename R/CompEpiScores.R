@@ -46,12 +46,12 @@
 #' @export
 #'
 #' @examples
-#'
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
 #' )[[1]]
 #' allEpiscoresOut <- compEpiScores(hannumBmiqM)
+#' 
 compEpiScores <- function(betaM, minCoverage = 0, verbose = TRUE) {
     EpiScoresCoef <- loadOmniAgeRdata(
         "omniager_episcores_coef",

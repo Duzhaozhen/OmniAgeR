@@ -39,6 +39,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' horvath2018ClockOut <- horvath2018Clock(hannumBmiqM)
+
 horvath2018Clock <- function(betaM,
                              minCoverage = 0,
                              verbose = TRUE) {

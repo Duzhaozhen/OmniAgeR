@@ -27,7 +27,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 epicGaOut <- epicGa(hannumBmiqM, minCoverage = 0)
-
 }
 \references{
 Haftorn KL, Lee Y, Denault WRP, et al.

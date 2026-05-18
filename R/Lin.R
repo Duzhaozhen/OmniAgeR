@@ -26,6 +26,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' linClockOut <- linClock(betaM = hannumBmiqM)
+
 linClock <- function(betaM,
                      minCoverage = 0,
                      verbose = TRUE) {

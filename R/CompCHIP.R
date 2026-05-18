@@ -37,6 +37,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' compchipOut <- compCHIP(hannumBmiqM)
+
 compCHIP <- function(betaM, minCoverage = 0, verbose = TRUE) {
     chipCpGList <- loadOmniAgeRdata(
         "omniager_chip_cpg",

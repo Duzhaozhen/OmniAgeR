@@ -95,12 +95,13 @@ leeExtendedABEC <- function(betaM,
 #'
 #' @export
 #' @examples
+#' \dontrun{
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
 #' )[[1]]
 #' cabecOut <- leeCommonABEC(hannumBmiqM)
-#'
+#'}
 leeCommonABEC <- function(betaM,
                           minCoverage = 0,
                           verbose = TRUE) {

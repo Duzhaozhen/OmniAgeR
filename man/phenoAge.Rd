@@ -39,7 +39,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 phenoAgeOut <- phenoAge(hannumBmiqM)
-
 }
 \references{
 Levine ME, Lu AT, Quach A, et al.

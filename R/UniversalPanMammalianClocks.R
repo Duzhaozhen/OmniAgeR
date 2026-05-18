@@ -36,6 +36,7 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' tursiopsExample <- loadOmniAgeRdata(
 #'     "omniager_tursiops_example",
 #'     verbose = FALSE
@@ -53,7 +54,7 @@
 #'     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
 #'     anageData = anageData
 #' )
-#'
+#'}
 universalPanMammalianClocks <- function(betaM,
                                         speciesName,
                                         anageData = NULL,

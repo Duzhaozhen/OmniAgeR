@@ -40,6 +40,7 @@ Calculates all 6 DNAm fitness biomarkers, DNAmFitAge, and FitAgeAcceleration
 from a DNA methylation matrix and phenotype data.
 }
 \examples{
+\dontrun{
 hannumExample <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
@@ -50,6 +51,7 @@ age <- phenoTypesHannum$Age
 sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 GrimAge1O <- grimAge1(hannumBmiqM, age, sex)
 dnamFitAgeOut <- dnamFitAge(hannumBmiqM, age, sex, GrimAge1O$DNAmGrimAge1)
+}
 }
 \references{
 McGreevy KM, Radak Z, Torma F, et al.

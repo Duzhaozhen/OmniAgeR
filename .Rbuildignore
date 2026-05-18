@@ -4,3 +4,5 @@
 ^Meta$
 ^\.Rproj\.user$
 ^OmniAgeR\.BiocCheck$
+^\.positai$
+^\.claude$

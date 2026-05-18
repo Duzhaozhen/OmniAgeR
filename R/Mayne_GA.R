@@ -29,6 +29,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' mayneGaOut <- mayneGa(hannumBmiqM)
+
 mayneGa <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {

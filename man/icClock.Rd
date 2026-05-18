@@ -36,7 +36,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 icClockO <- icClock(hannumBmiqM)
-
 }
 \references{
 Fuentealba M, Rouch L, Guyonnet S, et al.

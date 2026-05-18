@@ -41,8 +41,8 @@ It iteratively calls \code{runPredictionPipelineBrainCt} for each requested
 # 1. Define valid models to run (Fast, runnable example to pass BiocCheck)
 available_models <- c("SC", "Pseudobulk", "Bootstrap")
 print(available_models)
-\donttest{
-# 2. Real pipeline execution (Wrapped in donttest because it requires downloading
+\dontrun{
+# 2. Real pipeline execution (Wrapped in dontrun because it requires downloading
 # pre-trained models and large example datasets via loadOmniAgeRdata)
 
 # Load the Seurat object

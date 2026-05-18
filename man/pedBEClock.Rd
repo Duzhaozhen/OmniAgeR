@@ -42,7 +42,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 pedBEClockOut <- pedBEClock(hannumBmiqM)
-
 }
 \references{
 McEwen LM, O'Donnell KJ, McGill MG, et al.

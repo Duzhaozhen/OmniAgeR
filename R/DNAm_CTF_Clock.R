@@ -14,13 +14,13 @@
 #'
 #'
 #' @examples
-#'
+#' \dontrun{
 #' tzhFracM <- loadOmniAgeRdata(
 #'     "omniager_tzh_example_ctf",
 #'     verbose = FALSE
 #' )[[2]]
 #' dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
-#'
+#'}
 dnamCTFClock <- function(ctfM, verbose = TRUE) {
     # --- 1. Load the internal model ---
     dnamCtfModel <- loadOmniAgeRdata(

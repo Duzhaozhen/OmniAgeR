@@ -45,7 +45,7 @@
 #' valid_cell_types <- c("CD4T", "CD8T", "MONO", "NK", "B")
 #' print(valid_cell_types)
 #'
-#' \donttest{
+#' \dontrun{
 #' # 2. Real pipeline execution (Wrapped in donttest because it requires
 #' # downloading pre-trained models and external example datasets)
 #' library(Seurat)

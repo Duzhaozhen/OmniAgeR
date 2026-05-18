@@ -36,7 +36,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' SmokeIndexOut <- compSmokeIndex(hannumBmiqM)
-#'
+
 compSmokeIndex <- function(betaM, minCoverage = 0, verbose = TRUE) {
     coeffSmkIdx <- loadOmniAgeRdata(
         "omniager_coeff_smk_idx",

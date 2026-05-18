@@ -69,6 +69,7 @@
 #' \emph{Aging} 2024
 #'
 #' @examples
+#' \dontrun{
 #' murphyBetaM <- loadOmniAgeRdata(
 #'     "omniager_cts_murphy_gse88890",
 #'     verbose = FALSE
@@ -93,7 +94,6 @@
 #'     ctfM = NULL,
 #'     tissue = "brain"
 #' )
-#'
 #' liverBetaM <- loadOmniAgeRdata(
 #'     "omniager_cts_example_data_liver",
 #'     verbose = FALSE
@@ -105,6 +105,7 @@
 #'     ctfM = NULL,
 #'     tissue = "otherTissue"
 #' )
+#' }
 #'
 #' @export
 ctsClocks <- function(betaM,

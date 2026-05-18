@@ -36,7 +36,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' phenoAgeOut <- phenoAge(hannumBmiqM)
-#'
+
 phenoAge <- function(betaM,
                      minCoverage = 0,
                      verbose = TRUE) {

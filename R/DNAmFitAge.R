@@ -36,6 +36,7 @@
 #' \emph{Aging} 2023
 #'
 #' @examples
+#' \dontrun{
 #' hannumExample <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
@@ -46,6 +47,7 @@
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' GrimAge1O <- grimAge1(hannumBmiqM, age, sex)
 #' dnamFitAgeOut <- dnamFitAge(hannumBmiqM, age, sex, GrimAge1O$DNAmGrimAge1)
+#' }
 dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0,
                        verbose = TRUE) {
     # --- 1. Object conversion and validation ---

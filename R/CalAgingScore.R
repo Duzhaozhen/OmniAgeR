@@ -598,7 +598,7 @@ listEpiMarker <- function() {
 #'     minCoverage = 0
 #' )
 #' ## Downloading "PCClocks_data" and "SystemsAge_data" will take a very long time.
-#' \donttest{
+#' \dontrun{
 #' hannumExample <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE

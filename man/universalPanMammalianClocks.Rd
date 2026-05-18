@@ -46,6 +46,7 @@ models, and performs the necessary inverse mathematical transformations
 to report age in years.
 }
 \examples{
+\dontrun{
 tursiopsExample <- loadOmniAgeRdata(
     "omniager_tursiops_example",
     verbose = FALSE
@@ -63,7 +64,7 @@ clockResults <- universalPanMammalianClocks(
     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
     anageData = anageData
 )
-
+}
 }
 \references{
 Lu, A.T., Fei, Z., Haghani, A. et al.

@@ -49,8 +49,8 @@ sample_type <- "SC"
 target_cells <- c("Oligodendrocytes", "Astrocytes")
 print(paste("Preparing to run pipeline for", sample_type, "samples."))
 
-\donttest{
-# 2. Real pipeline execution (Wrapped in donttest because it requires
+\dontrun{
+# 2. Real pipeline execution (Wrapped in dontrun because it requires
 # downloading pre-trained models and large example datasets)
 library(Seurat)
 

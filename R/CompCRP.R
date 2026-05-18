@@ -39,6 +39,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' compcrpOut <- compCRP(hannumBmiqM)
+
 compCRP <- function(betaM, minCoverage = 0, verbose = TRUE) {
     crpCpGList <- loadOmniAgeRdata(
         "omniager_crp_cpg",

@@ -34,7 +34,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 hannumClockOut <- hannumClock(hannumBmiqM)
-
 }
 \references{
 Hannum G, Guinney J, Zhao L, et al.

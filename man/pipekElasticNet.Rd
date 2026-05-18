@@ -46,7 +46,6 @@ hannumBmiqM <- loadOmniAgeRdata(
     verbose = FALSE
 )[[1]]
 pipekElasticNetOut <- pipekElasticNet(hannumBmiqM)
-
 }
 \references{
 Pipek, O.A., Csabai, I.

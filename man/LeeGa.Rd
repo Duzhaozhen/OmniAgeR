@@ -60,7 +60,6 @@ if (interactive()) {
   LeeGaOut <- LeeGa(hannumBmiqM)
   print(head(LeeGaOut$LeeControl))
 }
-
 }
 \references{
 Lee Y, Choufani S, Weksberg R, et al.

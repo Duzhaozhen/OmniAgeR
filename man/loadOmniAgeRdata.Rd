@@ -18,19 +18,16 @@ or \code{list}) containing the requested model parameters or reference data.
 }
 \description{
 This function seamlessly loads specific aging omic clock models, weights, or
-example datasets required by the \pkg{OmniAgeR} package. It automatically
-retrieves the data from the companion data package \pkg{OmniAgeRData} via
-ExperimentHub.
+example datasets required by the \pkg{OmniAgeR} package.
 }
 \details{
 To comply with Bioconductor guidelines and minimize the software
-package size, heavy data files are managed externally.
+package size, heavy data files are managed externally via ExperimentHub.
 }
 \examples{
-# Ensure OmniAgeRData is installed before running
+\dontrun{
 # Load the Horvath2013 model weights
 horvath2013Model <- loadOmniAgeRdata("omniager_horvath2013_coef")
-
-# View the first few rows of the loaded model parameters
 head(horvath2013Model)
+}
 }

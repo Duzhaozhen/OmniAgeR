@@ -22,7 +22,7 @@
 #'     verbose = FALSE
 #' )[[1]]
 #' epicGaOut <- epicGa(hannumBmiqM, minCoverage = 0)
-#'
+
 epicGa <- function(betaM,
                    minCoverage = 0,
                    verbose = TRUE) {

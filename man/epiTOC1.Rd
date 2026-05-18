@@ -34,7 +34,6 @@ lungInv <- loadOmniAgeRdata(
 )
 lungInvM <- lungInv$bmiq_m
 epitoc1Out <- epiTOC1(betaM = lungInvM)
-
 }
 \references{
 Yang Z, Wong A, Kuh D, et al.

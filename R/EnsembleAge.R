@@ -41,6 +41,7 @@
 #' @importFrom utils data
 #'
 #' @examples
+#' \dontrun{ 
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
@@ -48,7 +49,7 @@
 #' # Ensure it's CpGs=rows, Samples=cols
 #' # Calculate the HumanMouse clock version
 #' ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
-#'
+#'}
 ensembleAge <- function(betaM, clockVersion = c("HumanMouse", "Static", "Dynamic"),
                         minCoverage = 0, verbose = TRUE) {
     clockVersion <- match.arg(clockVersion)
