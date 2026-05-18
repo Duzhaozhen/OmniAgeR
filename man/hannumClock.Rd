@@ -29,11 +29,23 @@ a weighted linear predictor from 71 CpGs found in the input matrix.
 This clock is a direct linear model without non-linear transformation.
 }
 \examples{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-hannumClockOut <- hannumClock(hannumBmiqM)
+# 1. Load the lightweight clock coefficient table
+modelCoef <- loadOmniAgeRdata("omniager_hannum", verbose = FALSE)
+
+# 2. Extract feature names and exclude potential intercept terms
+allFeatures <-  unique(unlist(modelCoef, use.names = FALSE))
+requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+
+# 3. Generate a mock micro-beta matrix for 2 samples in memory
+mockBetaM <- matrix(
+    runif(length(requiredCpGs) * 2, min = 0, max = 1),
+    nrow = length(requiredCpGs),
+    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+)
+
+# 4. Run the age prediction
+hannumClockOut <- hannumClock(mockBetaM)
 }
 \references{
 Hannum G, Guinney J, Zhao L, et al.

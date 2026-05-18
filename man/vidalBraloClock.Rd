@@ -31,11 +31,23 @@ for use in adult whole blood samples. The model is a linear predictor
 based on 8 specific CpG sites.
 }
 \examples{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-vidalBraloClockOut <- vidalBraloClock(hannumBmiqM)
+# 1. Load the lightweight clock coefficient table
+modelCoef <- loadOmniAgeRdata("omniager_vidalbralo_coef", verbose = FALSE)
+
+# 2. Extract feature names and exclude potential intercept terms
+allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
+requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+
+# 3. Generate a mock micro-beta matrix for 2 samples in memory
+mockBetaM <- matrix(
+    runif(length(requiredCpGs) * 2, min = 0, max = 1),
+    nrow = length(requiredCpGs),
+    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+)
+
+# 4. Run the age prediction
+vidalBraloClockOut <- vidalBraloClock(mockBetaM)
 }
 \references{
 Vidal-Bralo L, Lopez-Golan Y, Gonzalez A.

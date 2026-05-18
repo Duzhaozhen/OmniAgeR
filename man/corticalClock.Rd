@@ -25,11 +25,22 @@ Predicts DNAm age in cortical samples using the elastic net
 model by Shireby et al. (2020).
 }
 \examples{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-corticalClockOut <- corticalClock(hannumBmiqM)
+# 1. Load the lightweight clock coefficient table
+modelCoef <- loadOmniAgeRdata("omniager_cortical_clock_coef", verbose = FALSE)
+
+# 2. Extract feature names and exclude potential intercept terms
+allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
+requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+
+# 3. Generate a mock micro-beta matrix for 2 samples in memory
+mockBetaM <- matrix(
+    runif(length(requiredCpGs) * 2, min = 0, max = 1),
+    nrow = length(requiredCpGs),
+    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+)
+# 4. Run the age prediction
+corticalClockOut <- corticalClock(mockBetaM)
 }
 \references{
 Shireby GL, Davies JP, Francis PT, et al.

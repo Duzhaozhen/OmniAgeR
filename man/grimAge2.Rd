@@ -43,6 +43,7 @@ This score is calibrated to the scale of chronological age to produce the
 final \code{DNAmGrimAge2}.
 }
 \examples{
+\dontrun{
 hannumExample <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
@@ -52,6 +53,7 @@ phenoTypesHannum <- hannumExample[[2]]
 age <- phenoTypesHannum$Age
 sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 GrimAge2Oout <- grimAge2(betaM = hannumBmiqM, age, sex)
+}
 }
 \references{
 Lu AT, Binder AM, Zhang J, et al.

@@ -36,11 +36,22 @@ naive T-cells. The resulting output is a relative score that captures the
 methylation pattern associated with CRP levels.
 }
 \examples{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-compcrpOut <- compCRP(hannumBmiqM)
+# 1. Load the lightweight clock coefficient table
+modelCoef <- loadOmniAgeRdata("omniager_crp_cpg", verbose = FALSE)
+
+# 2. Extract feature names and exclude potential intercept terms
+allFeatures <- unique(unlist(lapply(modelCoef, names), use.names = FALSE))
+requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+
+# 3. Generate a mock micro-beta matrix for 2 samples in memory
+mockBetaM <- matrix(
+    runif(length(requiredCpGs) * 2, min = 0, max = 1),
+    nrow = length(requiredCpGs),
+    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+)
+# 4. Run the age prediction
+compcrpOut <- compCRP(mockBetaM)
 }
 \references{
 Wielscher, M., Mandaviya, P.R., Kuehnel, B. et al.

@@ -33,12 +33,25 @@
 #' \emph{BMC Genomics} 2020
 #'
 #' @examples
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' abecOut <- leeABEC(hannumBmiqM)
-#'
+#' # 1. Load the lightweight clock coefficient table
+#' modelCoef <- loadOmniAgeRdata("omniager_abec_coef", verbose = FALSE)
+#' 
+#' # 2. Extract feature names and exclude potential intercept terms
+#' allFeatures <- rownames(modelCoef)
+#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' 
+#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
+#' mockBetaM <- matrix(
+#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
+#'     nrow = length(requiredCpGs),
+#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+#' )
+#' 
+#' # 4. Run the age prediction
+#' abecOut <- leeABEC(mockBetaM, verbose = FALSE)
+
+
 leeABEC <- function(betaM,
                     minCoverage = 0,
                     verbose = TRUE) {
@@ -65,11 +78,23 @@ leeABEC <- function(betaM,
 #'
 #' @export
 #' @examples
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' eabecOut <- leeExtendedABEC(hannumBmiqM)
+#' # 1. Load the lightweight clock coefficient table
+#' modelCoef <- loadOmniAgeRdata("omniager_eabec_coef", verbose = FALSE)
+#' 
+#' # 2. Extract feature names and exclude potential intercept terms
+#' allFeatures <- rownames(modelCoef)
+#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
+#' 
+#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
+#' mockBetaM <- matrix(
+#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
+#'     nrow = length(requiredCpGs),
+#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+#' )
+#' 
+#' # 4. Run the age prediction
+#' eabecOut <- leeExtendedABEC(mockBetaM, verbose = FALSE)
 #'
 leeExtendedABEC <- function(betaM,
                             minCoverage = 0,
@@ -95,13 +120,24 @@ leeExtendedABEC <- function(betaM,
 #'
 #' @export
 #' @examples
-#' \dontrun{
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' cabecOut <- leeCommonABEC(hannumBmiqM)
-#'}
+#' # 1. Load the lightweight clock coefficient table
+#' modelCoef <- loadOmniAgeRdata("omniager_cabec_coef", verbose = FALSE)
+#' 
+#' # 2. Extract feature names and exclude potential intercept terms
+#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
+#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' 
+#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
+#' mockBetaM <- matrix(
+#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
+#'     nrow = length(requiredCpGs),
+#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+#' )
+#' 
+#' # 4. Run the age prediction
+#' cabecOut <- leeCommonABEC(mockBetaM, verbose = FALSE)
+
 leeCommonABEC <- function(betaM,
                           minCoverage = 0,
                           verbose = TRUE) {

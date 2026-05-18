@@ -33,12 +33,23 @@ It uses an internal helper to handle missing probes and compute the
 final age estimates.
 }
 \examples{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-abecOut <- leeABEC(hannumBmiqM)
+# 1. Load the lightweight clock coefficient table
+modelCoef <- loadOmniAgeRdata("omniager_abec_coef", verbose = FALSE)
 
+# 2. Extract feature names and exclude potential intercept terms
+allFeatures <- rownames(modelCoef)
+requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+
+# 3. Generate a mock micro-beta matrix for 2 samples in memory
+mockBetaM <- matrix(
+    runif(length(requiredCpGs) * 2, min = 0, max = 1),
+    nrow = length(requiredCpGs),
+    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+)
+
+# 4. Run the age prediction
+abecOut <- leeABEC(mockBetaM, verbose = FALSE)
 }
 \references{
 Lee, Y., Haftorn, K.L., Denault, W.R.P. et al.

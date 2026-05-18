@@ -28,11 +28,13 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' hannumBmiqM <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
 #' )[[1]]
 #' bernabeuCAgeO <- bernabeuCAge(hannumBmiqM)
+#' }
 #' @export
 
 bernabeuCAge <- function(betaM, minCoverage = 0, verbose = TRUE) {

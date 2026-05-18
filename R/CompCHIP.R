@@ -32,11 +32,22 @@
 #' @export
 #'
 #' @examples
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' compchipOut <- compCHIP(hannumBmiqM)
+#' # 1. Load the lightweight clock coefficient table
+#' modelCoef <- loadOmniAgeRdata("omniager_chip_cpg", verbose = FALSE)
+#' 
+#' # 2. Extract feature names and exclude potential intercept terms
+#' allFeatures <- unique(unlist(lapply(modelCoef, names), use.names = FALSE))
+#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
+#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' 
+#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
+#' mockBetaM <- matrix(
+#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
+#'     nrow = length(requiredCpGs),
+#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
+#' )
+#' # 4. Run the age prediction
+#' compchipOut <- compCHIP(mockBetaM)
 
 compCHIP <- function(betaM, minCoverage = 0, verbose = TRUE) {
     chipCpGList <- loadOmniAgeRdata(

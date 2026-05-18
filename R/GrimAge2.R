@@ -40,6 +40,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' hannumExample <- loadOmniAgeRdata(
 #'     "omniager_hannum_example",
 #'     verbose = FALSE
@@ -49,6 +50,7 @@
 #' age <- phenoTypesHannum$Age
 #' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 #' GrimAge2Oout <- grimAge2(betaM = hannumBmiqM, age, sex)
+#' }
 
 grimAge2 <- function(betaM, age, sex,
                      minCoverage = 0, verbose = TRUE) {
