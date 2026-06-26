@@ -4,8 +4,10 @@
 #' Predicts biological age based on immune cell type fractions derived from
 #' DNA methylation data.
 #'
-#' @param ctfM A numeric matrix or data frame where rows are samples and columns are cell types.
-#'   Must contain the specific cell types required by the model (e.g., predicted by EpiDISH).
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}, 
+#'   object containing celltype fraction matrix. Rows should be cell types and 
+#'   columns should be samples. Must contain the specific cell types required 
+#'   by the model (e.g., predicted by EpiDISH).
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #' @return A named numeric vector of predicted ages.
@@ -14,15 +16,33 @@
 #'
 #'
 #' @examples
-#' \dontrun{
-#' tzhFracM <- loadOmniAgeRdata(
+#' 
+#' ctfExample <- loadOmniAgeRdata(
 #'     "omniager_tzh_example_ctf",
 #'     verbose = FALSE
-#' )[[2]]
-#' dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
-#'}
-dnamCTFClock <- function(ctfM, verbose = TRUE) {
+#' )
+#' dnamCTFClockOut <- dnamCTFClock(t(ctfExample[[2]]))
+#'
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- ctfExample[[1]]
+#'     rownames(pheno_data) <- pheno_data[["Sample"]]
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(ctf=t(ctfExample[[2]])),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     dnamCTFClockOut <- dnamCTFClock(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#' 
+
+dnamCTFClock <- function(x, verbose = TRUE) {
     # --- 1. Load the internal model ---
+    ctfM <- t(.extractAssayMatrix(x))
     dnamCtfModel <- loadOmniAgeRdata(
         "omniager_dnam_ctf_model",
         verbose = verbose

@@ -7,7 +7,9 @@
 #' This function takes as input an Illumina 450k/EPIC DNAm beta matrix and an
 #' age vector (optional) and will return the epiTOC2 scores.
 #'
-#' @param betaM A numeric matrix of DNAm beta values (probes as rows).
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param age Optional numeric vector representing chronological ages
 #'   of the samples.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
@@ -45,17 +47,33 @@
 #' @importFrom stats median
 #'
 #' @examples
-#' lungInv <- loadOmniAgeRdata(
-#'     "omniager_lung_inv",
-#'     verbose = FALSE
-#' )
-#' lungInvM <- lungInv$bmiq_m
-#' phenoDf <- lungInv$PhenoTypes
-#' epitoc2Out <- epiTOC2(betaM = lungInvM, age = phenoDf$Age)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' 
+#' # Example 1: Direct Matrix Input
+#' epiTOC2Out <- epiTOC2(x = beta_matrix, verbose = FALSE)
+#' 
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     epiTOC2Out <- epiTOC2(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 #' @export
 #'
 
-epiTOC2 <- function(betaM, age = NULL, minCoverage = 0, verbose = TRUE) {
+
+epiTOC2 <- function(x, age = NULL, minCoverage = 0, verbose = TRUE) {
+    betaM <- .extractAssayMatrix(x)
     estParams <- loadOmniAgeRdata(
         "omniager_epitoc2_model",
         verbose = verbose

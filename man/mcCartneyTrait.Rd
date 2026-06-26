@@ -4,11 +4,12 @@
 \alias{mcCartneyTrait}
 \title{Calculate Epigenetic Surrogates for Complex Traits (McCartney et al. 2018)}
 \usage{
-mcCartneyTrait(betaM, minCoverage = 0, verbose = TRUE)
+mcCartneyTrait(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
-columns should be individual samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -55,13 +56,39 @@ The function iterates through and calculates scores for the following traits:
 }
 }
 \examples{
+# Load the included example data (a list containing a matrix and phenotypes)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+predRes <- mcCartneyTrait(x = beta_matrix)
+head(predRes)
+
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
 \dontrun{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-mcCartneyTraitOut <- mcCartneyTrait(hannumBmiqM)
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    # Extract phenotype and ensure rownames match matrix colnames
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    # Construct the SummarizedExperiment object
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    # The function seamlessly accepts the Bioconductor object
+    predRes <- mcCartneyTrait(x = se_obj)
+    head(predRes)
+  }
 }
+
 }
 \references{
 McCartney DL, Hillary RF, Stevenson AJ, et al.

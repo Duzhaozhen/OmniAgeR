@@ -4,10 +4,12 @@
 \alias{dunedinPACE}
 \title{Calculate DunedinPACE}
 \usage{
-dunedinPACE(betaM, minCoverage = 0, verbose = TRUE)
+dunedinPACE(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix (Rows: CpGs, Cols: Samples)}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage for
 imputation and calculation. Default is 0.}
@@ -35,13 +37,28 @@ The process involves several key steps:
 }
 }
 \examples{
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# Example 1: Direct Matrix Input
+dunedinPACEOut  <- dunedinPACE(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
 \dontrun{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-dunedinPACEOut <- dunedinPACE(hannumBmiqM)
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    dunedinPACEOut <- dunedinPACE(x = se_obj, verbose = FALSE)
+  }
 }
+
 }
 \references{
 Belsky DW, Caspi A, Corcoran DL, et al.

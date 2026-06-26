@@ -4,12 +4,12 @@
 \alias{wuClock}
 \title{Wu's Epigenetic Clock for Pediatric Age Estimation}
 \usage{
-wuClock(betaM, minCoverage = 0, verbose = TRUE)
+wuClock(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNA methylation beta values.
-\code{rownames} (CpG probe IDs) and \code{colnames} (Sample IDs) are required.
-The matrix should not contain \code{NA} values.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -17,8 +17,7 @@ required CpGs that must be present. Default is 0.}
 \item{verbose}{A logical flag. If \code{TRUE} (default), prints status messages.}
 }
 \value{
-A numeric vector of predicted biological ages. The vector is
-named using the sample IDs from the \code{rownames} of \code{betaM}.
+A numeric vector of predicted biological ages.
 }
 \description{
 Estimates biological age (in years) based on DNA methylation data using the method
@@ -39,23 +38,28 @@ The input \code{beta.m} must be a matrix of Beta values (0 to 1). The function
 expects CpG probes as row names.
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_wu_clock_coef", verbose = FALSE)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# Example 1: Direct Matrix Input
+predOut <- wuClock(x = beta_matrix, verbose = FALSE)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    predOut <- wuClock(x = se_obj, verbose = FALSE)
+  }
+}
 
-# 4. Run the age prediction
-wuClockOut <- wuClock(mockBetaM)
 }
 \references{
 Wu, Xiaohui et al.

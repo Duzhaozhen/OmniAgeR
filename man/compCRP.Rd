@@ -4,11 +4,12 @@
 \alias{compCRP}
 \title{Compute a DNAm-based C-Reactive Protein (CRP) Score}
 \usage{
-compCRP(betaM, minCoverage = 0, verbose = TRUE)
+compCRP(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNAm beta values (probes as rows). Rows
-should be Illumina 450k/EPIC CpG identifiers and columns should be samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
 Default is 0.}
@@ -36,22 +37,27 @@ naive T-cells. The resulting output is a relative score that captures the
 methylation pattern associated with CRP levels.
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_crp_cpg", verbose = FALSE)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(lapply(modelCoef, names), use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# Example 1: Direct Matrix Input
+crpRes <- compCRP(x = beta_matrix, verbose = FALSE)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
-# 4. Run the age prediction
-compcrpOut <- compCRP(mockBetaM)
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    crpRes <- compCRP(x = se_obj, verbose = FALSE)
+  }
+}
 }
 \references{
 Wielscher, M., Mandaviya, P.R., Kuehnel, B. et al.

@@ -5,14 +5,16 @@
 \title{Calculate EnsembleAge Epigenetic Clocks}
 \usage{
 ensembleAge(
-  betaM,
+  x,
   clockVersion = c("HumanMouse", "Static", "Dynamic"),
   minCoverage = 0,
   verbose = TRUE
 )
 }
 \arguments{
-\item{betaM}{A numeric matrix (Rows: CpGs, Cols: Samples) or \code{SummarizedExperiment}.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{clockVersion}{Character. One of \code{"Dynamic"}, \code{"Static"}, or \code{"HumanMouse"}.}
 
@@ -51,14 +53,28 @@ This function provides the necessary \emph{basis} for this calculation.
 }
 }
 \examples{
-\dontrun{ 
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-# Ensure it's CpGs=rows, Samples=cols
+# ====================================================================
+# Example 1: Direct Matrix Input 
+# ====================================================================
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
 # Calculate the HumanMouse clock version
-ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
+ensembleAgeOut <- ensembleAge(x = beta_matrix, clockVersion = "HumanMouse", verbose = FALSE)
+
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix)
+    )
+    
+    ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
+  }
 }
 }
 \references{

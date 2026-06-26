@@ -4,12 +4,12 @@
 \alias{icClock}
 \title{Calculate the Intrinsic Capacity (IC) Epigenetic Clock.}
 \usage{
-icClock(betaM, minCoverage = 0, verbose = TRUE)
+icClock(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
-columns should be individual samples. The matrix should not
-contain \code{NA} values.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -31,23 +31,38 @@ DNAm biomarker trained on clinical evaluations of physical and mental
 capacities
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_ic_clock_coef", verbose = FALSE)
+# Load the included example data (a list containing a matrix and phenotypes)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+predRes <- icClock(x = beta_matrix)
+head(predRes)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
-
-# 4. Run the age prediction
-icClockO <- icClock(mockBetaM)
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    # Extract phenotype and ensure rownames match matrix colnames
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    # Construct the SummarizedExperiment object
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    # The function seamlessly accepts the Bioconductor object
+    predRes <- icClock(x = se_obj)
+    head(predRes)
+  }
+}
 }
 \references{
 Fuentealba M, Rouch L, Guyonnet S, et al.

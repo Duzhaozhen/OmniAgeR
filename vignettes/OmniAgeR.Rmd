@@ -322,6 +322,33 @@ on cell-type composition.
 | `McCartney_Trait` | Epigenetic surrogate scores for 10 different complex traits | `epiMarker()`, `mcCartneyTrait()` |
 
 
+## Installation
+
+```{r install-bioc, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(c("OmniAgeR", "OmniAgeRData"))
+```
+
+During package review or development, the development versions can be installed from GitHub:
+
+```{r install-github, eval=FALSE}
+if (!requireNamespace("remotes", quietly = TRUE))
+    install.packages("remotes")
+
+remotes::install_github("Duzhaozhen/OmniAgeRData")
+remotes::install_github("Duzhaozhen/OmniAgeR")
+```
+
+After installation, the packages can be loaded with:
+
+```{r load-packages, message=FALSE}
+library(OmniAgeR)
+library(OmniAgeRData)
+```
+
+
 # Tutorial Example 1: Apply mitotic clocks on Lung pre-cancerous lesions
 
 ## Loading the lung pre-cancerous lesions dataset
@@ -337,11 +364,17 @@ library(OmniAgeR)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
+library(SummarizedExperiment)
 lungInv <- loadOmniAgeRdata(
     "omniager_lung_inv",
     verbose = FALSE
 )
-lungInvM <- lungInv$bmiq_m
+
+# Construct the SummarizedExperiment object
+lungInvSeObj <- SummarizedExperiment(
+    assays = list(beta = lungInv$bmiq_m)
+    )
+
 phenoDf <- lungInv$PhenoTypes
 
 my_comparisons <- list(c("N\nN=21", "LCIS\nN=13"), c("LCIS\nN=13", "LCIS->LC\nN=22"))
@@ -355,14 +388,14 @@ listEpiMarker()
 Mitotic age estimation of all the clocks is implemented in a general function *EpiMitClocks*. The required input is a DNAm beta value matrix with rows labeling Illumina 450k/EPIC CpGs and columns labeling samples.
 
 ```{r run-mototic-clock}
-epiMarkerRes <- epiMarker(
-    betaM = lungInvM,
+epiMarkerRes <- suppressPackageStartupMessages(epiMarker(
+    x = lungInvSeObj,
     clockNames = "mitotic",
     chronAge = phenoDf$Age,
     minCoverage = 0,
     verbose = FALSE
-)
-rm(lungInvM)
+))
+rm(lungInvSeObj)
 ```
 
 ```{r mototic-clock-plot, fig.width=12, fig.height=10, out.width="100%"}
@@ -399,7 +432,7 @@ ggpubr::ggarrange(plotlist = g, nrow = 3, ncol = 3)
 
 # Tutorial Example 2: Predict chronological age in blood tissue
 
-The epigenetic age of 50 normal blood samples was estimated from their Illumina 
+The epigenetic age of 3 normal blood samples was estimated from their Illumina 
 450k methylation profiles using both the Horvath and Zhang epigenetic clocks.
 
 ```{r chronological-age-clock}
@@ -407,18 +440,16 @@ library(OmniAgeR)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
-hannumExample <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)
-hannumBmiqM <- hannumExample[[1]]
-phenoTypesHannum <- hannumExample[[2]]
+
+data(dnamExample)
+hannumBmiqM <- dnamExample[[1]]
+phenoTypesHannum <- dnamExample[[2]]
 age <- phenoTypesHannum$Age
 sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-epiMarkerOut <- epiMarker(hannumBmiqM,
+epiMarkerOut <- suppressPackageStartupMessages(epiMarker(hannumBmiqM,
     clockNames = c("Horvath2013", "ZhangClock"),
     minCoverage = 0, verbose = FALSE
-)
+))
 ```
 
 ```{r chronological-age-clock-plot, fig.width=8, fig.height=4, out.width="100%"}
@@ -466,90 +497,27 @@ for (i in seq_along(epiMarkerOut)) {
 ggpubr::ggarrange(plotlist = gp, nrow = 1, ncol = 2)
 ```
 
-# Tutorial Example 3: Predict gestational age
+# Tutorial Example 3: Apply sc-ImmuAging to PBMC scRNA-seq dataset
 
-A small demonstration dataset containing three samples, used to illustrate how 
-to predict the gestational age of samples using DNAm Gestational Age Clocks.
-
-```{r gestational-age}
-library(OmniAgeR)
-library(ggplot2)
-library(patchwork)
-library(ggpubr)
-gaExample <- loadOmniAgeRdata(
-    "omniager_ga_example",
-    verbose = FALSE
-)
-gaM <- gaExample[[1]]
-phenoTypesGa <- gaExample[[2]]
-epiGA <- epiMarker(gaM,
-    clockNames = c("KnightGA", "MayneGA"),
-    minCoverage = 0, verbose = FALSE
-)
-```
-
-```{r gestational-age-plot, fig.width=8, fig.height=4, out.width="100%"}
-gp <- list()
-
-for (i in seq_along(epiGA)) {
-    plot_df <- data.frame(Gestational_Age = phenoTypesGa$age, PredictedAge = epiGA[[i]])
-    cor_test_result <- cor.test(plot_df$Gestational_Age, plot_df$PredictedAge)
-    correlation <- cor_test_result$estimate
-    p_value <- cor_test_result$p.value
-    mae <- mean(abs(plot_df$PredictedAge - plot_df$Gestational_Age))
-    p_value_formatted <- ifelse(p_value < 0.001,
-        formatC(p_value, format = "e", digits = 2),
-        round(p_value, 3)
-    )
-    annotation_text <- paste0(
-        "R = ", round(correlation, 3), "\n",
-        "P = ", p_value_formatted, "\n",
-        "MAE = ", round(mae, 2)
-    )
-    gp[[i]] <- ggplot(data = plot_df, aes(x = Gestational_Age, y = PredictedAge)) +
-        geom_point(color = "steelblue", size = 3, alpha = 0.8) +
-        geom_smooth(method = "lm", color = "black", se = FALSE) +
-        annotate("text",
-            x = min(plot_df$Gestational_Age, na.rm = TRUE),
-            y = max(plot_df$PredictedAge, na.rm = TRUE),
-            label = annotation_text,
-            hjust = 0,
-            vjust = 1, size = 5
-        ) +
-        labs(
-            title = NULL,
-            x = "Gestational Age(weeks)",
-            y = paste0("Predicted Age(", c("Knight GA", "Mayne GA")[i], ", weeks)")
-        ) +
-        theme_bw() +
-        theme(
-            plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-            plot.subtitle = element_text(hjust = 0.5, size = 12),
-            axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12)
-        )
-}
-
-ggpubr::ggarrange(plotlist = gp, nrow = 1, ncol = 2)
-```
-
-# Tutorial Example 4: Apply sc-ImmuAging to PBMC scRNA-seq dataset
-
-In this example, we showcase the application of the cell-type-specific clock, scImmuAging, to a PBMC scRNA-seq dataset. The dataset includes 20 samples, profiled to contain only CD4+ and CD8+ T cells.
+In this example, we showcase the application of the cell-type-specific clock, scImmuAging, to a PBMC scRNA-seq dataset. The dataset includes 5 samples, profiled to contain only CD4+ T cells.
 
 ```{r scImmuAging, eval = FALSE}
-library(OmniAgeR)
-library(Seurat)
+library(OmniAgeR))
 library(glmnet)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
-#library(Seurat)
-seuratObj <- loadOmniAgeRdata(
-    "omniager_yazar_cd4t_cd8t_example",
-    verbose = FALSE
-)
-scImmuAgingOut <- scImmuAging(seuratObj, c("CD4T", "CD8T"))
+data("ScPbmcExample")
+set.seed(42)
+scImmuAgingOut <- suppressPackageStartupMessages(scImmuAging(
+   x = ScPbmcExample,
+   cellTypes = c("CD4T"),
+   assayName = "logcounts",
+   donorCol = "donor_id",
+   ageCol = "age",
+   cellTypeCol = "celltype",
+   verbose = FALSE
+))
 ```
 
 ```{r scImmuAging-plot, eval = FALSE, fig.width=8, fig.height=4, out.width="100%"}
@@ -595,35 +563,33 @@ for (i in seq_along(scImmuAgingOut)) {
         )
 }
 
-ggpubr::ggarrange(plotlist = sc_gp, nrow = 1, ncol = 2)
+ggpubr::ggarrange(plotlist = sc_gp, nrow = 1)
 ```
 
-# Tutorial Example 5: Apply Brain_CT_clock to Brain snRNA-seq dataset
+# Tutorial Example 4: Apply Brain_CT_clock to Brain snRNA-seq dataset
 
-In this example, we showcase the application of the brain cell-type-specific aging Clocks to a brain snRNA-seq dataset. The dataset includes 15 donors, profiled to contain only Oligodendrocytes.
+In this example, we showcase the application of the brain cell-type-specific aging Clocks to a brain snRNA-seq dataset. The dataset includes 5 donors, profiled to contain only Oligodendrocytes.
 
-```{r brain-ct-clock, eval = FALSE}
-library(OmniAgeR)
-library(Seurat)
+```{r brain-ct-clock}
+suppressPackageStartupMessages(library(OmniAgeR))
 library(glmnet)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
 library(dplyr)
+data("ScBrainExample")
 
-brainSeurat <- loadOmniAgeRdata(
-    "omniager_brain_frohlich_control_example_15donors",
+# Recommended Bioconductor workflow: SingleCellExperiment input
+clockResults <- suppressPackageStartupMessages(brainCtClock(
+    x = ScBrainExample,
+    cellTypes = "Oligodendrocytes",
+    modelNames = "SC",
+    assayName = "logcounts",
+    donorCol = "donor_id",
+    ageCol = "age",
+    cellTypeCol = "celltype",
     verbose = FALSE
-)
-
-# Define cell types of interest
-cellTypes <- c("Oligodendrocytes")
-
-# Run all three models for the specified cell types
-clockResults <- brainCtClock(
-    seuratObj = brainSeurat,
-    cellTypes = cellTypes
-)
+))
 
 # Use lapply to iterate over each data frame in the list
 averagePredictionsDonor <- lapply(clockResults, function(df) {
@@ -633,7 +599,7 @@ averagePredictionsDonor <- lapply(clockResults, function(df) {
 })
 ```
 
-```{r  brain-ct-clock-plot, eval = FALSE, fig.width=8, fig.height=3, out.width="100%"}
+```{r  brain-ct-clock-plot, fig.width=8, fig.height=3, out.width="100%"}
 brainPlot <- list()
 
 for (i in seq_along(averagePredictionsDonor)) {
@@ -679,61 +645,45 @@ for (i in seq_along(averagePredictionsDonor)) {
         )
 }
 
-ggpubr::ggarrange(plotlist = brainPlot, nrow = 1, ncol = 3)
+ggpubr::ggarrange(plotlist = brainPlot, nrow = 1)
 ```
 
-# Tutorial Example 6: Apply Pasta to Brain (MTG) scRNA-seq dataset
-
-In this example, we showcase the application of the Pasta clock to a single-nuclei RNA-seq dataset from the middle temporal gyrus (MTG) (Gabitto et al., 2024). The dataset includes 46 healthy donors and is filtered to contain extratelencephalic projecting glutamatergic cortical neurons.
+# Tutorial Example 5: Apply Pasta to Pbmc scRNA-seq dataset
 
 ```{r pasta, eval = FALSE}
 # Load required libraries
 library(OmniAgeR)
-library(Seurat)
 library(glmnet)
-library(magrittr) # For %>% pipe
 library(ggplot2)
 library(patchwork)
 library(ggpubr) # For simplified plot annotations
 
-seu <- loadOmniAgeRdata(
-    "omniager_seu_gabitto_2024_filtered",
-    verbose = FALSE
-)
-# Extract and clean chronological age from metadata
-seu$age <- seu$development_stage %>%
-    gsub("-year.*", "", .) %>%
-    gsub("-", " ", .) %>%
-    gsub("80 year old and over stage", "85", .)
+data("ScPbmcExample")
+lognormMatrix <- as.matrix(SummarizedExperiment::assay(ScPbmcExample, "logcounts"))
+cellMeta <- as.data.frame(SummarizedExperiment::colData(ScPbmcExample))
+groups <- paste(cellMeta$donor_id, cellMeta$celltype, sep = "_")
+uniqueGroups <- unique(groups)
 
-# Create pseudobulk samples, Pseudobulk construction may follow Salignon et al.
-# or be performed using alternative approaches as appropriate
-set.seed(42)
-seuBulk <- makePseudobulksPasta(
-    seu,
-    poolBy = c("cell_type", "age"),
-    chunkSize = 512,
-    verbose = FALSE
-)
+ pseudobulkDataList <- lapply(uniqueGroups, function(grp) {
+ rowSums(lognormMatrix[, groups == grp, drop = FALSE])
+})
 
-# Extract the log-normalized expression matrix for prediction
-lognormMatrix <- GetAssayData(seuBulk, assay = "RNA", layer = "data")
-lognormMatrix <- as.matrix(lognormMatrix)
+pseudobulkMatrix <- do.call(cbind, pseudobulkDataList)
+colnames(pseudobulkMatrix) <- uniqueGroups
 
-# Extract the corresponding metadata for the new pseudobulk samples
-seuBulkMeta <- seuBulk[[c("chunkSize", "cell_type", "age")]]
-seuBulkMeta$age <- as.numeric(seuBulkMeta$age)
-
+donorIdx <- match(uniqueGroups, groups)
+donorAges <- cellMeta$age[donorIdx]
 # Apply the PASTA clock
 # filter_genes = TRUE: Selects only the genes required by the PASTA model.
 # rank_norm = TRUE: Applies the rank-normalization required by PASTA.
-pastaRes <- pastaScores(lognormMatrix, filterGenes = TRUE, rankNorm = TRUE)
+pastaRes <- suppressMessages(pastaScores(pseudobulkMatrix, filterGenes = TRUE,
+                        rankNorm = TRUE))
 ```
 
 ```{r pasta-plot, eval = FALSE, fig.width=4, fig.height=4, out.width="100%"}
 # Prepare the data frame for plotting
 plot_df <- data.frame(
-    ActualAge = as.numeric(seuBulk$age),
+    ActualAge = donorAges,
     Prediction = as.numeric(pastaRes$PASTA)
 )
 
@@ -766,17 +716,15 @@ ggplot(data = plot_df, aes(x = ActualAge, y = Prediction)) +
 
 Here, we use DNAm data to calculate the CRP score and CHIP score.
 
-```{r crp-chip}
+```{r crp-chip, message = FALSE, warning = FALSE}
 library(OmniAgeR)
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 crpRes <- compCRP(hannumBmiqM)
-print(lapply(crpRes, head, 5))
+print(lapply(crpRes,head))
 
 chipRes <- compCHIP(hannumBmiqM)
-print(lapply(chipRes, head, 5))
+print(lapply(chipRes, head))
 ```
 
 
@@ -786,7 +734,7 @@ print(lapply(chipRes, head, 5))
 ```{r getMarkerWeights}
 library(OmniAgeR)
 # 1. Get probes for a specific chronological aging predictor
-chronologicalProbes <- getMarkerWeights(clockNames = "Horvath2013")
+chronologicalProbes <- suppressMessages(getMarkerWeights(clockNames = "Horvath2013"))
 print(head(chronologicalProbes$Horvath2013))
 ```
 
@@ -794,20 +742,24 @@ print(head(chronologicalProbes$Horvath2013))
 # Tutorial Example 9: Celltype fraction clock based on DNAm
 We apply the DNAm Cell-type Fraction (CTF) Clock to 50 blood samples (EPIC array) from the TZH cohort to predict chronological age.
 
-```{r dnam-ctf-clock}
+```{r dnam-ctf-clock, message = FALSE, warning = FALSE}
 library(OmniAgeR)
 library(randomForest)
 library(ggplot2)
 library(patchwork)
 library(ggpubr)
-
-tzhExample <- loadOmniAgeRdata(
+library(SummarizedExperiment)
+ctfExample <- loadOmniAgeRdata(
     "omniager_tzh_example_ctf",
     verbose = FALSE
 )
-phenoTypesTzh <- tzhExample[[1]]
-tzhFracM <- tzhExample[[2]]
-dnamCTFClockOut <- dnamCTFClock(ctfM = tzhFracM)
+
+phenoTypesTzh <- ctfExample[[1]]
+ctfExampleSe <- SummarizedExperiment(
+  assays = list(ctf=t(ctfExample[[2]]))
+)
+
+dnamCTFClockOut <- dnamCTFClock(x = ctfExampleSe)
 ```
 
 ```{r dnam-ctf-clock-plot, fig.width=4, fig.height=4, out.width="100%"}
@@ -849,7 +801,6 @@ ggplot(data = plot_df, aes(x = ActualAge, y = PredictedAge)) +
     )
 
 
-# ggpubr::ggarrange(plotlist = gp, nrow = 1, ncol = 1)
 ```
 
 ```{r sessionInfo, echo=FALSE}

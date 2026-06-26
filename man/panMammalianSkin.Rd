@@ -5,7 +5,7 @@
 \title{Calculate Universal Pan-Mammalian Skin Epigenetic Clocks}
 \usage{
 panMammalianSkin(
-  betaM,
+  x,
   speciesName,
   anageData = NULL,
   minCoverage = 0,
@@ -13,7 +13,9 @@ panMammalianSkin(
 )
 }
 \arguments{
-\item{betaM}{A numeric matrix (Rows: CpGs, Cols: Samples).}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{speciesName}{A character string or vector specifying the Latin species
 name(s) (e.g., "Homo sapiens").}
@@ -30,8 +32,8 @@ Default is 0.}
 \value{
 A data.frame containing the 'Sample', 'SpeciesLatinName',
 and the calculated ages: 'DNAmAgePanMammalianSkin2',
-'DNAmAgePanMammalianSkin3', 'DNAmRelativeAge_Skin', and
-'DNAmRelativeAdultAge_Skin'.
+'DNAmAgePanMammalianSkin3', 'DNAmRelativeAge', and
+'DNAmRelativeAdultAge'.
 }
 \description{
 Applies the two universal pan-mammalian BLOOD clocks (Clock 2 and 3)
@@ -43,25 +45,39 @@ It requires the 'PanMammalianSkinCoef' data object to be available
 in the R package's data directory.
 }
 \examples{
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+  tursiopsExample <- loadOmniAgeRdata(
+      "omniager_tursiops_example",
+      verbose = FALSE
+  )
+  
+  # Run the calculation. Note: anageData is automatically loaded if omitted.
+  clockResults <- panMammalianSkin(
+      x = tursiopsExample$beta_m,
+      speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+      verbose = FALSE
+  )
+  print(head(clockResults))
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
 \dontrun{
-tursiopsExample <- loadOmniAgeRdata(
-    "omniager_tursiops_example",
-    verbose = FALSE
-)
-
-## This anage_data is from
-## https://github.com/shorvath/MammalianMethylationConsortium
-anageData <- loadOmniAgeRdata(
-    "omniager_anage_data",
-    verbose = FALSE
-)
-
-# Run the calculation with progress messages
-clockResults <- panMammalianSkin(
-    betaM = tursiopsExample$beta_m,
-    speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
-    anageData = anageData
-)
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = tursiopsExample$beta_m),
+      colData = tursiopsExample$PhenoTypes
+    )
+    
+    se_res <- panMammalianSkin(
+      x = se_obj,
+      speciesName = se_obj$SpeciesLatinName,
+      verbose = FALSE
+    )
+  }
 }
 }
 \references{

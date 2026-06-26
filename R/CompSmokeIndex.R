@@ -10,8 +10,9 @@
 #' transformation) across samples for each CpG site, and then computing a weighted
 #' average based on the provided signature coefficients.
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
-#' columns should be individual samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -31,24 +32,31 @@
 #'
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_coeff_smk_idx", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- names(modelCoef)
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' compSmokeIndexOut  <- compSmokeIndex(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' # 4. Run the age prediction
-#' SmokeIndexOut <- compSmokeIndex(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     compSmokeIndexOut <- compSmokeIndex(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#' 
 
-compSmokeIndex <- function(betaM, minCoverage = 0, verbose = TRUE) {
+compSmokeIndex <- function(x, minCoverage = 0, verbose = TRUE) {
+    betaM <- .extractAssayMatrix(x)
     coeffSmkIdx <- loadOmniAgeRdata(
         "omniager_coeff_smk_idx",
         verbose = verbose
@@ -75,7 +83,7 @@ compSmokeIndex <- function(betaM, minCoverage = 0, verbose = TRUE) {
 
     # Z-score
     rowMeansV <- rowMeans(subBeta, na.rm = TRUE)
-    rowSdsV <- apply(subBeta, 1, sd, na.rm = TRUE)
+    rowSdsV <- apply(subBeta, 1, stats::sd, na.rm = TRUE)
 
     keepIdx <- which(rowSdsV > 0)
     if (length(keepIdx) < length(rowSdsV)) {

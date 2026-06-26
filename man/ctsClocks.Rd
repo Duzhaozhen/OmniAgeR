@@ -5,7 +5,7 @@
 \title{Predict DNA methylation age using CTS clocks}
 \usage{
 ctsClocks(
-  betaM,
+  x,
   compClocks = c("Neu-In"),
   dataType = c("bulk", "sorted"),
   ctfM = NULL,
@@ -15,8 +15,9 @@ ctsClocks(
 )
 }
 \arguments{
-\item{betaM}{A DNAm matrix (row: CpGs, column: samples) of the samples you
-want to get  DNAm age predicted by a CTS clock.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment},
+object containing DNA methylation beta values. Rows should be CpGs and
+columns should be samples.}
 
 \item{compClocks}{A character vector of one or more clocks to apply.
 (e.g., 'Neu-In', 'Hep', c('Neu-In', 'Neu-Sin', 'Brain')).}
@@ -40,10 +41,10 @@ A data.frame of predicted DNAm ages (samples x clocks).
 }
 \description{
 This is the function for computing DNA methylation age using CTS (cell type
-specific) clocks. The inputs including DNAm matrix, the CTS clock you want to
-use, is your DNAm data from bulk tissue sample or sorted cell sample, cell
-type fraction matrix if you want to use Neu-In/Glia-In/Brain clock, tissue of
-your DNAm data samples and the number of cores if you want to do parallel computing.
+specific) clocks. The inputs include a DNAm matrix (or multi-omics object),
+the CTS clocks you want to use, the data type (bulk vs sorted), cell type
+fraction matrix (for Neu-In/Glia-In/Brain clocks), tissue type, and parallel
+computing options.
 }
 \details{
 This function supports a variety of Cell-Type-Specific (CTS) clocks.
@@ -57,9 +58,9 @@ This function supports a variety of Cell-Type-Specific (CTS) clocks.
 \item \code{'Glia-Sin'}
 \item \code{'Hep'}
 \item \code{'Liver'}
-'
-The clocks are grouped below based on their biological target:
 }
+
+The clocks are grouped below based on their biological target:
 
 \strong{1. Cell-Type Specific Clocks}
 
@@ -85,44 +86,60 @@ These clocks are trained to measure aging in specific cell populations.
 }
 }
 \examples{
-\dontrun{
+# ====================================================================
+# Example 1: Direct Matrix Input (Bulk Tissue)
+# ====================================================================
 murphyBetaM <- loadOmniAgeRdata(
     "omniager_cts_murphy_gse88890",
     verbose = FALSE
 )[[1]]
 
 agePred_df <- ctsClocks(
-    murphyBetaM,
+    x = murphyBetaM,
     compClocks = c("Neu-In", "Neu-Sin"),
     dataType = "bulk",
     ctfM = NULL,
-    tissue = "brain"
+    tissue = "brain",
+    verbose = FALSE
 )
-
+# ====================================================================
+# Example 2: Direct Matrix Input (Sorted Cells)
+# ====================================================================
+\dontrun{
 paiBetaM <- loadOmniAgeRdata(
     "omniager_cts_pai_gse112179",
     verbose = FALSE
 )[[1]]
-agePred_df <- ctsClocks(
-    paiBetaM,
+
+agePred_df_sorted <- ctsClocks(
+    x = paiBetaM,
     compClocks = c("Neu-In", "Neu-Sin"),
     dataType = "sorted",
     ctfM = NULL,
-    tissue = "brain"
-)
-liverBetaM <- loadOmniAgeRdata(
-    "omniager_cts_example_data_liver",
+    tissue = "brain",
     verbose = FALSE
-)[[1]]
-agePred_df <- ctsClocks(
-    liverBetaM,
-    compClocks = c("Hep", "Liver"),
-    dataType = "bulk",
-    ctfM = NULL,
-    tissue = "otherTissue"
 )
-}
 
+# ====================================================================
+# Example 3: SummarizedExperiment Input
+# ====================================================================
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = murphyBetaM)
+    )
+    
+    agePred_se <- ctsClocks(
+      x = se_obj,
+      compClocks = c("Neu-In", "Neu-Sin"),
+      dataType = "bulk",
+      ctfM = NULL,
+      tissue = "brain",
+      verbose = FALSE
+    )
+  }
+}
 }
 \references{
 Tong H, Guo X, Jacques M, Luo Q, Eynon N, Teschendorff AE.

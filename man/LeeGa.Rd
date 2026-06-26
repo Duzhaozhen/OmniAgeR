@@ -4,11 +4,12 @@
 \alias{LeeGa}
 \title{Calculate the Lee gestational age}
 \usage{
-LeeGa(betaM, minCoverage = 0, verbose = TRUE)
+LeeGa(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{DNAm beta value matrix with rows labeling Illumina 450k/EPIC
-CpGs and columns labeling samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -48,17 +49,37 @@ CpGs (e.g., 546 for \code{LeeControl}) with the columns in the input matrix,
 and calculates a linear prediction of GA.
 }
 \examples{
-# 1. Fast runnable code to satisfy BiocCheck
-message("Ready to calculate Lee gestational age.")
+# Load the included example data (a list containing a matrix and phenotypes)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Real execution (wrapped to bypass 5-second limit in automated checks)
-if (interactive()) {
-  hannumBmiqM <- loadOmniAgeRdata(
-      "omniager_hannum_example",
-      verbose = FALSE
-  )[[1]]
-  LeeGaOut <- LeeGa(hannumBmiqM)
-  print(head(LeeGaOut$LeeControl))
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+predRes <- LeeGa(x = beta_matrix)
+head(predRes)
+
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    # Extract phenotype and ensure rownames match matrix colnames
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    # Construct the SummarizedExperiment object
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    # The function seamlessly accepts the Bioconductor object
+    predRes <- LeeGa(x = se_obj)
+    head(predRes)
+  }
 }
 }
 \references{

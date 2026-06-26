@@ -4,72 +4,152 @@
 \alias{brainCtClock}
 \title{Run Brain Cell Type Specific Clocks}
 \usage{
-brainCtClock(seuratObj, cellTypes, modelNames = "all", verbose = TRUE)
+brainCtClock(
+  x,
+  cellTypes,
+  modelNames = "all",
+  metadata = NULL,
+  assayName = "logcounts",
+  donorCol = "donor_id",
+  ageCol = "age",
+  cellTypeCol = "celltype",
+  verbose = TRUE,
+  seuratAssay = "RNA",
+  seuratLayer = "data"
+)
 }
 \arguments{
-\item{seuratObj}{The input Seurat object containing expression data and
-metadata (must include 'donor_id', 'age', 'celltype').}
+\item{x}{A \code{SingleCellExperiment}, \code{SummarizedExperiment}, Seurat
+object, matrix, sparse Matrix, or data.frame containing log-normalized
+expression values. Rows should be genes and columns should be cells.
+For Bioconductor workflows, \code{SingleCellExperiment} input is recommended.}
 
-\item{cellTypes}{A character vector of cell types to analyze
-(e.g., \code{c('Oligodendrocytes', 'Astrocytes')}).
-Available cell types are: "Oligodendrocytes", "Astrocytes", "Microglia",
-"OPCs", "Excitatory Neurons", and "Inhibitory Neurons".}
+\item{cellTypes}{Character vector of cell types to analyze. Available cell
+types include \code{"Oligodendrocytes"}, \code{"Astrocytes"},
+\code{"Microglia"}, \code{"OPCs"}, \code{"Excitatory Neurons"}, and
+\code{"Inhibitory Neurons"} when corresponding models are available.}
 
-\item{modelNames}{A character string or vector specifying which models to run.
-\itemize{
-\item \code{"all"} (default): Runs "SC", "Pseudobulk", and "Bootstrap".
-\item A vector: e.g., \code{c("SC", "Pseudobulk")} will run only those two.
-}}
+\item{modelNames}{Character vector specifying which sample types to run.
+Use \code{"all"} to run \code{"SC"}, \code{"Pseudobulk"}, and
+\code{"Bootstrap"}.}
+
+\item{metadata}{Optional metadata. Required when \code{x} is matrix-like.}
+
+\item{assayName}{Assay name for \code{SingleCellExperiment} or
+\code{SummarizedExperiment} input.}
+
+\item{donorCol}{Column in metadata containing donor IDs.}
+
+\item{ageCol}{Column in metadata containing donor ages.}
+
+\item{cellTypeCol}{Column in metadata containing cell type labels.}
 
 \item{verbose}{Logical. Whether to print status messages.}
+
+\item{seuratAssay}{Assay name for Seurat input.}
+
+\item{seuratLayer}{Layer or slot name for Seurat input.}
 }
 \value{
-A named list where each element corresponds to a \code{modelNames} that was run.
-Each element contains a data.frame of the (5-fold averaged) predictions,
-as returned by \code{runPredictionPipelineBrainCt}.
+A named list where each element corresponds to a sample type that
+was run. Each element contains a data.frame of predictions.
 }
 \description{
-A high-level wrapper function that runs the brain age prediction pipeline for
-one or more specified sample types ('SC', 'Pseudobulk', 'Bootstrap').
+Run brain cell type-specific aging clock prediction for one or more cell
+types and one or more sample types.
 }
 \details{
-This function serves as the primary endpoint for the prediction pipeline.
-It iteratively calls \code{runPredictionPipelineBrainCt} for each requested
-\code{modelNames} (sample type) and collects the results into a single list.
+This function supports Bioconductor-native workflows by accepting
+\code{SingleCellExperiment} and \code{SummarizedExperiment} objects directly.
+Expression values are extracted from an assay, and cell-level metadata are
+extracted from \code{colData()}.
+
+Seurat input is also supported when the Seurat package is installed, but
+Seurat is not required for Bioconductor workflows.
 }
 \examples{
-# 1. Define valid models to run (Fast, runnable example to pass BiocCheck)
-available_models <- c("SC", "Pseudobulk", "Bootstrap")
-print(available_models)
-\dontrun{
-# 2. Real pipeline execution (Wrapped in dontrun because it requires downloading
-# pre-trained models and large example datasets via loadOmniAgeRdata)
+data("ScBrainExample")
 
-# Load the Seurat object
-library(Seurat)
-library(dplyr)
-brainSeurat <- loadOmniAgeRdata(
-    "omniager_brain_frohlich_control_example_15donors",
+# Recommended Bioconductor workflow: SingleCellExperiment input
+brain_res <- brainCtClock(
+    x = ScBrainExample,
+    cellTypes = "Oligodendrocytes",
+    modelNames = "SC",
+    assayName = "logcounts",
+    donorCol = "donor_id",
+    ageCol = "age",
+    cellTypeCol = "celltype",
     verbose = FALSE
 )
 
-# Define cell types of interest
-cellTypes <- c("Oligodendrocytes")
+names(brain_res)
+head(brain_res$SC)
 
-# Run the model for the specified cell types
-clockResults <- brainCtClock(
-    seuratObj = brainSeurat,
-    cellTypes = cellTypes,
-    modelNames = "SC"
+\dontrun{
+# Matrix input is also supported when metadata are supplied separately
+expr_mat <- SummarizedExperiment::assay(ScBrainExample, "logcounts")
+cell_meta <- as.data.frame(SummarizedExperiment::colData(ScBrainExample))
+
+matrix_res <- brainCtClock(
+    x = expr_mat,
+    metadata = cell_meta,
+    cellTypes = "Oligodendrocytes",
+    modelNames = "SC",
+    donorCol = "donor_id",
+    ageCol = "age",
+    cellTypeCol = "celltype",
+    verbose = FALSE
 )
+
+head(matrix_res$SC)
+# Optional Seurat input
+if (requireNamespace("Seurat", quietly = TRUE)) {
+    expr_mat <- SummarizedExperiment::assay(ScBrainExample, "logcounts")
+    cell_meta <- as.data.frame(SummarizedExperiment::colData(ScBrainExample))
+    cell_meta <- cell_meta[colnames(expr_mat), , drop = FALSE]
+
+    seurat_obj <- Seurat::CreateSeuratObject(
+        counts = expr_mat,
+        meta.data = cell_meta
+    )
+
+    seurat_obj <- tryCatch(
+        Seurat::SetAssayData(
+            object = seurat_obj,
+            assay = "RNA",
+            layer = "data",
+            new.data = expr_mat
+        ),
+        error = function(e) {
+            Seurat::SetAssayData(
+                object = seurat_obj,
+                assay = "RNA",
+                slot = "data",
+                new.data = expr_mat
+            )
+        }
+    )
+
+    seurat_res <- brainCtClock(
+        x = seurat_obj,
+        cellTypes = "Oligodendrocytes",
+        modelNames = "SC",
+        seuratAssay = "RNA",
+        seuratLayer = "data",
+        donorCol = "donor_id",
+        ageCol = "age",
+        cellTypeCol = "celltype",
+        verbose = FALSE
+    )
+
+    head(seurat_res$SC)
 }
+}
+
 }
 \references{
 Muralidharan C, Zakar-Polyák E, Adami A, et al.
 Human Brain Cell-Type-Specific Aging Clocks
 Based on Single-Nuclei Transcriptomics.
 \emph{Adv Sci(Weinh).} 2025
-}
-\seealso{
-\code{\link{runPredictionPipelineBrainCt}}
 }

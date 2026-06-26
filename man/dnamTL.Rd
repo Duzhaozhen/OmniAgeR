@@ -4,11 +4,12 @@
 \alias{dnamTL}
 \title{The epigenetic age used for calculating the Leukocyte telomere length.}
 \usage{
-dnamTL(betaM, minCoverage = 0, verbose = TRUE)
+dnamTL(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
-columns should be individual samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -23,23 +24,28 @@ A function to calculate the the Leukocyte telomere length (2019)
 from a DNA methylation beta value matrix.
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_dnamtl_coef", verbose = FALSE)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# Example 1: Direct Matrix Input
+dnamTLOut  <- dnamTL(x = beta_matrix, verbose = FALSE)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    dnamTLOut <- dnamTL(x = se_obj, verbose = FALSE)
+  }
+}
 
-# 4. Run the age prediction
-dnamTlO <- dnamTL(mockBetaM, verbose = FALSE)
 }
 \references{
 Lu AT, Seeboth A, Tsai PC, et al.

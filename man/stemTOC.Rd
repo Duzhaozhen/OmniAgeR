@@ -4,11 +4,12 @@
 \alias{stemTOC}
 \title{Estimate stemTOC score}
 \usage{
-stemTOC(betaM, minCoverage = 0, verbose = TRUE)
+stemTOC(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNAm beta values (probes as rows). Rows
-should be Illumina 450k/EPIC CpG identifiers and columns should be samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
 Default is 0.}
@@ -29,12 +30,27 @@ significant DNA hypermethylation with chronological age
 in large in-vivo datasets
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
-    "omniager_lung_inv",
-    verbose = FALSE
-)
-lungInvM <- lungInv$bmiq_m
-stemtocOut <- stemTOC(betaM = lungInvM)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# Example 1: Direct Matrix Input
+predOut <- stemTOC(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    predOut <- stemTOC(x = se_obj, verbose = FALSE)
+  }
+}
 }
 \references{
 Zhu, T., Tong, H., Du, Z. et al.

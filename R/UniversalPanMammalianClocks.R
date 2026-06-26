@@ -10,7 +10,9 @@
 #' models, and performs the necessary inverse mathematical transformations
 #' to report age in years.
 #'
-#' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples).
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param speciesName A character string or vector specifying the Latin species
 #' name(s) (e.g., "Homo sapiens").
 #' @param anageData A data.frame containing the AnAge database information.
@@ -36,50 +38,108 @@
 #'
 #'
 #' @examples
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#'   tursiopsExample <- loadOmniAgeRdata(
+#'       "omniager_tursiops_example",
+#'       verbose = FALSE
+#'   )
+#'   
+#'   # Run the calculation. Note: anageData is automatically loaded if omitted.
+#'   clockResults <- universalPanMammalianClocks(
+#'       x = tursiopsExample$beta_m,
+#'       speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+#'       verbose = FALSE
+#'   )
+#'   print(head(clockResults))
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
 #' \dontrun{
-#' tursiopsExample <- loadOmniAgeRdata(
-#'     "omniager_tursiops_example",
-#'     verbose = FALSE
-#' )
-#'
-#' ## This anage_data is from
-#' ## https://github.com/shorvath/MammalianMethylationConsortium
-#' anageData <- loadOmniAgeRdata(
-#'     "omniager_anage_data",
-#'     verbose = FALSE
-#' )
-#' # Run the calculation with progress messages
-#' clockResults <- universalPanMammalianClocks(
-#'     betaM = tursiopsExample$beta_m,
-#'     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
-#'     anageData = anageData
-#' )
-#'}
-universalPanMammalianClocks <- function(betaM,
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = tursiopsExample$beta_m),
+#'       colData = tursiopsExample$PhenoTypes
+#'     )
+#'     
+#'     se_res <- universalPanMammalianClocks(
+#'       x = se_obj,
+#'       speciesName = se_obj$SpeciesLatinName,
+#'       verbose = FALSE
+#'     )
+#'   }
+#' }
+# -------------------------------------------------------------------------
+# CODE ATTRIBUTION NOTE:
+# The core logic of this function was adapted from the original script 
+# provided by https://github.com/shorvath/MammalianMethylationConsortium
+# under the MIT License.
+# Modifications: Added generic object support (SummarizedExperiment), 
+# refactored the extraction pipeline, and standardized variable names.
+# -------------------------------------------------------------------------
+universalPanMammalianClocks <- function(x,
                                         speciesName,
                                         anageData = NULL,
                                         minCoverage = 0,
                                         verbose = TRUE) {
+  
     if (verbose) message("[UniversalPanMammalianClocks] Initializing calculation...")
-
+    # --- Step 0: Universal Matrix Extraction ---
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Load Internal Data ---
     panMammalianClockCoef <- loadOmniAgeRdata(
         "omniager_pan_mammalian_clock_coef",
         verbose = verbose
     )
+    
+    if (is.null(anageData)) {
+      if (verbose) message("[UniversalPanMammalianClocks] Loading default AnAge database...")
+      anageData <- loadOmniAgeRdata("omniager_anage_data", verbose = FALSE)
+    }
+    
     # --- 2. Data Preparation & Merging ---
     sampleInfo <- data.frame(
         Sample = colnames(betaM),
         SpeciesLatinName = speciesName,
-        stringsAsFactors = FALSE
+        stringsAsFactors = FALSE)
+    
+ 
+    requiredCols <- c(
+      "SpeciesLatinName",
+      "GestationTimeInYears",
+      "averagedMaturity.yrs",
+      "maxAge"
     )
-
-    anageSubset <- anageData[, c(
-        "SpeciesLatinName", "GestationTimeInYears",
-        "averagedMaturity.yrs", "maxAge"
-    )]
-    info <- merge(sampleInfo, anageSubset, by = "SpeciesLatinName", all.x = TRUE)
-
+    
+    anageSubset <- anageData[, requiredCols, drop = FALSE]
+    
+    if (anyDuplicated(anageSubset$SpeciesLatinName)) {
+      duplicatedSpecies <- unique(
+        anageSubset$SpeciesLatinName[
+          duplicated(anageSubset$SpeciesLatinName)
+        ]
+      )
+      stop(
+        "[UniversalPanMammalianClocks]'anageData' contains duplicated SpeciesLatinName entries: ",
+        paste(duplicatedSpecies, collapse = ", ")
+      )
+    }
+    
+    idx <- match(sampleInfo$SpeciesLatinName, anageSubset$SpeciesLatinName)
+    
+    info <- cbind(
+      sampleInfo,
+      anageSubset[
+        idx,
+        c("GestationTimeInYears", "averagedMaturity.yrs", "maxAge"),
+        drop = FALSE
+      ]
+    )
+    
+    
     if (any(is.na(info$maxAge))) {
         missingSp <- unique(info$SpeciesLatinName[is.na(info$maxAge)])
         warning("[UniversalPanMammalianClocks] Missing AnAge data for species: ", paste(missingSp, collapse = ", "))

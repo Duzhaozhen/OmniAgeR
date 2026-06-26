@@ -12,8 +12,9 @@
 #' This score is calibrated to the scale of chronological age to produce the
 #' final `DNAmGrimAge1`.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values. Rows should
-#'   represent CpG sites and columns should represent individual samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param age A numeric vector of chronological ages for the samples
 #'  corresponding to the columns in `betaM`.
 #' @param sex A character vector of sample sexes. Must contain "Male" or
@@ -41,20 +42,50 @@
 #' @export
 #'
 #' @examples
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input 
+#' # ====================================================================
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' phenoTypes_df <- dnamExample[[2]]
+#' 
+#' age <- phenoTypes_df$Age
+#' sex <- ifelse(phenoTypes_df$Sex == "F", "Female", "Male")
+#' 
+#' # Calculate GrimAge first
+#' GrimAge1O <- grimAge1(x = beta_matrix, age = age, sex = sex, verbose = FALSE)
+#' 
 #' \dontrun{
-#' hannumExample <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )
-#' hannumBmiqM <- hannumExample[[1]]
-#' phenoTypesHannum <- hannumExample[[2]]
-#' age <- phenoTypesHannum$Age
-#' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-#' GrimAge1Oout <- grimAge1(betaM = hannumBmiqM, age, sex)
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     GrimAge1O <- grimAge1(
+#'       x = se_obj,
+#'       age = se_obj$Age,
+#'       sex = ifelse(se_obj$Sex == "F", "Female", "Male"),
+#'       verbose = FALSE
+#'     )
+#'   }
 #' }
 
-grimAge1 <- function(betaM, age, sex,
+
+
+
+grimAge1 <- function(x, age, sex,
                      minCoverage = 0, verbose = TRUE) {
+    # --- Step 0: Universal Matrix Extraction ---
+    betaM <- .extractAssayMatrix(x)
     # 1. Load model weights
     grimage1 <- loadOmniAgeRdata(
         "omniager_grimage1_model",

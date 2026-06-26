@@ -4,12 +4,12 @@
 \alias{bernabeuCAge}
 \title{Calculate Chronological Age (cAge) using the hybrid model}
 \usage{
-bernabeuCAge(betaM, minCoverage = 0, verbose = TRUE)
+bernabeuCAge(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNA methylation beta values.
-\code{rownames} (CpG probe IDs) and \code{colnames} (Sample IDs) are required.
-The matrix should not contain \code{NA} values.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -31,12 +31,37 @@ It also automatically handles missing CpGs and NA values
 via mean imputation.
 }
 \examples{
+# Load the included example data (a list containing a matrix and phenotypes)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+predAge <- bernabeuCAge(x = beta_matrix)
+head(predAge)
+
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
 \dontrun{
-hannumBmiqM <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)[[1]]
-bernabeuCAgeO <- bernabeuCAge(hannumBmiqM)
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    # Extract phenotype and ensure rownames match matrix colnames
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    # Construct the SummarizedExperiment object
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    # The function seamlessly accepts the Bioconductor object
+    predAge <- bernabeuCAge(x = se_obj)
+    head(predAge)
+  }
 }
 }
 \references{

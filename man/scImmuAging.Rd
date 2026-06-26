@@ -4,32 +4,65 @@
 \alias{scImmuAging}
 \title{Run the scImmuAging prediction pipeline for multiple cell types}
 \usage{
-scImmuAging(seuratObj, cellTypes, minCoverage = 0, verbose = TRUE)
+scImmuAging(
+  x,
+  cellTypes,
+  metadata = NULL,
+  assayName = "logcounts",
+  donorCol = "donor_id",
+  ageCol = "age",
+  cellTypeCol = "celltype",
+  pseudocellSize = 15,
+  pseudocellN = 100,
+  replace = "dynamic",
+  minCoverage = 0,
+  verbose = TRUE,
+  seuratAssay = "RNA",
+  seuratLayer = "data"
+)
 }
 \arguments{
-\item{seuratObj}{A Seurat object. The meta.data must contain "donor_id",
-"age" and "celltype" columns.}
+\item{x}{A \code{SingleCellExperiment}, \code{SummarizedExperiment}, Seurat
+object, matrix, or data.frame containing log-normalized expression values.
+Rows should be genes and columns should be cells. For Bioconductor workflows,
+\code{SingleCellExperiment} input is recommended.}
 
-\item{cellTypes}{A character vector specifying the cell types for which to
-predict age.Example: \code{c("CD4T", "CD8T", "MONO")}. Valid types are "CD4T",
-"CD8T", "MONO", "NK", "B".}
+\item{cellTypes}{Character vector specifying the cell types for which to
+predict age. Valid model names include \code{"CD4T"}, \code{"CD8T"},
+\code{"MONO"}, \code{"NK"}, and \code{"B"} when present in the model object.}
 
-\item{minCoverage}{Numeric (0-1). Minimum required feature coverage.
-Default 0.}
+\item{metadata}{Optional metadata data.frame. Required when \code{x} is a
+matrix or data.frame.}
+
+\item{assayName}{Assay name to use for \code{SingleCellExperiment} or
+\code{SummarizedExperiment} input. Default is \code{"logcounts"}.}
+
+\item{donorCol}{Column in metadata containing donor IDs.}
+
+\item{ageCol}{Column in metadata containing donor ages.}
+
+\item{cellTypeCol}{Column in metadata containing cell type labels.}
+
+\item{pseudocellSize}{Number of cells sampled to generate each pseudocell.}
+
+\item{pseudocellN}{Number of pseudocells generated per donor.}
+
+\item{replace}{Sampling strategy passed to \code{.pseudocellScImmuAging()}.}
+
+\item{minCoverage}{Numeric between 0 and 1. Minimum required feature coverage.}
 
 \item{verbose}{Logical. Whether to print status messages.}
+
+\item{seuratAssay}{Assay name to use for Seurat input.}
+
+\item{seuratLayer}{Layer or slot name to use for Seurat input.}
 }
 \value{
-A list where each element is named by a cell type
-from the input vector.
-Each of these elements is itself a list containing two data frames:
+A list where each element is named by a cell type. Each element is
+itself a list with two data.frames:
 \describe{
-\item{BootstrapCell}{A data frame with age predictions for each
-bootstrapped pseudocell,
-containing the columns \code{donorId}, \code{age}, and \code{Prediction}.}
-\item{Donor}{A data frame with the final aggregated age prediction
-for each donor,
-containing the columns \code{donorId}, \code{age}, and \code{predicted}.}
+\item{bootstrapCell}{Pseudocell-level age predictions.}
+\item{donor}{Donor-level aggregated age predictions.}
 }
 }
 \description{
@@ -37,27 +70,90 @@ This function takes as input a log-normalized matrix of scRNA-seq data and
 will return cell type-specific predicted age.
 }
 \details{
-This function takes a Seurat object, preprocesses the scRNA-seq data for
-one or more specified cell types, and predicts age using the pre-trained
-scImmuAging models. It iterates through a vector of cell types, performs
-the full analysis for each, and returns a nested list containing all results.
+This function is designed to work directly with Bioconductor data containers,
+especially \code{SingleCellExperiment}. Expression values are extracted from
+an assay, and cell-level metadata are extracted from \code{colData()}.
+
+Seurat input is also supported when the Seurat package is installed, but
+Seurat is not required for Bioconductor workflows.
 }
 \examples{
-# 1. Define valid cell types (Runnable code to satisfy BiocCheck)
-valid_cell_types <- c("CD4T", "CD8T", "MONO", "NK", "B")
-print(valid_cell_types)
+# ====================================================================
+# Example 1: SingleCellExperiment input, recommended for Bioconductor
+# workflows
+# ====================================================================
 
-\dontrun{
-# 2. Real pipeline execution (Wrapped in donttest because it requires
-# downloading pre-trained models and external example datasets)
-library(Seurat)
-seuratObj <- loadOmniAgeRdata(
-    "omniager_yazar_cd4t_cd8t_example",
+data("ScPbmcExample")
+set.seed(42)
+sce_res <- scImmuAging(
+    x = ScPbmcExample,
+    cellTypes = c("CD4T"),
+    assayName = "logcounts",
+    donorCol = "donor_id",
+    ageCol = "age",
+    cellTypeCol = "celltype",
     verbose = FALSE
 )
 
-scImmuAgingOut <- scImmuAging(seuratObj, c("CD4T", "CD8T"))
+names(sce_res)
+sce_res$CD4T$donor
+
+# ====================================================================
+# Example 2: Matrix input with separate metadata
+# ====================================================================
+
+\dontrun{
+ expr_mat <- as.matrix(SummarizedExperiment::assay(ScPbmcExample, "logcounts"))
+ cell_meta <- as.data.frame(SummarizedExperiment::colData(ScPbmcExample))
+ set.seed(42)
+ matrix_res <- scImmuAging(
+      x = expr_mat,
+      metadata = cell_meta,
+      cellTypes = "CD4T",
+      donorCol = "donor_id",
+      ageCol = "age",
+      cellTypeCol = "celltype",
+      verbose = FALSE
+)
+
+ matrix_res$CD4T$donor
 }
+
+# ====================================================================
+# Example 3: Optional Seurat input
+# ====================================================================
+
+\dontrun{
+if (requireNamespace("Seurat", quietly = TRUE)) {
+    cell_meta <- as.data.frame(SummarizedExperiment::colData(ScPbmcExample))
+
+    seurat_obj <- Seurat::CreateSeuratObject(
+        counts = SummarizedExperiment::assay(ScPbmcExample, "counts"),
+        meta.data = cell_meta
+    )
+
+    seurat_obj <- Seurat::SetAssayData(
+        object = seurat_obj,
+        assay = "RNA",
+        layer = "data",
+        new.data = SummarizedExperiment::assay(ScPbmcExample, "logcounts")
+    )
+    set.seed(42)
+    seurat_res <- scImmuAging(
+        x = seurat_obj,
+        cellTypes = "CD4T",
+        seuratAssay = "RNA",
+        seuratLayer = "data",
+        donorCol = "donor_id",
+        ageCol = "age",
+        cellTypeCol = "celltype",
+        verbose = FALSE
+    )
+
+    seurat_res$CD4T$donor
+}
+}
+
 }
 \references{
 Li W, Zhang Z, Kumar S, et al.

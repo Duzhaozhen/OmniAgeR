@@ -6,8 +6,9 @@
 #' as well as 11 individual physiological system aging scores from a single
 #' blood methylation dataset.
 #'
-#' @param betaM A numeric matrix or data.frame of DNA methylation beta values.
-#'   **Rows must correspond to CpGs** and **columns to samples**.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #'
 #' @param clockData The pre-loaded data object from
 #'  \code{loadOmniAgeRData("PCClocks_data")}.
@@ -38,30 +39,53 @@
 #' across 11 physiological systems.
 #' \emph{Nat Aging} (2025).
 #'
-#'
 #' @export
 #'
 #' @examples
-
-#' #' # 1. Fast runnable code to satisfy BiocCheck
-#' message("Ready to initialize Systems Age analysis.")
-#' 
-#' # 2. Real pipeline execution (skip automated checks for speed)
 #' \dontrun{
-#' systemsAgeData <- loadOmniAgeRdata(
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#'   hannumExample <- loadOmniAgeRdata(
+#'       "omniager_hannum_example",
+#'       verbose = FALSE
+#'   )
+#'   hannumBmiqM <- hannumExample[[1]]
+#'   
+#'   systemsAgeData <- loadOmniAgeRdata(
 #'     "SystemsAge_data",
 #'     verbose = FALSE
 #' )
-#' hannumExample <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )
-#' hannumBmiqM <- hannumExample[[1]]
-#' systemsAgeOut <- systemsAge(hannumBmiqM, systemsAgeData)
-#'}
-systemsAge <- function(betaM, clockData, minCoverage = 0, verbose = TRUE) {
-    if (verbose) message("[SystemsAge] Initializing multi-system aging analysis...")
+#'   systemsAgeOut <- systemsAge(x = hannumBmiqM, clockData=systemsAgeData, verbose = FALSE)
+#'   print(head(systemsAgeOut))
+#' 
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = hannumBmiqM),
+#'       colData = hannumExample[[2]]
+#'     )
+#'     
+#'     se_res <- systemsAge(x = se_obj, clockData=systemsAgeData, verbose = FALSE)
+#'   }
+#' }
+#'
+# -------------------------------------------------------------------------
+# CODE ATTRIBUTION NOTE:
+# The core logic of this function was adapted from the original script 
+# provided by https://github.com/HigginsChenLab/methylCIPHER
+# under the BSD 3-Clause License.
+# Modifications: Added generic object support (SummarizedExperiment), 
+# refactored the extraction pipeline, and standardized variable names.
+# -------------------------------------------------------------------------
 
+systemsAge <- function(x, clockData, minCoverage = 0, verbose = TRUE) {
+    if (verbose) message("[SystemsAge] Initializing multi-system aging analysis...")
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Validation & SE Support ---
     # Data Integrity Check
     if (rlang::hash(clockData) != "d984914ff6aa17d8a6047fed5f9f6e4d") {

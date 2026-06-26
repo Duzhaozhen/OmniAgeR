@@ -1,292 +1,423 @@
-#' Pre-Processing of input dataset for scImmuAging
+#' Prepare single-cell expression data for statistical modeling
 #'
-#' @param inputObj A Seurat object. Meta data must contain "donorId" and
-#' "age" columns.
-#' @param cellType A string specifying the cell type.
-#' @param model The pre-trained model object.
-#' @param markerGenes Character vector of selected marker genes.
-#' @return A nested and unnested data frame with pseudocells.
-#' @import Seurat dplyr purrr tidyr
-#' @export
-#' @examples
-#' library(Seurat)
-#' library(dplyr)
-#' library(tidyr)
-#' library(purrr)
+#' @description
+#' This internal function transforms standard single-cell expression matrices
+#' (genes as rows) into a flattened, cell-based data frame (cells as rows).
+#' It ensures proper alignment between expression data and metadata, 
+#' effectively creating a "wide-format" data structure suitable for 
+#' statistical modeling (e.g., linear regression analysis).
 #'
-#' # 1. Define mock marker genes
-#' mock_markers <- c("GeneA", "GeneB", "GeneC")
+#' @param expr A numeric \code{matrix} of gene expression values, where 
+#'   rows represent genes and columns represent cells.
+#' @param metadata A \code{data.frame} containing cell-level metadata. Must 
+#'   contain at least the columns specified in \code{donorCol} and \code{ageCol}.
+#' @param donorCol A character string specifying the column name in 
+#'   \code{metadata} representing the donor identity. Defaults to \code{"donor_id"}.
+#' @param ageCol A character string specifying the column name in 
+#'   \code{metadata} representing the subject age. Defaults to \code{"age"}.
 #'
-#' # 2. Create a tiny mock count matrix (3 genes, 20 cells)
-#' set.seed(123)
-#' mock_counts <- matrix(rpois(60, lambda = 5), nrow = 3, ncol = 20)
-#' rownames(mock_counts) <- mock_markers
-#' colnames(mock_counts) <- paste0("Cell_", 1:20)
+#' @return A \code{data.frame} where each row represents a unique cell, 
+#'   containing the metadata columns (donorId, age) followed by the 
+#'   gene expression values as columns.
 #'
-#' # 3. Create mock metadata
-#' mock_meta <- data.frame(
-#'     donorId = rep(c("Donor1", "Donor2"), each = 10),
-#'     age = rep(c(30, 60), each = 10),
-#'     row.names = colnames(mock_counts)
-#' )
+#' @details
+#' The function performs the following steps:
+#' \enumerate{
+#'   \item Validates that the expression matrix is numeric.
+#'   \item Aligns the rows of \code{metadata} with the columns of \code{expr} 
+#'     using column names (cell identifiers).
+#'   \item Transposes the expression matrix to switch from (genes x cells) 
+#'     to (cells x genes).
+#'   \item Merges metadata and expression data into a single \code{data.frame}.
+#' }
 #'
-#' # 4. Build Seurat object and normalize (required to create "data" layer)
-#' mock_seurat <- CreateSeuratObject(
-#'     counts = mock_counts,
-#'     meta.data = mock_meta
-#' )
-#' mock_seurat <- NormalizeData(mock_seurat, verbose = FALSE)
-#'
-#' # 5. Run the preprocessing pipeline
-#' res <- scImmuAgingPreProcess(
-#'     inputObj = mock_seurat,
-#'     cellType = "T_cell",
-#'     model = NULL,
-#'     markerGenes = mock_markers
-#' )
-#'
-#' # 6. View the generated pseudocells
-#' print(res)
-scImmuAgingPreProcess <- function(inputObj, cellType, model, markerGenes) {
-    newSeurat <- subset(inputObj, features = markerGenes)
-
-    preprocessedData <- scImmuAgingPreprocessing(newSeurat) %>%
-        dplyr::group_by(donorId, age) %>%
-        tidyr::nest()
-
-    preprocessedData <- preprocessedData %>%
-        dplyr::mutate(pseudocells = purrr::map(data, pseudocellScImmuAging))
-
-    preprocessedData$data <- NULL
-    preprocessedData <- tidyr::unnest(preprocessedData, pseudocells)
-
-    return(preprocessedData)
+#' @keywords internal
+#' @noRd
+.scImmuAgingPreprocessingCore <- function(expr,
+                                          metadata,
+                                          donorCol = "donor_id",
+                                          ageCol = "age") {
+  
+  if (!is.matrix(expr)) {
+    expr <- as.matrix(expr)
+  }
+  
+  if (!is.numeric(expr)) {
+    stop("'expr' must contain numeric expression values.")
+  }
+  
+  if (is.null(colnames(expr))) {
+    stop("'expr' must have cell names as column names.")
+  }
+  
+  # Ensure metadata rows are aligned with expression matrix columns
+  if (!is.null(rownames(metadata)) &&
+      all(colnames(expr) %in% rownames(metadata))) {
+    metadata <- metadata[colnames(expr), , drop = FALSE]
+  }
+  
+  if (!donorCol %in% colnames(metadata)) {
+    stop("Metadata must contain donor column: ", donorCol)
+  }
+  
+  if (!ageCol %in% colnames(metadata)) {
+    stop("Metadata must contain age column: ", ageCol)
+  }
+  
+  metaDataSubset <- data.frame(
+    donorId = metadata[[donorCol]],
+    age = metadata[[ageCol]],
+    stringsAsFactors = FALSE
+  )
+  
+  inputMtx <- t(expr)
+  
+  combinedInput <- data.frame(
+    metaDataSubset,
+    as.data.frame(inputMtx, check.names = FALSE),
+    check.names = FALSE
+  )
+  
+  return(combinedInput)
 }
 
-
-#' Pre-Processing of input dataset
+#' Generate pseudocells for downstream statistical analysis
 #'
-#' input is a seurat object. meta.data should have "donor_id" and "age" columns.
-#' @param seuratObj seurat object with metadata "donor_id", "age"
-#' @return Return pre-processed input
-#' @import Seurat dplyr glmnet purrr
+#' @description
+#' This function creates "pseudocells" (also known as pseudo-bulk samples) 
+#' by aggregating single-cell expression data of a specific cell type. 
+#' It reduces technical noise and dropout effects by combining multiple 
+#' single cells into averaged expression profiles, which are more suitable 
+#' for linear modeling and differential aging analysis.
+#'
+#' @param expr A numeric \code{matrix} of gene expression (rows: genes, cols: cells).
+#' @param metadata A \code{data.frame} of cell-level metadata.
+#' @param cellType A character string identifying the cell type to be processed.
+#' @param markerGenes A character vector of genes to include in the pseudocell generation.
+#' @param donorCol Column name in metadata for donor IDs. Defaults to \code{"donor_id"}.
+#' @param ageCol Column name in metadata for subject age. Defaults to \code{"age"}.
+#' @param cellTypeCol Column name in metadata for cell types. Defaults to \code{"celltype"}.
+#' @param pseudocellSize Integer. The number of single cells to aggregate per pseudocell.
+#' @param pseudocellN Integer. The target number of pseudocells to generate.
+#' @param replace Logical or "dynamic". Whether to sample cells with replacement.
+#' @param verbose Logical. Whether to print progress and missing gene messages.
+#'
+#' @return A \code{data.frame} of aggregated expression values (pseudocells), 
+#'   with metadata columns (donorId, age) and gene expression columns.
+#'
+#' @details
+#' The function follows these steps:
+#' \enumerate{
+#'   \item Filters expression data for the specific \code{cellType} and \code{markerGenes}.
+#'   \item Formats data using \code{.scImmuAgingPreprocessingCore}.
+#'   \item Groups data by donor and age.
+#'   \item Performs aggregation into pseudocells using the specified \code{pseudocellSize}.
+#' }
+#'
+#' @importFrom stats aggregate
 #' @export
-#' @examples
-#' library(Seurat)
-#'
-#' # 1. Create a tiny mock count matrix (5 genes, 10 cells)
-#' mock_counts <- matrix(rpois(50, lambda = 10), nrow = 5, ncol = 10)
-#' rownames(mock_counts) <- paste0("Gene", 1:5)
-#' colnames(mock_counts) <- paste0("Cell", 1:10)
-#'
-#' # 2. Create mock metadata with required columns
-#' mock_meta <- data.frame(
-#'     donor_id = rep(c("Donor_A", "Donor_B"), each = 5),
-#'     age = rep(c(25, 65), each = 5),
-#'     row.names = colnames(mock_counts)
-#' )
-#'
-#' # 3. Create Seurat object and run basic normalization
-#' # (since your function extracts the "data" layer)
-#' mock_seurat <- CreateSeuratObject(counts = mock_counts, meta.data = mock_meta)
-#' mock_seurat <- NormalizeData(mock_seurat, verbose = FALSE)
-#'
-#' # 4. Run your preprocessing function
-#' processedData <- scImmuAgingPreprocessing(mock_seurat)
-#'
-#' # 5. View result
-#' print(processedData)
-scImmuAgingPreprocessing <- function(seuratObj) {
-    DefaultAssay(seuratObj) <- "RNA"
-    metaData <- seuratObj@meta.data
 
-    if (!"donorId" %in% colnames(metaData)) {
-        if ("donor_id" %in% colnames(metaData)) {
-            metaData$donorId <- metaData$donor_id
-        } else {
-            stop("please add 'donorId' (or 'donor_id') in your metadata!")
-        }
-    }
-
-
-    if (!"age" %in% colnames(metaData)) {
-        stop("please add 'age' in your metadata!")
-    }
-
-    metaDataSubset <- metaData[, c("donorId", "age"), drop = FALSE]
-
-    inputMtx <- t(as.matrix(GetAssayData(seuratObj, assay = "RNA", layer = "data")))
-
-    combinedInput <- dplyr::as_tibble(cbind(metaDataSubset, inputMtx))
-    return(combinedInput)
-}
-
-#' Pre-Processing of input dataset
-#'
-#' input could be interested gene list. Each row is one gene and columns are
-#' "gene" and "value". "value" could be log2FC or specific value.
-#' colnames of other metadata should be "subtype".
-#' @param inputData the output from scImmuAgingPreProcess() function.
-#' @param size how many cells would be randomly selected to generate pseudocells
-#' @param n how many times to repeat random selection
-#' @param replace Character or Logical. Strategy for sampling.
-#'   If "dynamic" (default), it automatically sets replace to TRUE
-#'   if nrow(input) <= size. Otherwise, can be set to TRUE or FALSE explicitly.
-#' @return Return ranked data.frame based on "value"
-#' @import Seurat dplyr glmnet purrr
-#' @export
-#' @examples
-#' # 1. Create a small mock dataset representing cells and genes
-#' # (e.g., 20 cells as rows, 3 genes as columns)
-#' set.seed(123) # Set seed for reproducibility in example
-#' mock_input <- data.frame(
-#'     GeneA = runif(20),
-#'     GeneB = runif(20),
-#'     GeneC = runif(20)
-#' )
-#' rownames(mock_input) <- paste0("Cell_", 1:20)
-#'
-#' # 2. Generate 3 pseudocells, each averaging 5 random cells
-#' pseudo_res <- pseudocellScImmuAging(
-#'     inputData = mock_input,
-#'     size = 5,
-#'     n = 3
-#' )
-#'
-#' # 3. View the generated pseudocells
-#' print(pseudo_res)
-pseudocellScImmuAging <- function(inputData, size = 15, n = 100, replace = "dynamic") {
-    if (replace == "dynamic") {
-        replace <- nrow(inputData) <= size
-    }
-
-    mat <- as.matrix(inputData)
-    numRows <- nrow(mat)
-
-    indices <- replicate(n, sample(seq_len(numRows), size = size, replace = replace))
-
-    pseudoMat <- vapply(seq_len(n), function(i) {
-        colMeans(mat[indices[, i], , drop = FALSE])
-    }, numeric(ncol(mat)))
-
-    return(dplyr::as_tibble(t(pseudoMat)))
-}
-
-
-#' predict age for each individual
-#'
-#' @param preprocessedData the output from scImmuAging_PreProcess() function.
-#' @param model the cell type aging clock model
-#' @param markerGenes selected marker genes from the corresponding model
-#' @param minCoverage A numeric value (0-1). The minimum proportion of
-#'   required genes that must be present. Default is 0.5.
-#' @param verbose A logical flag. If `TRUE` (default), prints status messages.
-#' @return Return dataframe of predicted age
-#' @import Seurat dplyr glmnet purrr
-#' @export
-#' @examples
-#' library(glmnet)
-#'
-#' # 1. Create a tiny mock preprocessed dataset (3 donors, 4 genes)
-#' mock_preprocessed <- data.frame(
-#'     donorId = c("Donor1", "Donor2", "Donor3"),
-#'     age = c(25, 45, 65),
-#'     GeneA = c(1.2, 1.5, 2.1),
-#'     GeneB = c(0.8, 0.9, 1.1),
-#'     GeneC = c(3.3, 2.8, 1.5),
-#'     GeneD = c(0.1, 0.5, 0.9)
-#' )
-#'
-#' # 2. Train a valid mock cv.glmnet model
-#' set.seed(123)
-#' # Generate 30 rows of random data to avoid cross-validation warnings
-#' X_train <- matrix(rnorm(120), nrow = 30, ncol = 4)
-#' colnames(X_train) <- c("GeneA", "GeneB", "GeneC", "GeneD")
-#'
-#' # Create a fake linear relationship so the model learns non-zero coefficients
-#' Y_train <- 40 + (5 * X_train[, "GeneA"]) - (3 * X_train[, "GeneB"]) + rnorm(30)
-#' mock_model <- cv.glmnet(X_train, Y_train)
-#'
-#' # 3. Define the marker genes expected by the model
-#' mock_markers <- c("GeneA", "GeneB", "GeneC", "GeneD")
-#'
-#' # 4. Run the calculator function
-#' result <- scImmuAgingCalculator(
-#'     preprocessedData = mock_preprocessed,
-#'     model = mock_model,
-#'     markerGenes = mock_markers,
-#'     verbose = FALSE
-#' )
-#'
-#' # 5. View the output
-#' print(result)
-scImmuAgingCalculator <- function(preprocessedData, model, markerGenes,
-                                  minCoverage = 0.5, verbose = TRUE) {
-    testMat <- t(as.matrix(preprocessedData[, -c(1, 2)]))
-
-
-    fakeWeights <- rep(0, length(markerGenes))
-    names(fakeWeights) <- markerGenes
-
-    # 1. Check the coverage
-    coverage <- .checkCpGCoverage(
-        betaM = testMat,
-        allWeights = fakeWeights,
-        clockName = "scImmuAging",
-        minCoverage = minCoverage,
-        verbose = verbose
+.scImmuAgingMakePseudocells <- function(expr,
+                                        metadata,
+                                        cellType,
+                                        markerGenes,
+                                        donorCol = "donor_id",
+                                        ageCol = "age",
+                                        cellTypeCol = "celltype",
+                                        pseudocellSize = 15,
+                                        pseudocellN = 100,
+                                        replace = "dynamic",
+                                        verbose = TRUE) {
+  if (!cellTypeCol %in% colnames(metadata)) {
+    stop("Metadata must contain cell type column: ", cellTypeCol)
+  }
+  
+  keepCells <- metadata[[cellTypeCol]] == cellType
+  keepCells[is.na(keepCells)] <- FALSE
+  
+  if (!any(keepCells)) {
+    stop("No cells found for cell type: ", cellType)
+  }
+  
+  markerGenes <- unique(markerGenes)
+  presentGenes <- markerGenes[markerGenes %in% rownames(expr)]
+  
+  if (length(presentGenes) == 0L) {
+    stop("None of the marker genes were found in the input object.")
+  }
+  
+  missingGenes <- setdiff(markerGenes, presentGenes)
+  
+  if (verbose && length(missingGenes) > 0L) {
+    message(
+      "[scImmuAging] ",
+      length(missingGenes),
+      " marker genes were not found for cell type ",
+      cellType,
+      "."
     )
-
-    if (!coverage$pass) {
-        return(data.frame(
-            donorId = preprocessedData[[1]],
-            age = preprocessedData[[2]],
-            prediction = NA_real_
-        ))
-    }
-
-    # 2. Prepare the final matrix
-    finalMat <- matrix(0, nrow = length(markerGenes), ncol = ncol(testMat))
-    rownames(finalMat) <- markerGenes
-    finalMat[rownames(testMat)[coverage$betaIdx], ] <- testMat[coverage$betaIdx, ]
-
-    # 3. Prediction
-    testPredictions <- predict(model, newx = t(finalMat), s = "lambda.min")
-
-    return(data.frame(
-        donorId = preprocessedData[[1]],
-        age = preprocessedData[[2]],
-        prediction = as.numeric(testPredictions)
-    ))
+  }
+  
+  exprSub <- expr[presentGenes, keepCells, drop = FALSE]
+  metadataSub <- metadata[keepCells, , drop = FALSE]
+  
+  cellDf <- .scImmuAgingPreprocessingCore(
+    expr = exprSub,
+    metadata = metadataSub,
+    donorCol = donorCol,
+    ageCol = ageCol
+  )
+  
+  groupKey <- paste(cellDf$donorId, cellDf$age, sep = "\r")
+  groupKey <- factor(groupKey, levels = unique(groupKey))
+  groupIdx <- split(seq_len(nrow(cellDf)), groupKey)
+  
+  outList <- lapply(groupIdx, function(idx) {
+    donorId <- cellDf$donorId[idx[1]]
+    age <- cellDf$age[idx[1]]
+    
+    geneDf <- cellDf[
+      idx,
+      setdiff(colnames(cellDf), c("donorId", "age")),
+      drop = FALSE
+    ]
+    
+    pseudo <- .pseudocellScImmuAging(
+      inputData = geneDf,
+      size = pseudocellSize,
+      n = pseudocellN,
+      replace = replace
+    )
+    
+    data.frame(
+      donorId = rep(donorId, nrow(pseudo)),
+      age = rep(age, nrow(pseudo)),
+      pseudo,
+      check.names = FALSE
+    )
+  })
+  
+  preprocessedData <- do.call(rbind, outList)
+  rownames(preprocessedData) <- NULL
+  
+  return(preprocessedData)
 }
 
 
-#' predicted age for each individual
-#'
-#' @param predictRes the output from scImmuAgingCalculator() function
-#' @return Return predicted age for each individual
-#' @import Seurat dplyr glmnet purrr
-#' @export
-#' @examples
-#' # 1. Create a mock output data.frame from scImmuAgingCalculator
-#' mockPredictRes <- data.frame(
-#'     donorId = c("Donor_A", "Donor_A", "Donor_A", "Donor_B", "Donor_B"),
-#'     celltype = c("nCD4T", "nCD8T", "NK", "nCD4T", "nCD8T"),
-#'     prediction = c(45.2, 46.8, 44.5, 61.0, 59.5)
-#' )
-#'
-#' # 2. Run the ageDonor function to aggregate predictions by donor
-#' donorAges <- ageDonor(mockPredictRes)
-#'
-#' # 3. View the result
-#' print(donorAges)
-#'
-ageDonor <- function(predictRes) {
-    donorDf <- predictRes %>%
-        dplyr::group_by(donorId) %>%
-        dplyr::mutate(predicted = round(mean(prediction, na.rm = TRUE))) %>%
-        dplyr::select(-prediction) %>%
-        dplyr::distinct()
 
-    return(as.data.frame(donorDf))
+## -------------------------------------------------------------------------
+## Exported function: pseudocell generation
+## -------------------------------------------------------------------------
+
+#' Generate pseudocells for scImmuAging
+#'
+#' @param inputData A numeric matrix or data.frame with cells in rows and genes
+#' in columns.
+#' @param size Number of cells sampled to generate each pseudocell.
+#' @param n Number of pseudocells to generate.
+#' @param replace If \code{"dynamic"}, sampling with replacement is used when
+#' the number of available cells is less than or equal to \code{size}. Otherwise
+#' use \code{TRUE} or \code{FALSE}.
+#'
+#' @return A data.frame of pseudocell expression values.
+#' @noRd
+#' @keywords internal
+.pseudocellScImmuAging <- function(inputData,
+                                   size = 15,
+                                   n = 100,
+                                   replace = "dynamic") {
+  mat <- as.matrix(inputData)
+  
+  if (!is.numeric(mat)) {
+    stop("'inputData' must contain numeric values.")
+  }
+  
+  numRows <- nrow(mat)
+  
+  if (numRows == 0L) {
+    stop("'inputData' must contain at least one cell.")
+  }
+  
+  if (!is.numeric(size) || length(size) != 1L || size <= 0L) {
+    stop("'size' must be a positive numeric value.")
+  }
+  
+  if (!is.numeric(n) || length(n) != 1L || n <= 0L) {
+    stop("'n' must be a positive numeric value.")
+  }
+  
+  size <- as.integer(size)
+  n <- as.integer(n)
+  
+  if (identical(replace, "dynamic")) {
+    replace <- numRows <= size
+  }
+  
+  if (!is.logical(replace) || length(replace) != 1L) {
+    stop("'replace' must be TRUE, FALSE, or 'dynamic'.")
+  }
+  
+  if (!replace && numRows < size) {
+    stop(
+      "Cannot sample ", size, " cells without replacement from only ",
+      numRows, " cells. Use replace = TRUE or replace = 'dynamic'."
+    )
+  }
+  
+  indices <- replicate(
+    n,
+    sample(seq_len(numRows), size = size, replace = replace)
+  )
+  
+  pseudoMat <- vapply(seq_len(n), function(i) {
+    colMeans(mat[indices[, i], , drop = FALSE])
+  }, numeric(ncol(mat)))
+  
+  pseudoDf <- as.data.frame(t(pseudoMat), check.names = FALSE)
+  colnames(pseudoDf) <- colnames(mat)
+  
+  return(pseudoDf)
+}
+
+
+## -------------------------------------------------------------------------
+## Exported function: prediction calculator
+## -------------------------------------------------------------------------
+
+#' Predict age for each pseudocell
+#'
+#' @param preprocessedData Output from \code{scImmuAgingPreProcess()}.
+#' @param model The cell type-specific aging clock model.
+#' @param markerGenes Character vector of marker genes used by the model.
+#' @param minCoverage Minimum required proportion of marker genes present.
+#' Default is 0.5.
+#' @param verbose Logical. Whether to print progress messages.
+#'
+#' @return A data.frame with columns \code{donorId}, \code{age}, and
+#' \code{prediction}.
+#' @noRd
+#' @keywords internal
+.scImmuAgingCalculator <- function(preprocessedData,
+                                  model,
+                                  markerGenes,
+                                  minCoverage = 0.5,
+                                  verbose = TRUE) {
+  requiredCols <- c("donorId", "age")
+  missingCols <- setdiff(requiredCols, colnames(preprocessedData))
+  
+  if (length(missingCols) > 0L) {
+    stop(
+      "'preprocessedData' is missing required columns: ",
+      paste(missingCols, collapse = ", ")
+    )
+  }
+  
+  geneCols <- setdiff(colnames(preprocessedData), requiredCols)
+  
+  if (length(geneCols) == 0L) {
+    stop("'preprocessedData' does not contain gene expression columns.")
+  }
+  
+  testMat <- t(as.matrix(preprocessedData[, geneCols, drop = FALSE]))
+  
+  if (!is.numeric(testMat)) {
+    stop("Gene expression columns in 'preprocessedData' must be numeric.")
+  }
+  
+  fakeWeights <- rep(0, length(markerGenes))
+  names(fakeWeights) <- markerGenes
+  
+  coverage <- .checkCpGCoverage(
+    betaM = testMat,
+    allWeights = fakeWeights,
+    clockName = "scImmuAging",
+    minCoverage = minCoverage,
+    verbose = verbose
+  )
+  
+  if (!coverage$pass) {
+    return(data.frame(
+      donorId = preprocessedData$donorId,
+      age = preprocessedData$age,
+      prediction = NA_real_,
+      stringsAsFactors = FALSE
+    ))
+  }
+  
+  finalMat <- matrix(
+    0,
+    nrow = length(markerGenes),
+    ncol = ncol(testMat),
+    dimnames = list(markerGenes, colnames(testMat))
+  )
+  
+  presentGenes <- rownames(testMat)[coverage$betaIdx]
+  
+  finalMat[presentGenes, ] <- testMat[
+    coverage$betaIdx,
+    ,
+    drop = FALSE
+  ]
+  
+  testPredictions <- stats::predict(
+    model,
+    newx = t(finalMat),
+    s = "lambda.min"
+  )
+  
+  return(data.frame(
+    donorId = preprocessedData$donorId,
+    age = preprocessedData$age,
+    prediction = as.numeric(testPredictions),
+    stringsAsFactors = FALSE
+  ))
+}
+
+
+
+
+## -------------------------------------------------------------------------
+## Exported function: aggregate prediction to donor level
+## -------------------------------------------------------------------------
+
+#' Aggregate scImmuAging predictions by donor
+#'
+#' @param predictRes Output from \code{.scImmuAgingCalculator()}.
+#'
+#' @return A data.frame with one row per donor and columns \code{donorId},
+#' \code{age}, and \code{predicted}.
+#' @noRd
+#' @keywords internal
+.ageDonor <- function(predictRes) {
+  if (!"donorId" %in% colnames(predictRes)) {
+    stop("'predictRes' must contain a 'donorId' column.")
+  }
+  
+  if (!"prediction" %in% colnames(predictRes)) {
+    stop("'predictRes' must contain a 'prediction' column.")
+  }
+  
+  donorIds <- unique(predictRes$donorId)
+  
+  out <- lapply(donorIds, function(id) {
+    tmp <- predictRes[predictRes$donorId == id, , drop = FALSE]
+    
+    predicted <- if (all(is.na(tmp$prediction))) {
+      NA_real_
+    } else {
+      mean(tmp$prediction, na.rm = TRUE)
+    }
+    
+    data.frame(
+      donorId = id,
+      age = if ("age" %in% colnames(tmp)) tmp$age[1] else NA,
+      predicted = predicted,
+      stringsAsFactors = FALSE
+    )
+  })
+  
+  donorDf <- do.call(rbind, out)
+  rownames(donorDf) <- NULL
+  
+  return(donorDf)
 }

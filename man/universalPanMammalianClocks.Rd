@@ -5,7 +5,7 @@
 \title{Calculate Universal Pan-Mammalian Epigenetic Clocks}
 \usage{
 universalPanMammalianClocks(
-  betaM,
+  x,
   speciesName,
   anageData = NULL,
   minCoverage = 0,
@@ -13,7 +13,9 @@ universalPanMammalianClocks(
 )
 }
 \arguments{
-\item{betaM}{A numeric matrix (Rows: CpGs, Cols: Samples).}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{speciesName}{A character string or vector specifying the Latin species
 name(s) (e.g., "Homo sapiens").}
@@ -46,24 +48,39 @@ models, and performs the necessary inverse mathematical transformations
 to report age in years.
 }
 \examples{
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+  tursiopsExample <- loadOmniAgeRdata(
+      "omniager_tursiops_example",
+      verbose = FALSE
+  )
+  
+  # Run the calculation. Note: anageData is automatically loaded if omitted.
+  clockResults <- universalPanMammalianClocks(
+      x = tursiopsExample$beta_m,
+      speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+      verbose = FALSE
+  )
+  print(head(clockResults))
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
 \dontrun{
-tursiopsExample <- loadOmniAgeRdata(
-    "omniager_tursiops_example",
-    verbose = FALSE
-)
-
-## This anage_data is from
-## https://github.com/shorvath/MammalianMethylationConsortium
-anageData <- loadOmniAgeRdata(
-    "omniager_anage_data",
-    verbose = FALSE
-)
-# Run the calculation with progress messages
-clockResults <- universalPanMammalianClocks(
-    betaM = tursiopsExample$beta_m,
-    speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
-    anageData = anageData
-)
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = tursiopsExample$beta_m),
+      colData = tursiopsExample$PhenoTypes
+    )
+    
+    se_res <- universalPanMammalianClocks(
+      x = se_obj,
+      speciesName = se_obj$SpeciesLatinName,
+      verbose = FALSE
+    )
+  }
 }
 }
 \references{

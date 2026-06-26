@@ -4,11 +4,12 @@
 \alias{grimAge2}
 \title{Calculate GrimAge2}
 \usage{
-grimAge2(betaM, age, sex, minCoverage = 0, verbose = TRUE)
+grimAge2(x, age, sex, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNA methylation beta values. Rows should
-represent CpG sites and columns should represent individual samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{age}{A numeric vector of chronological ages for the samples corresponding
 to the columns in \code{betaM}.}
@@ -43,16 +44,41 @@ This score is calibrated to the scale of chronological age to produce the
 final \code{DNAmGrimAge2}.
 }
 \examples{
+# ====================================================================
+# Example 1: Direct Matrix Input 
+# ====================================================================
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+phenoTypes_df <- dnamExample[[2]]
+
+age <- phenoTypes_df$Age
+sex <- ifelse(phenoTypes_df$Sex == "F", "Female", "Male")
+
+# Calculate GrimAge first
+GrimAge2O <- grimAge2(x = beta_matrix, age = age, sex = sex, verbose = FALSE)
+
 \dontrun{
-hannumExample <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)
-hannumBmiqM <- hannumExample[[1]]
-phenoTypesHannum <- hannumExample[[2]]
-age <- phenoTypesHannum$Age
-sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-GrimAge2Oout <- grimAge2(betaM = hannumBmiqM, age, sex)
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    GrimAge2O <- grimAge2(
+      x = se_obj,
+      age = se_obj$Age,
+      sex = ifelse(se_obj$Sex == "F", "Female", "Male"),
+      verbose = FALSE
+    )
+  }
 }
 }
 \references{

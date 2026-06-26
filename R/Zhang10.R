@@ -3,9 +3,9 @@
 #' @description A function to calculate the Zhang10 epigenetic clock age (2017)
 #' from a DNA methylation beta value matrix.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -22,36 +22,38 @@
 #' \emph{Nat Commun.} 2017
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_zhang10_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
+#' # Example 1: Direct Matrix Input
+#' predOut <- zhang10(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' zhang10Out <- zhang10(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- zhang10(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#'
 
-zhang10 <- function(betaM,
-                    minCoverage = 0,
-                    verbose = TRUE) {
-    zhang10Coef <- loadOmniAgeRdata(
-        "omniager_zhang10_coef",
-        verbose = verbose
-    )
-
-    predAgev <- .calLinearClock(
-        betaM, zhang10Coef, "zhang10",
-        minCoverage, verbose
-    )
-
-    return(predAgev)
+zhang10 <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_zhang10_coef", 
+    clockName = "zhang10",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }
+
+

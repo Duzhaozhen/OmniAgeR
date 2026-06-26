@@ -5,18 +5,19 @@
 \title{Calculate PASTA-based transcriptomic age scores}
 \usage{
 pastaScores(
-  mat,
+  x,
   filterGenes = TRUE,
   rankNorm = TRUE,
-  reg = TRUE,
+  reg = FALSE,
   pasta = TRUE,
-  ct46 = TRUE,
+  ct46 = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{mat}{An expression matrix (numeric) with \strong{genes as rows} and
-\strong{samples as columns}.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing an expression matrix (numeric) with \strong{genes as rows} and
+\strong{samples as columns}}
 
 \item{filterGenes}{Logical. If \code{TRUE} (default), the matrix is
 subsetted to retain only the genes utilized by the pre-trained models.}
@@ -24,12 +25,12 @@ subsetted to retain only the genes utilized by the pre-trained models.}
 \item{rankNorm}{Logical. If \code{TRUE} (default), applies a rank-based
 inverse normal transformation (rank-normalization) to the expression data.}
 
-\item{reg}{Logical. If \code{TRUE} (default), computes the REG (regression)
+\item{reg}{Logical. If \code{TRUE}, computes the REG (regression)
 age score.}
 
 \item{pasta}{Logical. If \code{TRUE} (default), computes the PASTA age score.}
 
-\item{ct46}{Logical. If \code{TRUE} (default), computes the CT46 age score.}
+\item{ct46}{Logical. If \code{TRUE}, computes the CT46 age score.}
 
 \item{verbose}{Logical. Whether to print status messages.
 Default is \code{TRUE}.}
@@ -44,38 +45,22 @@ models described by Salignon et al. (2025), including the primary PASTA
 score, a standard regression (REG) score, and the CT46 score.
 }
 \examples{
-# 1. Fast runnable example
-print("Ready to calculate PASTA scores.")
-
-\dontrun{
-library(magrittr)
-library(Seurat)
 library(glmnet)
+data("ScPbmcExample")
+expr_mat <- as.matrix(SummarizedExperiment::assay(ScPbmcExample, "logcounts"))
+cell_meta <- as.data.frame(SummarizedExperiment::colData(ScPbmcExample))
+groups <- paste(cell_meta$donor_id, cell_meta$celltype, sep = "_")
+unique_groups <- unique(groups)
+ pseudobulk_data_list <- lapply(unique_groups, function(grp) {
+ rowSums(expr_mat[, groups == grp, drop = FALSE])
+})
 
-seu <- loadOmniAgeRdata(
-    "omniager_seu_gabitto_2024_filtered",
-    verbose = FALSE
-)
+pseudobulk_data_matrix <- do.call(cbind, pseudobulk_data_list)
+colnames(pseudobulk_data_matrix) <- unique_groups
 
-seu$age <- seu$development_stage \%>\%
-    gsub("-year.*", "", .) \%>\%
-    gsub("-", " ", .) \%>\%
-    gsub("80 year old and over stage", "85", .)
+pastaRes <- pastaScores(pseudobulk_data_matrix, filterGenes = TRUE, 
+                        rankNorm = TRUE)
 
-seuBulk <- makePseudobulksPasta(
-    seu,
-    poolBy = c("cell_type", "age"),
-    chunkSize = 512,
-    verbose = FALSE
-)
-
-lognormMatrix <- GetAssayData(seuBulk, assay = "RNA", layer = "data")
-lognormMatrix <- as.matrix(lognormMatrix)
-
-seuBulkMeta <- seuBulk[[c("chunkSize", "cell_type", "age")]]
-seuBulkMeta$age <- as.numeric(seuBulkMeta$age)
-pastaRes <- pastaScores(lognormMatrix, filterGenes = TRUE, rankNorm = TRUE)
-}
 
 }
 \references{

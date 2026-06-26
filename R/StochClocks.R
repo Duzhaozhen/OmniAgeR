@@ -19,8 +19,9 @@
 #' linked to epigenetic age acceleration.
 #'
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
-#' columns should be individual samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -28,32 +29,44 @@
 #' @return A \code{list} containing three numeric vectors: \code{StocH},
 #'   \code{StocP}, and \code{StocZ}, representing predicted DNAm ages.
 #'
-#' @import glmnet
+#' @importFrom glmnet glmnet
 #' @importFrom stats coef
 #' @export
 #'
 #' @references
 #' Tong, H., Dwaraka, V.B., Chen, Q. et al.
 #' Quantifying the stochastic component of epigenetic aging.
-#' \emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00636-6}
+#' \emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00600-8}
 #'
 #' @examples
-
-#' # 1. Fast runnable code to satisfy BiocCheck
-#' message("Ready to calculate Stochastic Epigenetic Clocks.")
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Real execution (wrapped to bypass 5-second limit in automated checks)
-#' if (interactive()) {
-#' # Load example data
-#' hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
-#' stochClocksOut <- stochClocks(hannumExample[[1]])
+#' # Example 1: Direct Matrix Input
+#' predOut <- stochClocks(x = beta_matrix, verbose = FALSE)
+#' 
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- stochClocks(x = se_obj, verbose = FALSE)
+#'   }
 #' }
-#' 
 
-stochClocks <- function(betaM, minCoverage = 0, verbose = TRUE) {
+
+stochClocks <- function(x, minCoverage = 0, verbose = TRUE) {
+    betaM <- .extractAssayMatrix(x)
     stocAll <- loadOmniAgeRdata("omniager_stoch_clocks")
-
-    stocNames <- paste0("Stoc", names(stocAll))
+    
+    stocNames <- c("StocH","StocZ","StocP")
     mageList <- list()
 
     for (i in seq_along(stocAll)) {

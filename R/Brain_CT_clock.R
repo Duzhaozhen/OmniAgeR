@@ -1,32 +1,41 @@
 #' Run Brain Cell Type Specific Clocks
 #'
 #' @description
-#' A high-level wrapper function that runs the brain age prediction pipeline for
-#' one or more specified sample types ('SC', 'Pseudobulk', 'Bootstrap').
+#' Run brain cell type-specific aging clock prediction for one or more cell
+#' types and one or more sample types.
 #'
-#' @param seuratObj The input Seurat object containing expression data and
-#'   metadata (must include 'donor_id', 'age', 'celltype').
-#' @param cellTypes A character vector of cell types to analyze
-#'   (e.g., `c('Oligodendrocytes', 'Astrocytes')`).
-#'   Available cell types are: "Oligodendrocytes", "Astrocytes", "Microglia",
-#'   "OPCs", "Excitatory Neurons", and "Inhibitory Neurons".
-#' @param modelNames A character string or vector specifying which models to run.
-#'   \itemize{
-#'     \item `"all"` (default): Runs "SC", "Pseudobulk", and "Bootstrap".
-#'     \item A vector: e.g., `c("SC", "Pseudobulk")` will run only those two.
-#'   }
+#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, Seurat
+#' object, matrix, sparse Matrix, or data.frame containing log-normalized
+#' expression values. Rows should be genes and columns should be cells.
+#' For Bioconductor workflows, \code{SingleCellExperiment} input is recommended.
+#' @param cellTypes Character vector of cell types to analyze. Available cell
+#' types include \code{"Oligodendrocytes"}, \code{"Astrocytes"},
+#' \code{"Microglia"}, \code{"OPCs"}, \code{"Excitatory Neurons"}, and
+#' \code{"Inhibitory Neurons"} when corresponding models are available.
+#' @param modelNames Character vector specifying which sample types to run.
+#' Use \code{"all"} to run \code{"SC"}, \code{"Pseudobulk"}, and
+#' \code{"Bootstrap"}.
+#' @param metadata Optional metadata. Required when \code{x} is matrix-like.
+#' @param assayName Assay name for \code{SingleCellExperiment} or
+#' \code{SummarizedExperiment} input.
+#' @param donorCol Column in metadata containing donor IDs.
+#' @param ageCol Column in metadata containing donor ages.
+#' @param cellTypeCol Column in metadata containing cell type labels.
 #' @param verbose Logical. Whether to print status messages.
-#' @return
-#' A named list where each element corresponds to a `modelNames` that was run.
-#' Each element contains a data.frame of the (5-fold averaged) predictions,
-#' as returned by `runPredictionPipelineBrainCt`.
+#' @param seuratAssay Assay name for Seurat input.
+#' @param seuratLayer Layer or slot name for Seurat input.
+#'
+#' @return A named list where each element corresponds to a sample type that
+#' was run. Each element contains a data.frame of predictions.
 #'
 #' @details
-#' This function serves as the primary endpoint for the prediction pipeline.
-#' It iteratively calls `runPredictionPipelineBrainCt` for each requested
-#' `modelNames` (sample type) and collects the results into a single list.
+#' This function supports Bioconductor-native workflows by accepting
+#' \code{SingleCellExperiment} and \code{SummarizedExperiment} objects directly.
+#' Expression values are extracted from an assay, and cell-level metadata are
+#' extracted from \code{colData()}.
 #'
-#' @seealso \code{\link{runPredictionPipelineBrainCt}}
+#' Seurat input is also supported when the Seurat package is installed, but
+#' Seurat is not required for Bioconductor workflows.
 #'
 #' @references
 #' Muralidharan C, Zakar-Polyák E, Adami A, et al.
@@ -35,187 +44,392 @@
 #' \emph{Adv Sci(Weinh).} 2025
 #' @export
 #' @examples
-#' # 1. Define valid models to run (Fast, runnable example to pass BiocCheck)
-#' available_models <- c("SC", "Pseudobulk", "Bootstrap")
-#' print(available_models)
-#' \dontrun{
-#' # 2. Real pipeline execution (Wrapped in dontrun because it requires downloading
-#' # pre-trained models and large example datasets via loadOmniAgeRdata)
+#' data("ScBrainExample")
 #'
-#' # Load the Seurat object
-#' library(Seurat)
-#' library(dplyr)
-#' brainSeurat <- loadOmniAgeRdata(
-#'     "omniager_brain_frohlich_control_example_15donors",
+#' # Recommended Bioconductor workflow: SingleCellExperiment input
+#' brain_res <- brainCtClock(
+#'     x = ScBrainExample,
+#'     cellTypes = "Oligodendrocytes",
+#'     modelNames = "SC",
+#'     assayName = "logcounts",
+#'     donorCol = "donor_id",
+#'     ageCol = "age",
+#'     cellTypeCol = "celltype",
 #'     verbose = FALSE
 #' )
 #'
-#' # Define cell types of interest
-#' cellTypes <- c("Oligodendrocytes")
+#' names(brain_res)
+#' head(brain_res$SC)
+#' 
+#' \dontrun{
+#' # Matrix input is also supported when metadata are supplied separately
+#' expr_mat <- SummarizedExperiment::assay(ScBrainExample, "logcounts")
+#' cell_meta <- as.data.frame(SummarizedExperiment::colData(ScBrainExample))
 #'
-#' # Run the model for the specified cell types
-#' clockResults <- brainCtClock(
-#'     seuratObj = brainSeurat,
-#'     cellTypes = cellTypes,
-#'     modelNames = "SC"
+#' matrix_res <- brainCtClock(
+#'     x = expr_mat,
+#'     metadata = cell_meta,
+#'     cellTypes = "Oligodendrocytes",
+#'     modelNames = "SC",
+#'     donorCol = "donor_id",
+#'     ageCol = "age",
+#'     cellTypeCol = "celltype",
+#'     verbose = FALSE
 #' )
+#'
+#' head(matrix_res$SC)
+#' # Optional Seurat input
+#' if (requireNamespace("Seurat", quietly = TRUE)) {
+#'     expr_mat <- SummarizedExperiment::assay(ScBrainExample, "logcounts")
+#'     cell_meta <- as.data.frame(SummarizedExperiment::colData(ScBrainExample))
+#'     cell_meta <- cell_meta[colnames(expr_mat), , drop = FALSE]
+#'
+#'     seurat_obj <- Seurat::CreateSeuratObject(
+#'         counts = expr_mat,
+#'         meta.data = cell_meta
+#'     )
+#'
+#'     seurat_obj <- tryCatch(
+#'         Seurat::SetAssayData(
+#'             object = seurat_obj,
+#'             assay = "RNA",
+#'             layer = "data",
+#'             new.data = expr_mat
+#'         ),
+#'         error = function(e) {
+#'             Seurat::SetAssayData(
+#'                 object = seurat_obj,
+#'                 assay = "RNA",
+#'                 slot = "data",
+#'                 new.data = expr_mat
+#'             )
+#'         }
+#'     )
+#'
+#'     seurat_res <- brainCtClock(
+#'         x = seurat_obj,
+#'         cellTypes = "Oligodendrocytes",
+#'         modelNames = "SC",
+#'         seuratAssay = "RNA",
+#'         seuratLayer = "data",
+#'         donorCol = "donor_id",
+#'         ageCol = "age",
+#'         cellTypeCol = "celltype",
+#'         verbose = FALSE
+#'     )
+#'
+#'     head(seurat_res$SC)
 #' }
-brainCtClock <- function(seuratObj, cellTypes,
-                         modelNames = "all", verbose = TRUE) {
-    # --- 1. Define which models to run  ---
-    validModels <- c("SC", "Pseudobulk", "Bootstrap")
-    if (length(modelNames) == 1 && modelNames == "all") {
-        modelsToRun <- validModels
-    } else {
-        modelsToRun <- modelNames
-        if (!all(modelsToRun %in% validModels)) {
-            stop(
-                "Invalid modelNames.",
-                " Valid: 'SC', 'Pseudobulk', 'Bootstrap', or 'all'."
-            )
-        }
+#' }
+#' 
+
+brainCtClock <- function(x,
+                         cellTypes,
+                         modelNames = "all",
+                         metadata = NULL,
+                         assayName = "logcounts",
+                         donorCol = "donor_id",
+                         ageCol = "age",
+                         cellTypeCol = "celltype",
+                         verbose = TRUE,
+                         seuratAssay = "RNA",
+                         seuratLayer = "data") {
+  validModels <- c("SC", "Pseudobulk", "Bootstrap")
+  
+  if (length(modelNames) == 1L && identical(modelNames, "all")) {
+    modelsToRun <- validModels
+  } else {
+    modelsToRun <- modelNames
+    
+    if (!all(modelsToRun %in% validModels)) {
+      stop(
+        "Invalid 'modelNames'. Valid values are 'SC', ",
+        "'Pseudobulk', 'Bootstrap', or 'all'."
+      )
     }
-
-    allResults <- list()
-    if (verbose) message("Starting brainCtClock for cell types...")
-
-    # --- 2. Loop over each requested model type ---
-    for (currentModelType in modelsToRun) {
-        predResult <- runPredictionPipelineBrainCt(
-            sampleType = currentModelType,
-            seuratObj = seuratObj,
-            cellTypes = cellTypes,
-            verbose = verbose
-        )
-        allResults[[currentModelType]] <- predResult
-    }
-
-    if (verbose) message("\n--- All Brain clock predictions complete! ---")
-    return(allResults)
+  }
+  
+  if (verbose) {
+    message("[brainCtClock] Starting brain cell type clock prediction...")
+  }
+  
+  allResults <- list()
+  
+  for (currentModelType in modelsToRun) {
+    predResult <- .runPredictionPipelineBrainCt(
+      sampleType = currentModelType,
+      x = x,
+      cellTypes = cellTypes,
+      metadata = metadata,
+      assayName = assayName,
+      donorCol = donorCol,
+      ageCol = ageCol,
+      cellTypeCol = cellTypeCol,
+      verbose = verbose,
+      seuratAssay = seuratAssay,
+      seuratLayer = seuratLayer
+    )
+    
+    allResults[[currentModelType]] <- predResult
+  }
+  
+  if (verbose) {
+    message("[brainCtClock] All brain clock predictions complete.")
+  }
+  
+  allResults
 }
 
 
-#' Extract and Pre-process Data from a Seurat Object
+
+#' Extract and pre-process data for brain cell type clocks
 #'
 #' @description
-#' Subsets a Seurat object by cell type and processes the expression data into
-#' one of three formats: single-cell ('SC'), 'Pseudobulk' (averaged by donor),
-#' or 'Bootstrap' (resampled within donor).
+#' Subsets a single-cell expression object by cell type and processes the
+#' expression data into one of three formats: single-cell, pseudobulk, or
+#' bootstrap-resampled pseudobulk.
 #'
-#' @param seuratObj A Seurat object containing the expression data and metadata
-#'   (must include 'donor_id', 'age', 'celltype').
-#' @param cellType A character string specifying the cell type to subset.
-#' @param sampleType A character string defining the processing method:
-#'   "SC", "Pseudobulk", or "Bootstrap".
-#'
-#' @return
-#' A data.frame (tibble) containing the processed expression data and metadata.
-#' The structure depends on `sampleType`:
-#' \itemize{
-#'   \item{"SC": A cell-by-gene matrix with metadata.}
-#'   \item{"Pseudobulk": A donor-by-gene matrix (mean expression) with metadata.}
-#'   \item{"Bootstrap": A (donor * 100 replicates)-by-gene matrix with metadata.}
-#' }
-#' Returns an empty data.frame if no cells are found for the specified `cellType`.
-#'
-#' @details
-#' This function defines the number of cells to sample for the 'Bootstrap' method
-#' internally via the `numCellsMap` list. If a donor has fewer cells than the
-#' specified number, 100 replicates of the donor's mean expression are returned.
-#'
-#' @importFrom Seurat GetAssayData
-#' @importFrom dplyr as_tibble group_by summarize across all_of bind_rows
-#' @importFrom magrittr %>%
-#' @export
-#' @examples
-#' library(Seurat)
-#' library(dplyr)
-#'
-#' # 1. Create a tiny mock Seurat object (5 genes, 20 cells)
-#' set.seed(123)
-#' mock_counts <- matrix(rpois(100, lambda = 5), nrow = 5, ncol = 20)
-#' rownames(mock_counts) <- paste0("Gene", 1:5)
-#' colnames(mock_counts) <- paste0("Cell_", 1:20)
-#'
-#' # Metadata with 2 donors and 2 cell types
-#' mock_meta <- data.frame(
-#'     donor_id = rep(c("Donor1", "Donor2"), each = 10),
-#'     age = rep(c(30, 60), each = 10),
-#'     celltype = rep(c("Astrocytes", "Microglia"), times = 10),
-#'     row.names = colnames(mock_counts)
-#' )
-#'
-#' mock_seu <- CreateSeuratObject(counts = mock_counts, meta.data = mock_meta)
-#' mock_seu <- NormalizeData(mock_seu, verbose = FALSE)
-#'
-#' # 2. Run getDfSeurat to generate Pseudobulk data for Astrocytes
-#' res_pb <- getDfSeurat(
-#'     seuratObj = mock_seu,
-#'     cellType = "Astrocytes",
-#'     sampleType = "Pseudobulk"
-#' )
-#'
-#' # 3. View the generated Pseudobulk dataframe
-#' print(res_pb)
-#'
-getDfSeurat <- function(seuratObj, cellType, sampleType) {
-    numCellsMap <- list(
-        "Oligodendrocytes" = 200, "Astrocytes" = 50, "Microglia" = 50,
-        "OPCs" = 50, "Excitatory Neurons" = 100, "Inhibitory Neurons" = 100
+#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, Seurat
+#' object, matrix, sparse Matrix, or data.frame containing log-normalized
+#' expression values. Rows should be genes and columns should be cells.
+#' For Bioconductor workflows, \code{SingleCellExperiment} input is recommended.
+#' @param cellType Character. Cell type to analyze.
+#' @param sampleType Character. One of \code{"SC"}, \code{"Pseudobulk"}, or
+#' \code{"Bootstrap"}.
+#' @param metadata Optional cell-level metadata. Required when \code{x} is a
+#' matrix, sparse Matrix, or data.frame.
+#' @param assayName Assay name for \code{SingleCellExperiment} or
+#' \code{SummarizedExperiment} input. Default is \code{"logcounts"}.
+#' @param donorCol Column in metadata containing donor IDs.
+#' @param ageCol Column in metadata containing donor ages.
+#' @param cellTypeCol Column in metadata containing cell type labels.
+#' @param seuratAssay Assay name for Seurat input.
+#' @param seuratLayer Layer or slot name for Seurat input.
+#' @param bootstrapReps Number of bootstrap replicates per donor.
+#' @param featureNames Optional character vector of model features to retain.
+#' If provided, only these features are extracted before converting expression
+#' values to a data.frame.
+#' 
+#' @return A data.frame containing processed expression data and metadata.
+#' @keywords internal
+#' @noRd
+
+.getDfBrainCt <- function(x,
+                          cellType,
+                          sampleType,
+                          metadata = NULL,
+                          assayName = "logcounts",
+                          donorCol = "donor_id",
+                          ageCol = "age",
+                          cellTypeCol = "celltype",
+                          seuratAssay = "RNA",
+                          seuratLayer = "data",
+                          bootstrapReps = 100,
+                          featureNames = NULL) {
+  validSampleTypes <- c("SC", "Pseudobulk", "Bootstrap")
+  
+  if (!sampleType %in% validSampleTypes) {
+    stop(
+      "'sampleType' must be one of: ",
+      paste(validSampleTypes, collapse = ", ")
     )
-
-    # 1. Subset Seurat Object
-    seuratSub <- subset(seuratObj, subset = celltype == cellType)
-    if (ncol(seuratSub) == 0) {
-        warning("No cells found for: ", cellType)
-        return(data.frame())
+  }
+  
+  if (!is.numeric(bootstrapReps) ||
+      length(bootstrapReps) != 1L ||
+      bootstrapReps <= 0L) {
+    stop("'bootstrapReps' must be a positive numeric value.")
+  }
+  
+  bootstrapReps <- as.integer(bootstrapReps)
+  
+  input <- .extractBrainCtInput(
+    x = x,
+    metadata = metadata,
+    assayName = assayName,
+    donorCol = donorCol,
+    ageCol = ageCol,
+    cellTypeCol = cellTypeCol,
+    seuratAssay = seuratAssay,
+    seuratLayer = seuratLayer
+  )
+  
+  expr <- input$expr
+  metadata <- input$metadata
+  
+  ## Keep only model features before dense conversion.
+  ## This is important for sparse SingleCellExperiment/Seurat assays.
+  if (!is.null(featureNames)) {
+    featureNames <- unique(featureNames)
+    presentFeatures <- intersect(featureNames, rownames(expr))
+    
+    if (length(presentFeatures) == 0L) {
+      warning("No model features found in input for cell type: ", cellType)
+      return(data.frame())
     }
-
-    # 2. Unify the column names of metadata
-    metaData <- seuratSub[[]]
-    if (!"donorId" %in% colnames(metaData) && "donor_id" %in% colnames(metaData)) {
-        metaData$donorId <- metaData$donor_id
+    
+    expr <- expr[presentFeatures, , drop = FALSE]
+  }
+  
+  numCellsMap <- list(
+    "Oligodendrocytes" = 200,
+    "Astrocytes" = 50,
+    "Microglia" = 50,
+    "OPCs" = 50,
+    "Excitatory Neurons" = 100,
+    "Inhibitory Neurons" = 100
+  )
+  
+  keepCells <- metadata[[cellTypeCol]] == cellType
+  keepCells[is.na(keepCells)] <- FALSE
+  
+  if (!any(keepCells)) {
+    warning("No cells found for: ", cellType)
+    return(data.frame())
+  }
+  
+  exprSub <- expr[, keepCells, drop = FALSE]
+  metaSub <- metadata[keepCells, , drop = FALSE]
+  
+  metaOut <- data.frame(
+    donorId = metaSub[[donorCol]],
+    age = metaSub[[ageCol]],
+    celltype = metaSub[[cellTypeCol]],
+    stringsAsFactors = FALSE
+  )
+  
+  ## Convert only the retained feature-by-cell matrix to dense matrix,
+  ## then transpose to cell-by-gene format.
+  exprSub <- as.matrix(exprSub)
+  
+  if (!is.numeric(exprSub)) {
+    stop("The selected expression values must be numeric.")
+  }
+  
+  exprCellByGene <- t(exprSub)
+  
+  exprDf <- as.data.frame(
+    exprCellByGene,
+    check.names = FALSE
+  )
+  
+  exprDf[] <- lapply(exprDf, as.numeric)
+  
+  combinedData <- data.frame(
+    metaOut,
+    exprDf,
+    check.names = FALSE
+  )
+  
+  geneCols <- colnames(exprDf)
+  
+  if (length(geneCols) == 0L) {
+    warning("No expression features remained after preprocessing.")
+    return(data.frame())
+  }
+  
+  if (identical(sampleType, "SC")) {
+    return(combinedData)
+  }
+  
+  if (identical(sampleType, "Pseudobulk")) {
+    groupKey <- paste(
+      combinedData$donorId,
+      combinedData$age,
+      combinedData$celltype,
+      sep = "\r"
+    )
+    
+    groupKey <- factor(groupKey, levels = unique(groupKey))
+    groupIdx <- split(seq_len(nrow(combinedData)), groupKey)
+    
+    out <- lapply(groupIdx, function(idx) {
+      tmp <- combinedData[idx, , drop = FALSE]
+      
+      means <- colMeans(
+        as.matrix(tmp[, geneCols, drop = FALSE]),
+        na.rm = TRUE
+      )
+      
+      data.frame(
+        donorId = tmp$donorId[1],
+        age = tmp$age[1],
+        celltype = tmp$celltype[1],
+        as.data.frame(t(means), check.names = FALSE),
+        check.names = FALSE
+      )
+    })
+    
+    res <- do.call(rbind, out)
+    rownames(res) <- NULL
+    return(res)
+  }
+  
+  if (identical(sampleType, "Bootstrap")) {
+    donors <- unique(combinedData$donorId)
+    
+    nSample <- numCellsMap[[cellType]]
+    if (is.null(nSample)) {
+      nSample <- 50
     }
-
-    # 3. Extract expression matrix
-    exprMtx <- t(as.matrix(GetAssayData(seuratSub, assay = "RNA", layer = "data")))
-    combinedData <- dplyr::as_tibble(cbind(metaData[, c("donorId", "age", "celltype")], exprMtx))
-    geneCols <- colnames(exprMtx)
-
-    # 4. Process data based on sample_type
-    if (sampleType == "SC") {
-        return(combinedData)
-    } else if (sampleType == "Pseudobulk") {
-        return(combinedData %>%
-            dplyr::group_by(.data$donorId, .data$age, .data$celltype) %>%
-            dplyr::summarize(dplyr::across(dplyr::all_of(geneCols), .fns = mean), .groups = "drop"))
-    } else if (sampleType == "Bootstrap") {
-        donors <- unique(combinedData$donorId)
-        nSample <- numCellsMap[[cellType]]
-        if (is.null(nSample)) {
-            nSample <- 50
-        }
-
-        bootstrapList <- lapply(donors, function(d) {
-            dfDonor <- combinedData[combinedData$donorId == d, ]
-            numRows <- nrow(dfDonor)
-
-            reps <- 100
-            indices <- replicate(reps, sample(seq_len(numRows), size = nSample, replace = (numRows < nSample)))
-
-            bootMat <- vapply(seq_len(reps), function(i) {
-                colMeans(as.matrix(dfDonor[indices[, i], geneCols, drop = FALSE]))
-            }, numeric(length(geneCols)))
-
-            dfBoot <- dplyr::as_tibble(t(bootMat))
-            dfBoot$donorId <- d
-            dfBoot$age <- dfDonor$age[1]
-            dfBoot$celltype <- cellType
-            return(dfBoot)
-        })
-        return(dplyr::bind_rows(bootstrapList))
+    
+    bootstrapList <- lapply(donors, function(d) {
+      dfDonor <- combinedData[
+        combinedData$donorId == d,
+        ,
+        drop = FALSE
+      ]
+      
+      numRows <- nrow(dfDonor)
+      
+      if (numRows == 0L) {
+        return(NULL)
+      }
+      
+      indices <- do.call(
+        cbind,
+        replicate(
+          bootstrapReps,
+          sample(
+            seq_len(numRows),
+            size = nSample,
+            replace = numRows < nSample
+          ),
+          simplify = FALSE
+        )
+      )
+      
+      bootMat <- vapply(seq_len(bootstrapReps), function(i) {
+        colMeans(
+          as.matrix(dfDonor[indices[, i], geneCols, drop = FALSE]),
+          na.rm = TRUE
+        )
+      }, numeric(length(geneCols)))
+      
+      dfBoot <- as.data.frame(t(bootMat), check.names = FALSE)
+      colnames(dfBoot) <- geneCols
+      
+      data.frame(
+        donorId = d,
+        age = dfDonor$age[1],
+        celltype = cellType,
+        dfBoot,
+        check.names = FALSE
+      )
+    })
+    
+    bootstrapList <- Filter(Negate(is.null), bootstrapList)
+    
+    if (length(bootstrapList) == 0L) {
+      return(data.frame())
     }
+    
+    res <- do.call(rbind, bootstrapList)
+    rownames(res) <- NULL
+    return(res)
+  }
 }
+
 
 
 # --- Run Prediction Flow ---
@@ -246,155 +460,419 @@ getDfSeurat <- function(seuratObj, cellType, sampleType) {
 #' multiplication (`expression_matrix %*% coefficients_vector + intercept`).
 #' It ensures that the gene order in the expression matrix exactly matches the
 #' coefficient order from the model.
-#'
-#' @importFrom dplyr filter left_join bind_cols
-#' @importFrom tidyr pivot_wider
 #' @noRd
+#' @keywords internal
 
-predictBrainCtAge <- function(inputData, imputeData, modelObj, sampleType) {
-    # 1. Separate coefficients and intercept
-    intercept <- modelObj$coefficient[modelObj$feature_name == "intercept"]
-    if (length(intercept) == 0) intercept <- 0
-
-    modelGenesDf <- modelObj[modelObj$feature_name != "intercept", ]
-    modelGenes <- modelGenesDf$feature_name
-
-    # 2. Gene matching
-    presentGenes <- intersect(modelGenes, colnames(inputData))
-    missingGenes <- setdiff(modelGenes, presentGenes)
-
-    exprMat <- as.matrix(inputData[, presentGenes, drop = FALSE])
-
-    if (length(missingGenes) > 0) {
-        fillValues <- setNames(rep(0, length(missingGenes)), missingGenes)
-        matchIdx <- match(missingGenes, imputeData$feature_name)
-        fillValues[!is.na(matchIdx)] <- imputeData$imputation_value[matchIdx[!is.na(matchIdx)]]
-
-        fillMat <- matrix(rep(fillValues, each = nrow(exprMat)), nrow = nrow(exprMat))
-        colnames(fillMat) <- missingGenes
-        fullMat <- cbind(exprMat, fillMat)
-    } else {
-        fullMat <- exprMat
-    }
-
-    # 3. Strictly sort and calculate
-    fullMat <- fullMat[, modelGenes, drop = FALSE]
-    coefVector <- modelGenesDf$coefficient[match(modelGenes, modelGenesDf$feature_name)]
-
-    predVec <- (fullMat %*% coefVector) + intercept
-
+.predictBrainCtAge <- function(inputData, imputeData, modelObj, sampleType) {
+  intercept <- modelObj$coefficient[modelObj$feature_name == "intercept"]
+  
+  if (length(intercept) == 0L) {
+    intercept <- 0
+  } else {
+    intercept <- intercept[1]
+  }
+  
+  modelGenesDf <- modelObj[modelObj$feature_name != "intercept", , drop = FALSE]
+  if (nrow(modelGenesDf) == 0L) {
     return(data.frame(
-        prediction = as.numeric(predVec),
-        age = inputData$age,
-        donorId = inputData$donorId,
-        sampleType = sampleType
+      prediction = rep(intercept, nrow(inputData)),
+      age = inputData$age,
+      donorId = inputData$donorId,
+      sampleType = sampleType,
+      stringsAsFactors = FALSE
     ))
+  }
+  
+  modelGenes <- modelGenesDf$feature_name
+  
+  presentGenes <- intersect(modelGenes, colnames(inputData))
+  missingGenes <- setdiff(modelGenes, presentGenes)
+  
+  exprData <- inputData[, presentGenes, drop = FALSE]
+  exprData <- as.data.frame(exprData, check.names = FALSE)
+  
+  exprData[] <- lapply(exprData, function(z) {
+    if (is.factor(z)) {
+      z <- as.character(z)
+    }
+    as.numeric(z)
+  })
+  
+  exprMat <- as.matrix(exprData)
+  
+  if (!is.numeric(exprMat)) {
+    stop("Expression columns in 'inputData' must be numeric.")
+  }
+  
+  if (anyNA(exprMat)) {
+    stop(
+      "Some expression columns could not be converted to numeric values. ",
+      "Please check whether non-expression columns were included among ",
+      "model feature names."
+    )
+  }
+  
+  if (length(missingGenes) > 0L) {
+    fillValues <- setNames(rep(0, length(missingGenes)), missingGenes)
+    
+    if (!is.null(imputeData) && nrow(imputeData) > 0L) {
+      matchIdx <- match(missingGenes, imputeData$feature_name)
+      matched <- !is.na(matchIdx)
+      
+      fillValues[matched] <- imputeData$imputation_value[
+        matchIdx[matched]
+      ]
+    }
+    
+    fillMat <- matrix(
+      rep(fillValues, each = nrow(exprMat)),
+      nrow = nrow(exprMat),
+      dimnames = list(NULL, missingGenes)
+    )
+    
+    fullMat <- cbind(exprMat, fillMat)
+  } else {
+    fullMat <- exprMat
+  }
+  
+  fullMat <- fullMat[, modelGenes, drop = FALSE]
+  
+  coefVector <- modelGenesDf$coefficient[
+    match(modelGenes, modelGenesDf$feature_name)
+  ]
+  
+  predVec <- as.numeric(fullMat %*% coefVector + intercept)
+  
+  data.frame(
+    prediction = predVec,
+    age = inputData$age,
+    donorId = inputData$donorId,
+    sampleType = sampleType,
+    stringsAsFactors = FALSE
+  )
 }
+
+
+
 
 #' Run the Full 5-Fold Averaged Prediction Pipeline
 #'
 #' @description
-#' Orchestrates the entire prediction process for a given sample type and set of
-#' cell types. It loads the 5-fold cross-validation models, runs predictions
-#' for each of the 5 folds, and returns the final averaged prediction for
-#' each sample.
+#' Orchestrates the brain cell type-specific prediction process for a given
+#' sample type and set of cell types.
 #'
-#' @param sampleType The processing method to use: "SC", "Pseudobulk", or
-#'   "Bootstrap". This is passed to `getDfSeurat`.
-#' @param seuratObj The input Seurat object, passed to `getDfSeurat`.
-#' @param cellTypes A character vector of cell types to process
-#'   (e.g., `c('Oligodendrocytes', 'Astrocytes')`).
-#' @param verbose A logical flag. If `TRUE` (default), prints status messages.
-#' @return
-#' A single, combined data.frame containing the final (5-fold averaged)
-#' 'predictions', 'ages', 'donors', 'sample_type', and 'celltype' for all
-#' requested cell types.
+#' @param sampleType Character. One of \code{"SC"}, \code{"Pseudobulk"}, or
+#' \code{"Bootstrap"}.
+#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, Seurat
+#' object, matrix, sparse Matrix, or data.frame containing log-normalized
+#' expression values.
+#' @param cellTypes Character vector of cell types to process.
+#' @param metadata Optional metadata. Required when \code{x} is matrix-like.
+#' @param assayName Assay name for \code{SingleCellExperiment} or
+#' \code{SummarizedExperiment} input.
+#' @param donorCol Column in metadata containing donor IDs.
+#' @param ageCol Column in metadata containing donor ages.
+#' @param cellTypeCol Column in metadata containing cell type labels.
+#' @param verbose Logical. Whether to print status messages.
+#' @param seuratAssay Assay name for Seurat input.
+#' @param seuratLayer Layer or slot name for Seurat input.
+#'
+#' @return A data.frame containing 5-fold averaged predictions.
+#' @keywords internal
+#' @noRd
+
+
+.runPredictionPipelineBrainCt <- function(sampleType,
+                                         x,
+                                         cellTypes,
+                                         metadata = NULL,
+                                         assayName = "logcounts",
+                                         donorCol = "donor_id",
+                                         ageCol = "age",
+                                         cellTypeCol = "celltype",
+                                         verbose = TRUE,
+                                         seuratAssay = "RNA",
+                                         seuratLayer = "data") {
+  validSampleTypes <- c("SC", "Pseudobulk", "Bootstrap")
+  
+  if (!sampleType %in% validSampleTypes) {
+    stop(
+      "'sampleType' must be one of: ",
+      paste(validSampleTypes, collapse = ", ")
+    )
+  }
+  
+  brainCtResource <- loadOmniAgeRdata(
+    "omniager_brain_celltype_specific_clocks_coef",
+    verbose = verbose
+  )
+  
+  brainCtClocksCoef <- brainCtResource[["brain_ct_clocks_coef"]]
+  brainCtImputationList <- brainCtResource[["Brain_CT_imputation_data_list"]]
+  
+  if (is.null(brainCtClocksCoef)) {
+    stop("The brain clock resource does not contain 'brain_ct_clocks_coef'.")
+  }
+  
+  if (is.null(brainCtImputationList)) {
+    stop(
+      "The brain clock resource does not contain ",
+      "'Brain_CT_imputation_data_list'."
+    )
+  }
+  
+  finalResultsList <- list()
+  
+  for (ct in cellTypes) {
+    clockKey <- paste(sampleType, ct, sep = "_")
+    
+    modelFolds <- brainCtClocksCoef[[clockKey]]
+    imputeData <- brainCtImputationList[[clockKey]]
+    
+    if (is.null(modelFolds)) {
+      warning("Skipping ", ct, ": model not found for ", clockKey)
+      next
+    }
+    
+    modelGenes <- unique(unlist(lapply(modelFolds, function(m) {
+      setdiff(m$feature_name, "intercept")
+    }), use.names = FALSE))
+    
+    dfBase <- .getDfBrainCt(
+      x = x,
+      cellType = ct,
+      sampleType = sampleType,
+      metadata = metadata,
+      assayName = assayName,
+      donorCol = donorCol,
+      ageCol = ageCol,
+      cellTypeCol = cellTypeCol,
+      seuratAssay = seuratAssay,
+      seuratLayer = seuratLayer,
+      featureNames = modelGenes
+    )
+    
+    if (nrow(dfBase) == 0L) {
+      next
+    }
+    
+    foldPreds <- vapply(names(modelFolds), function(f) {
+      res <- .predictBrainCtAge(
+        inputData = dfBase,
+        imputeData = imputeData,
+        modelObj = modelFolds[[f]],
+        sampleType = sampleType
+      )
+      
+      res$prediction
+    }, numeric(nrow(dfBase)))
+    
+    finalResultsList[[ct]] <- data.frame(
+      prediction = rowMeans(foldPreds, na.rm = TRUE),
+      age = dfBase$age,
+      donorId = dfBase$donorId,
+      sampleType = sampleType,
+      celltype = ct,
+      stringsAsFactors = FALSE
+    )
+  }
+  
+  if (length(finalResultsList) == 0L) {
+    return(data.frame())
+  }
+  
+  res <- do.call(rbind, finalResultsList)
+  rownames(res) <- NULL
+  
+  res
+}
+
+
+
+
+## -------------------------------------------------------------------------
+## Internal helper: extract expression matrix and metadata
+## -------------------------------------------------------------------------
+#' Extract and validate brain single-cell expression input
+#'
+#' @description
+#' This internal utility function standardizes the input of brain single-cell 
+#' transcriptomic data. It accepts a variety of object types, extracts the 
+#' expression matrix and metadata, and performs strict validation to ensure 
+#' all mandatory columns (donor, age, and cell type) are present.
+#'
+#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, 
+#'   \code{Seurat} object, dense \code{matrix}, sparse \code{Matrix}, or 
+#'   \code{data.frame} containing the single-cell expression data.
+#' @param metadata A \code{data.frame} containing cell-level metadata. 
+#'   Required only if \code{x} is a matrix-like object. Defaults to \code{NULL}.
+#' @param assayName A character string specifying the assay name to extract if 
+#'   \code{x} is a Bioconductor object. Defaults to \code{"logcounts"}.
+#' @param donorCol A character string specifying the column name in metadata 
+#'   representing the donor identity. Defaults to \code{"donor_id"}.
+#' @param ageCol A character string specifying the column name in metadata 
+#'   representing the subject age. Defaults to \code{"age"}.
+#' @param cellTypeCol A character string specifying the column name in metadata 
+#'   representing the cell type annotation. Defaults to \code{"celltype"}.
+#' @param seuratAssay A character string specifying the assay to extract if 
+#'   \code{x} is a \code{Seurat} object. Defaults to \code{"RNA"}.
+#' @param seuratLayer A character string specifying the layer or slot to extract 
+#'   if \code{x} is a \code{Seurat} object. Defaults to \code{"data"}.
+#'
+#' @return A named \code{list} containing two elements:
+#' \itemize{
+#'   \item \code{expr}: A numeric matrix-like object of gene expression values,
+#'   including dense matrix or sparse Matrix.
+#'   \item \code{metadata}: A \code{data.frame} of the aligned cell metadata.
+#' }
 #'
 #' @details
-#' This is the main user-facing function for this pipeline. It assumes
-#' that the dataset "omniager_brain_celltype_specific_clocks_coef" (loaded
-#' via \code{loadOmniAgeRdata}) is a single list containing two main components:
-#' \itemize{
-#'   \item \code{brain_ct_clocks_coef}: A nested list where keys
-#'     (e.g., "SC_Oligodendrocytes") map to a list of 5 models (one for each fold).
-#'   \item \code{Brain_CT_imputation_data_list}: A list where keys
-#'     (e.g., "SC_Oligodendrocytes") map to a single imputation data.frame.
+#' The function enforces strict data integrity checks:
+#' \enumerate{
+#'   \item Verifies the presence of row names (features) and column names (cells).
+#'   \item Aligns metadata rows to match the columns of the expression matrix exactly.
+#'   \item Ensures the metadata contains the mandatory columns defined by 
+#'     \code{donorCol}, \code{ageCol}, and \code{cellTypeCol}.
 #' }
-#' The function calls \code{getDfSeurat} to prepare the data, then calls
-#' \code{predictBrainCtAge} five times (once for each fold). The five resulting
-#' prediction vectors are then averaged (row-wise) to produce the final,
-#' stable prediction.
 #'
-#' @importFrom dplyr bind_rows
-#' @export
-#' @examples
-#' # 1. Define valid parameters (Runnable code to satisfy BiocCheck)
-#' sample_type <- "SC"
-#' target_cells <- c("Oligodendrocytes", "Astrocytes")
-#' print(paste("Preparing to run pipeline for", sample_type, "samples."))
-#'
-#' \dontrun{
-#' # 2. Real pipeline execution (Wrapped in dontrun because it requires
-#' # downloading pre-trained models and large example datasets)
-#' library(Seurat)
-#'
-#' # Load the example brain Seurat object
-#' brainSeurat <- loadOmniAgeRdata(
-#'     "omniager_brain_frohlich_control_example_15donors",
-#'     verbose = FALSE
-#' )
-#'
-#' # Run the 5-fold prediction pipeline for Oligodendrocytes
-#' results <- runPredictionPipelineBrainCt(
-#'     sampleType = "SC",
-#'     seuratObj = brainSeurat,
-#'     cellTypes = c("Oligodendrocytes"),
-#'     verbose = FALSE
-#' )
-#'
-#' print(head(results))
-#' }
-runPredictionPipelineBrainCt <- function(sampleType, seuratObj,
-                                         cellTypes, verbose = TRUE) {
-    # Load Models and Imputation Data
-    brainCtClocksCoef <- loadOmniAgeRdata(
-        "omniager_brain_celltype_specific_clocks_coef",
-        verbose = verbose
-    )
-    brainCtClocksCoef <- brainCtClocksCoef[["brain_ct_clocks_coef"]]
-    brainCtImputationList <- brainCtClocksCoef[["Brain_CT_imputation_data_list"]]
-
-    finalResultsList <- list()
-
-    for (ct in cellTypes) {
-        clockKey <- paste(sampleType, ct, sep = "_")
-        modelFolds <- brainCtClocksCoef[[clockKey]]
-        imputeData <- brainCtImputationList[[clockKey]]
-
-        if (is.null(modelFolds)) {
-            warning("Skipping ", ct, ": Model not found for ", clockKey)
-            next
-        }
-
-        # 1. Obtain preprocessed data
-        dfBase <- getDfSeurat(seuratObj, ct, sampleType)
-        if (nrow(dfBase) == 0) next
-
-        # 2. 5-Fold prediction
-        foldPreds <- vapply(names(modelFolds), function(f) {
-            res <- predictBrainCtAge(dfBase, imputeData, modelFolds[[f]], sampleType)
-            return(res$prediction)
-        }, numeric(nrow(dfBase)))
-
-        # 3. Calculate the average and construct the result
-        finalResultsList[[ct]] <- data.frame(
-            prediction = rowMeans(foldPreds, na.rm = TRUE),
-            age = dfBase$age,
-            donorId = dfBase$donorId,
-            sampleType = sampleType,
-            celltype = ct
-        )
+#' @importFrom SummarizedExperiment assay assayNames colData
+#' @importFrom methods is
+#' @keywords internal
+#' @noRd
+.extractBrainCtInput <- function(x,
+                                 metadata = NULL,
+                                 assayName = "logcounts",
+                                 donorCol = "donor_id",
+                                 ageCol = "age",
+                                 cellTypeCol = "celltype",
+                                 seuratAssay = "RNA",
+                                 seuratLayer = "data") {
+  if (inherits(x, "SingleCellExperiment") ||
+      inherits(x, "SummarizedExperiment")) {
+    
+    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+      stop(
+        "The SummarizedExperiment package is required for ",
+        "SingleCellExperiment/SummarizedExperiment input."
+      )
     }
-
-    return(dplyr::bind_rows(finalResultsList))
+    
+    assayNames <- SummarizedExperiment::assayNames(x)
+    
+    if (!assayName %in% assayNames) {
+      stop(
+        "Assay '", assayName, "' was not found in 'x'. ",
+        "Available assays: ", paste(assayNames, collapse = ", ")
+      )
+    }
+    
+    expr <- SummarizedExperiment::assay(x, assayName)
+    metadata <- as.data.frame(SummarizedExperiment::colData(x))
+    
+  } else if (inherits(x, "Seurat")) {
+    
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+      stop(
+        "The Seurat package is required for Seurat input. ",
+        "For Bioconductor workflows, please use a ",
+        "SingleCellExperiment object."
+      )
+    }
+    
+    expr <- tryCatch(
+      Seurat::GetAssayData(
+        x,
+        assay = seuratAssay,
+        layer = seuratLayer
+      ),
+      error = function(e) {
+        Seurat::GetAssayData(
+          x,
+          assay = seuratAssay,
+          slot = seuratLayer
+        )
+      }
+    )
+    
+    metadata <- x[[]]
+    
+  } else if (
+    is.matrix(x) ||
+    is.data.frame(x) ||
+    methods::is(x, "Matrix")
+  ) {
+    
+    if (is.null(metadata)) {
+      stop(
+        "When 'x' is a matrix, sparse Matrix, or data.frame, ",
+        "'metadata' must also be provided."
+      )
+    }
+    
+    expr <- x
+    metadata <- as.data.frame(metadata)
+    
+  } else {
+    stop(
+      "'x' must be a SingleCellExperiment, SummarizedExperiment, ",
+      "Seurat object, matrix, sparse Matrix, or data.frame."
+    )
+  }
+  
+  # expr <- as.matrix(expr)
+  # 
+  # if (!is.numeric(expr)) {
+  #   stop("The selected assay must contain numeric expression values.")
+  # }
+  # 
+  if (methods::is(expr, "Matrix")) {
+    if (!is.numeric(expr@x)) {
+      stop("The selected sparse assay must contain numeric expression values.")
+    }
+  } else {
+    expr <- as.matrix(expr)
+    
+    if (!is.numeric(expr)) {
+      stop("The selected assay must contain numeric expression values.")
+    }
+  }
+  
+  if (is.null(rownames(expr))) {
+    stop("The expression matrix must have gene names as row names.")
+  }
+  
+  if (is.null(colnames(expr))) {
+    stop("The expression matrix must have cell names as column names.")
+  }
+  
+  if (nrow(metadata) != ncol(expr)) {
+    stop(
+      "The number of rows in metadata must match the number of ",
+      "columns in the expression matrix."
+    )
+  }
+  
+  if (!is.null(rownames(metadata)) &&
+      all(colnames(expr) %in% rownames(metadata))) {
+    metadata <- metadata[colnames(expr), , drop = FALSE]
+  } else {
+    rownames(metadata) <- colnames(expr)
+  }
+  
+  requiredCols <- c(donorCol, ageCol, cellTypeCol)
+  missingCols <- setdiff(requiredCols, colnames(metadata))
+  
+  if (length(missingCols) > 0L) {
+    stop(
+      "The metadata must contain the following columns: ",
+      paste(missingCols, collapse = ", ")
+    )
+  }
+  
+  list(
+    expr = expr,
+    metadata = metadata
+  )
 }
+
+

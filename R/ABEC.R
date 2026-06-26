@@ -12,17 +12,16 @@
 #' It uses an internal helper to handle missing probes and compute the
 #' final age estimates.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
 #'
 #'
-#' @return A numeric vector of predicted biological ages. The vector is
-#' named using the sample IDs from the \code{rownames} of \code{betaM}.
+#' @return A numeric vector of predicted biological ages.
 #'
 #' @export
 #'
@@ -33,30 +32,50 @@
 #' \emph{BMC Genomics} 2020
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_abec_coef", verbose = FALSE)
-#' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- rownames(modelCoef)
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
-#' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' abecOut <- leeABEC(mockBetaM, verbose = FALSE)
+#' # Load the included example data (a list containing a matrix and phenotypes)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#'
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#' predAge <- leeABEC(x = beta_matrix)
+#' head(predAge)
+#'
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     # Extract phenotype and ensure rownames match matrix colnames
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     # Construct the SummarizedExperiment object
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     # The function seamlessly accepts the Bioconductor object
+#'     predAge <- leeABEC(x = se_obj)
+#'     head(predAge)
+#'   }
+#' }
 
-
-leeABEC <- function(betaM,
+leeABEC <- function(x,
                     minCoverage = 0,
                     verbose = TRUE) {
-    abecCoef <- loadOmniAgeRdata("omniager_abec_coef", verbose = verbose)
-    return(.calLinearClock(betaM, abecCoef, "leeABEC", minCoverage, verbose))
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_abec_coef", 
+    clockName = "leeABEC",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }
 
 
@@ -78,29 +97,49 @@ leeABEC <- function(betaM,
 #'
 #' @export
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_eabec_coef", verbose = FALSE)
-#' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- rownames(modelCoef)
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
-#' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' eabecOut <- leeExtendedABEC(mockBetaM, verbose = FALSE)
+#' # Load the included example data (a list containing a matrix and phenotypes)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #'
-leeExtendedABEC <- function(betaM,
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#' predAge <- leeExtendedABEC(x = beta_matrix)
+#' head(predAge)
+#'
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     # Extract phenotype and ensure rownames match matrix colnames
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     # Construct the SummarizedExperiment object
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     # The function seamlessly accepts the Bioconductor object
+#'     predAge <- leeExtendedABEC(x = se_obj)
+#'     head(predAge)
+#'   }
+#' }
+leeExtendedABEC <- function(x,
                             minCoverage = 0,
                             verbose = TRUE) {
-    eabecCoef <- loadOmniAgeRdata("omniager_eabec_coef", verbose = verbose)
-    return(.calLinearClock(betaM, eabecCoef, "leeExtendedABEC", minCoverage, verbose))
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_eabec_coef", 
+    clockName = "leeExtendedABEC",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }
 
 
@@ -120,27 +159,49 @@ leeExtendedABEC <- function(betaM,
 #'
 #' @export
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_cabec_coef", verbose = FALSE)
-#' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
-#' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' cabecOut <- leeCommonABEC(mockBetaM, verbose = FALSE)
+#' # Load the included example data (a list containing a matrix and phenotypes)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#'
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#' predAge <- leeCommonABEC(x = beta_matrix)
+#' head(predAge)
+#'
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     # Extract phenotype and ensure rownames match matrix colnames
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     # Construct the SummarizedExperiment object
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     # The function seamlessly accepts the Bioconductor object
+#'     predAge <- leeCommonABEC(x = se_obj)
+#'     head(predAge)
+#'   }
+#' }
 
-leeCommonABEC <- function(betaM,
-                          minCoverage = 0,
-                          verbose = TRUE) {
-    cabecCoef <- loadOmniAgeRdata("omniager_cabec_coef", verbose = verbose)
-    return(.calLinearClock(betaM, cabecCoef, "leeCommonABEC", minCoverage, verbose))
+
+leeCommonABEC <- function(x,
+                    minCoverage = 0,
+                    verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_cabec_coef", 
+    clockName = "leeCommonABEC",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }

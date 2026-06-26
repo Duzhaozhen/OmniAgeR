@@ -8,8 +8,9 @@
 #' This function calculates the IL-6 proxy score by applying a pre-defined
 #' set of coefficients to the input beta-value matrix.
 #'
-#' @param betaM A numeric matrix of beta values. Rows should be CpG probes and
-#' columns should be individual samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -26,36 +27,42 @@
 #' @export
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_il6_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
+#' # Example 1: Direct Matrix Input
+#' compIL6Out <- compIL6(x = beta_matrix, verbose = FALSE)
+#' head(compIL6Out)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' # 4. Run the age prediction
-#' compil6Out <- compIL6(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     compIL6Out  <- compIL6(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 
-compIL6 <- function(betaM,
+compIL6 <- function(x,
                     minCoverage = 0,
                     verbose = TRUE) {
-    # --- Step 1: Load and parse coefficients ---
-    iL6Coef <- loadOmniAgeRdata(
-        "omniager_il6_coef",
-        verbose = verbose
-    )
+  
+  predAge <- .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_il6_coef", 
+    clockName = "compIL6",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE 
+  )
 
-    il6Score <- .calLinearClock(
-        betaM, iL6Coef, "compIL6",
-        minCoverage, verbose
-    )
-
-    return(il6Score)
+  return(predAge)
 }
+

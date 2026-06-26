@@ -3,15 +3,13 @@ test_that("epiMarker calculates clocks correctly on Hannum dataset", {
   skip_if_not_installed("OmniAgeRData")
   
   # 1. Load the required example data
-  hannumExample <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-  )
+  data(dnamExample)
+  data(dnamExample)
+  beta_matrix <- dnamExample[[1]]
+  phenoTypes_df <- dnamExample[[2]]
   
-  hannumBmiqM <- hannumExample[[1]]
-  phenoTypesHannum <- hannumExample[[2]]
-  age <- phenoTypesHannum$Age
-  sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+  age <- phenoTypes_df$Age
+  sex <- ifelse(phenoTypes_df$Sex == "F", "Female", "Male")
   
   # 2. Define the exact clocks to be tested
   clockCategories <- c("cellularAging", "chronological", "biological", 
@@ -29,8 +27,8 @@ test_that("epiMarker calculates clocks correctly on Hannum dataset", {
   useClocks <- useClocks[!useClocks %in% excludedClocks]
   
   # 3. Execute the main epiMarker function
-  hannumEpiAgeRes <- epiMarker(
-    betaM = hannumBmiqM,
+  dnmaEpiAgeRes <- epiMarker(
+    x = beta_matrix,
     clockNames = useClocks,
     chronAge = age,
     sexVec = sex,
@@ -39,10 +37,10 @@ test_that("epiMarker calculates clocks correctly on Hannum dataset", {
   )
   
   # 4. Extract clocks that return simple numeric vectors (non-lists)
-  simpleClocks <- hannumEpiAgeRes[!sapply(hannumEpiAgeRes, is.list)]
+  simpleClocks <- dnmaEpiAgeRes[!sapply(dnmaEpiAgeRes, is.list)]
   
   # 5. Extract clocks that return nested lists or data frames
-  listClocks <- hannumEpiAgeRes[sapply(hannumEpiAgeRes, is.list)]
+  listClocks <- dnmaEpiAgeRes[sapply(dnmaEpiAgeRes, is.list)]
   
   # Reformat nested clock outputs into flat named vectors for comparison
   refNames <- names(listClocks$CentenarianClock$ENCen40)

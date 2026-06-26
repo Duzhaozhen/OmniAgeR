@@ -1,3 +1,100 @@
+
+
+
+
+#' Internal Pipeline for Standard Linear Epigenetic Clocks
+#' 
+#' @description 
+#' A unified internal pipeline to execute standard linear epigenetic clocks. 
+#' It sequentially handles universal matrix extraction, dynamic weight loading, 
+#' linear prediction calculation, and an optional Horvath-style age transformation.
+#'
+#' @param x A numeric matrix, \code{data.frame}, \code{SummarizedExperiment}, 
+#'   \code{SingleCellExperiment}, or \code{Seurat} object containing DNAm beta values.
+#' @param coefName A character string specifying the resource name of the model 
+#'   coefficients to be fetched from \code{OmniAgeRData}.
+#' @param clockName A character string specifying the clock's label (used for logging).
+#' @param minCoverage A numeric value (0-1) indicating the minimum required 
+#'   proportion of overlapping CpGs.
+#' @param verbose A logical flag. If \code{TRUE}, prints progress messages.
+#' @param useHorvathTrafo A logical flag. If \code{TRUE}, applies the Horvath 
+#'   non-linear anti-transformation to the predicted ages. Default is \code{FALSE}.
+#'
+#' @return A numeric vector of predicted ages.
+#' @keywords internal
+#' @noRd
+.runEpiClockPipeline <- function(x, coefName, clockName, minCoverage, verbose, useHorvathTrafo = FALSE) {
+  
+  # --- Step 1: Universal Matrix Extraction ---
+  # Gracefully extract the numeric assay matrix from supported multi-omics objects
+  betaM <- .extractAssayMatrix(x)
+  
+  # --- Step 2: Dynamic Weight Retrieval ---
+  # Fetch the pre-trained clock coefficients from ExperimentHub
+  coefData <- loadOmniAgeRdata(coefName, verbose = verbose)
+  
+  # --- Step 3: Linear Predictor Calculation ---
+  # Compute the core mathematical dot product of beta values and clock weights
+  predAgev <- .calLinearClock(betaM, coefData, clockName, minCoverage, verbose)
+  
+  # --- Step 4: Non-linear Age Transformation ---
+  # Apply the specific Horvath anti-transformation equation if requested
+  if (useHorvathTrafo) {
+    predAgev <- .antiTrafo(predAgev)
+  } 
+  
+  return(predAgev)
+}
+
+
+
+#' Internal Pipeline for Multi-Model Linear Epigenetic Clocks
+#'
+#' @description
+#' A unified internal pipeline for executing clock families that consist of 
+#' multiple sub-models (e.g., Causal Clocks, Centenarian Clocks). It extracts 
+#' the matrix once to ensure optimal performance during the loop.
+#'
+#' @param x Input multi-omics object.
+#' @param coefName Character string specifying the resource name of the model list.
+#' @param clockNames Character vector specifying the names of the sub-clocks.
+#' @param minCoverage Numeric (0-1).
+#' @param verbose Logical.
+#'
+#' @return A named list of numeric vectors containing predicted ages/scores.
+#' @keywords internal
+#' @noRd
+.runMultiEpiClockPipeline <- function(x, coefName, clockNames, minCoverage, verbose) {
+  
+  # --- Step 1: Universal Matrix Extraction ---
+  betaM <- .extractAssayMatrix(x)
+  
+  # --- Step 2: Load Multi-Model Coefficients ---
+  coefList <- loadOmniAgeRdata(coefName, verbose = verbose)
+  
+  # Validation safeguard
+  if (length(coefList) != length(clockNames)) {
+    stop("[OmniAgeR]Mismatch between the number of loaded models and provided clockNames.")
+  }
+  
+  # --- Step 3: Loop and Calculate ---
+  estLv <- list()
+  for (i in seq_along(coefList)) {
+    estLv[[i]] <- .calLinearClock(
+      betaM = betaM, 
+      coefData = coefList[[i]], 
+      clockLabel = clockNames[i], 
+      minCoverage = minCoverage, 
+      verbose = verbose
+    )
+  }
+  
+  names(estLv) <- clockNames
+  return(estLv)
+}
+
+
+
 #' Internal Wrapper for Linear Clock Calculation
 #'
 #' @description

@@ -3,7 +3,9 @@
 #' Applies the two universal pan-mammalian blood clocks (Clock 2 and 3)
 #' from Lu et al. (2023) to a given dataset of DNA methylation values.
 #'
-#' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples).
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param speciesName A character string or vector specifying the Latin species
 #' name(s) (e.g., "Homo sapiens").
 #' @param anageData A data.frame containing the AnAge database information.
@@ -29,38 +31,66 @@
 #' \emph{Nat Aging.} 2023
 #'
 #' @examples
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#'   tursiopsExample <- loadOmniAgeRdata(
+#'       "omniager_tursiops_example",
+#'       verbose = FALSE
+#'   )
+#'   
+#'   # Run the calculation. Note: anageData is automatically loaded if omitted.
+#'   clockResults <- panMammalianBlood(
+#'       x = tursiopsExample$beta_m,
+#'       speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
+#'       verbose = FALSE
+#'   )
+#'   print(head(clockResults))
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
 #' \dontrun{
-#' tursiopsExample <- loadOmniAgeRdata(
-#'     "omniager_tursiops_example",
-#'     verbose = FALSE
-#' )
-#'
-#' ## This anage_data is from
-#' ## https://github.com/shorvath/MammalianMethylationConsortium
-#' anageData <- loadOmniAgeRdata(
-#'     "omniager_anage_data",
-#'     verbose = FALSE
-#' )
-#'
-#' # Run the calculation with progress messages
-#' clockResults <- panMammalianBlood(
-#'     betaM = tursiopsExample$beta_m,
-#'     speciesName = tursiopsExample$PhenoTypes$SpeciesLatinName,
-#'     anageData = anageData
-#' )
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = tursiopsExample$beta_m),
+#'       colData = tursiopsExample$PhenoTypes
+#'     )
+#'     
+#'     se_res <- panMammalianBlood(
+#'       x = se_obj,
+#'       speciesName = se_obj$SpeciesLatinName,
+#'       verbose = FALSE
+#'     )
+#'   }
 #' }
-panMammalianBlood <- function(betaM,
+# -------------------------------------------------------------------------
+# CODE ATTRIBUTION NOTE:
+# The core logic of this function was adapted from the original script 
+# provided by https://github.com/shorvath/MammalianMethylationConsortium
+# under the MIT License.
+# Modifications: Added generic object support (SummarizedExperiment), 
+# refactored the extraction pipeline, and standardized variable names.
+# -------------------------------------------------------------------------
+panMammalianBlood <- function(x,
                               speciesName,
                               anageData = NULL,
                               minCoverage = 0,
                               verbose = TRUE) {
     if (verbose) message("[panMammalianBlood] Initializing calculation...")
-
+    # --- Step 0: Universal Matrix Extraction ---
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Load Internal Data ---
     panMammalianBloodCoef <- loadOmniAgeRdata(
         "omniager_pan_mammalian_blood_coef",
         verbose = verbose
     )
+    
+    if (is.null(anageData)) {
+      if (verbose) message("[panMammalianBlood] Loading default AnAge database...")
+      anageData <- loadOmniAgeRdata("omniager_anage_data", verbose = FALSE)
+    }
     # --- 2. Data Preparation & Merging ---
     sampleInfo <- data.frame(
         Sample = colnames(betaM),
@@ -68,9 +98,39 @@ panMammalianBlood <- function(betaM,
         stringsAsFactors = FALSE
     )
 
-    anageSubset <- anageData[, c("SpeciesLatinName", "GestationTimeInYears", "averagedMaturity.yrs", "maxAge")]
-    info <- merge(sampleInfo, anageSubset, by = "SpeciesLatinName", all.x = TRUE)
-
+    requiredCols <- c(
+      "SpeciesLatinName",
+      "GestationTimeInYears",
+      "averagedMaturity.yrs",
+      "maxAge"
+    )
+    
+    anageSubset <- anageData[, requiredCols, drop = FALSE]
+    
+    if (anyDuplicated(anageSubset$SpeciesLatinName)) {
+      duplicatedSpecies <- unique(
+        anageSubset$SpeciesLatinName[
+          duplicated(anageSubset$SpeciesLatinName)
+        ]
+      )
+      stop(
+        "[panMammalianBlood]'anageData' contains duplicated SpeciesLatinName entries: ",
+        paste(duplicatedSpecies, collapse = ", ")
+      )
+    }
+    
+    idx <- match(sampleInfo$SpeciesLatinName, anageSubset$SpeciesLatinName)
+    
+    info <- cbind(
+      sampleInfo,
+      anageSubset[
+        idx,
+        c("GestationTimeInYears", "averagedMaturity.yrs", "maxAge"),
+        drop = FALSE
+      ]
+    )
+    
+    
     if (any(is.na(info$maxAge))) {
         missingSp <- unique(info$SpeciesLatinName[is.na(info$maxAge)])
         warning("[PanMammalianBlood] Missing AnAge data for species: ", paste(missingSp, collapse = ", "))
@@ -90,7 +150,7 @@ panMammalianBlood <- function(betaM,
         info[[yNames[k]]] <- .calLinearClock(
             betaM = betaM[, info$Sample, drop = FALSE],
             coefData = modelDf,
-            clockLabel = paste0("PanMammalian_Clock", k),
+            clockLabel = paste0("PanMammalian_Clock", k+1),
             minCoverage = minCoverage,
             verbose = verbose
         )
@@ -98,7 +158,6 @@ panMammalianBlood <- function(betaM,
 
     # --- 4. Post-Processing (Step 2: Inverse Transformations) ---
     if (verbose) message("[PanMammalianBlood] Applying age transformations...")
-
 
     # Clock 2: Relative Age
     info$DNAmRelativeAge <- exp(-exp(-info$Y.pred2))

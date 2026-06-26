@@ -5,9 +5,9 @@
 #' chronological age, based on the models developed by Ndhlovu et al. (2024).
 #' This function computes both Version 1 (V1) and Version 2 (V2) of the clock.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #'
 #' @param minCoverage A numeric value between 0 and 1 (default is 0).
 #' Specifies the minimum proportion of required CpGs that must be present
@@ -25,55 +25,42 @@
 #' \emph{Aging Cell.} 2024
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_retroage_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
+#' # Example 1: Direct Matrix Input
+#' predOut <- retroAge(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' retroAgeRes <- retroAge(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- retroAge(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 #'
 
 
-retroAge <- function(betaM,
+retroAge <- function(x,
                      minCoverage = 0,
                      verbose = TRUE) {
-    # --- Step 1: Load Coefficients ---
-    retroAgeCoef <- loadOmniAgeRdata(
-        "omniager_retroage_coef",
-        verbose = verbose
-    )
-
-    # Define the specific names for the these sub-clocks
-    clockNames <- c("retroAgeV1", "retroAgeV2")
-
-    # --- Step 2: Calculate Scores for Each Clock ---
-    estLv <- list()
-
-    # Loop through the list of coefficients
-    for (i in seq_along(retroAgeCoef)) {
-        # Call the internal helper to handle all calculation and logging
-        estLv[[i]] <- .calLinearClock(
-            betaM = betaM,
-            coefData = retroAgeCoef[[i]],
-            clockLabel = clockNames[i],
-            minCoverage = minCoverage,
-            verbose = verbose
-        )
-    }
-
-    # Assign names to the result list
-    names(estLv) <- clockNames
-
-    return(estLv)
+  
+  estLv <- .runMultiEpiClockPipeline(
+    x = x,
+    coefName = "omniager_retroage_coef",
+    clockNames = c("retroAgeV1", "retroAgeV2"),
+    minCoverage = minCoverage,
+    verbose = verbose
+  )
+  
+  return(estLv)
 }
+

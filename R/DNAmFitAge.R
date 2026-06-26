@@ -5,8 +5,9 @@
 #' from a DNA methylation matrix and phenotype data.
 #
 #'
-#' @param betaM A numeric matrix. **Rows must be CpGs, Columns must be Samples.**
-#'   The `colnames` must be the sample IDs.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param age A numeric vector of chronological age for each sample.
 #'   The order **must match the column order** of `betaM`.
 #' @param sex A character or factor vector of sex for each sample
@@ -36,20 +37,57 @@
 #' \emph{Aging} 2023
 #'
 #' @examples
-#' \dontrun{
-#' hannumExample <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input 
+#' # ====================================================================
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' phenoTypes_df <- dnamExample[[2]]
+#' 
+#' age <- phenoTypes_df$Age
+#' sex <- ifelse(phenoTypes_df$Sex == "F", "Female", "Male")
+#' 
+#' # 1. Calculate GrimAge first
+#' GrimAge1O <- grimAge1(x = beta_matrix, age = age, sex = sex, verbose = FALSE)
+#' 
+#' # 2. Calculate FitAge
+#' dnamFitAgeOut <- dnamFitAge(
+#'     x = beta_matrix, 
+#'     age = age, 
+#'     sex = sex, 
+#'     grimageVector = GrimAge1O$DNAmGrimAge1,
 #'     verbose = FALSE
 #' )
-#' hannumBmiqM <- hannumExample[[1]]
-#' phenoTypesHannum <- hannumExample[[2]]
-#' age <- phenoTypesHannum$Age
-#' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-#' GrimAge1O <- grimAge1(hannumBmiqM, age, sex)
-#' dnamFitAgeOut <- dnamFitAge(hannumBmiqM, age, sex, GrimAge1O$DNAmGrimAge1)
+#' 
+#' \dontrun{
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     seFitAgeOut <- dnamFitAge(
+#'       x = se_obj,
+#'       age = se_obj$Age,
+#'       sex = ifelse(se_obj$Sex == "F", "Female", "Male"),
+#'       grimageVector = GrimAge1O$DNAmGrimAge1,
+#'       verbose = FALSE
+#'     )
+#'   }
 #' }
-dnamFitAge <- function(betaM, age, sex, grimageVector, minCoverage = 0,
+
+dnamFitAge <- function(x, age, sex, grimageVector, minCoverage = 0,
                        verbose = TRUE) {
+    # --- Step 0: Universal Matrix Extraction ---
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Object conversion and validation ---
     DNAmFitnessModels <- loadOmniAgeRdata(
         "omniager_dnamfitage_coef",

@@ -8,10 +8,10 @@
 #'                 the log(age) model.
 #'              It also automatically handles missing CpGs and NA values
 #'              via mean imputation.
-#'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#'              
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -26,18 +26,42 @@
 #'
 #'
 #' @export
-#'
 #' @examples
+#' # Load the included example data (a list containing a matrix and phenotypes)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#'
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#' predAge <- bernabeuCAge(x = beta_matrix)
+#' head(predAge)
+#'
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
 #' \dontrun{
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' bernabeuCAgeO <- bernabeuCAge(hannumBmiqM)
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     # Extract phenotype and ensure rownames match matrix colnames
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     # Construct the SummarizedExperiment object
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     # The function seamlessly accepts the Bioconductor object
+#'     predAge <- bernabeuCAge(x = se_obj)
+#'     head(predAge)
+#'   }
 #' }
-#' @export
 
-bernabeuCAge <- function(betaM, minCoverage = 0, verbose = TRUE) {
+bernabeuCAge <- function(x, minCoverage = 0, verbose = TRUE) {
+    betaM <- .extractAssayMatrix(x)
     bernabeuCAgeModel <- loadOmniAgeRdata(
         "omniager_bernabeu_cage_coef",
         verbose = verbose
@@ -55,8 +79,7 @@ bernabeuCAge <- function(betaM, minCoverage = 0, verbose = TRUE) {
     ))
 
     # 2. Execute data preprocessing and imputation
-    refMeansVec <-
-        betaM <- .preprocessEpiClockData(
+    betaM <- .preprocessEpiClockData(
             betaM = betaM,
             requiredCpGs = allRequired,
             referenceMeans = setNames(
@@ -65,7 +88,8 @@ bernabeuCAge <- function(betaM, minCoverage = 0, verbose = TRUE) {
             ),
             minCoverage = minCoverage,
             filterSamples = FALSE,
-            clockName = "bernabeuCAge"
+            clockName = "bernabeuCAge",
+            verbose = verbose
         )
 
 

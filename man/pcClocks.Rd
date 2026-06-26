@@ -4,11 +4,12 @@
 \alias{pcClocks}
 \title{Calculate Principal Component (PC) Epigenetic Clocks}
 \usage{
-pcClocks(betaM, age, sex, clockData, minCoverage = 0, verbose = TRUE)
+pcClocks(x, age, sex, clockData, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNA methylation (beta) values.
-\strong{Samples must be in columns} and CpG probes in rows.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{age}{A numeric vector of chronological ages for each sample,
 in the same order as the columns of \code{DNAm}.}
@@ -38,25 +39,41 @@ This function computes PC-based versions of Horvath2013, Horvath2018, Hannum,
 PhenoAge, and GrimAge1, along with their principal components.
 }
 \examples{
-# 1. Fast runnable code to satisfy BiocCheck
-message("Ready to initialize PC-based clock pipeline.")
-
-## Downloading "PCClocks_data" will take a very long time.
 \dontrun{
-pcClockData <- loadOmniAgeRdata(
-    "PCClocks_data",
-    verbose = FALSE
-)
-hannumExample <- loadOmniAgeRdata(
-    "omniager_hannum_example",
-    verbose = FALSE
-)
-hannumBmiqM <- hannumExample[[1]]
-phenoTypesHannum <- hannumExample[[2]]
-age <- phenoTypesHannum$Age
-sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
+# ====================================================================
+# Example 1: Direct Matrix Input
+# ====================================================================
+  hannumExample <- loadOmniAgeRdata(
+      "omniager_hannum_example",
+      verbose = FALSE
+  )
+  
+  pcClockData <- loadOmniAgeRdata(
+      "PCClocks_data",
+      verbose = FALSE
+  )
+  
+  hannumBmiqM <- hannumExample[[1]]
+  phenoTypesHannum <- hannumExample[[2]]
+  age <- phenoTypesHannum$Age
+  sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+  pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
+  
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = hannumBmiqM),
+      colData = hannumExample[[2]]
+    )
+    
+    pcClocksOut <-  pcClocks(se_obj,age, sex, pcClockData)
+  }
 }
+
 }
 \references{
 Higgins-Chen AT, Thrush KL, Wang Y, et al.

@@ -4,10 +4,12 @@
 \alias{epiTOC3}
 \title{Estimate epiTOC3 scores}
 \usage{
-epiTOC3(betaM, age = NULL, minCoverage = 0, verbose = TRUE)
+epiTOC3(x, age = NULL, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNAm beta values (probes as rows).}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{age}{Optional numeric vector representing chronological ages
 of the samples.}
@@ -45,11 +47,25 @@ population doubling associated CpGs, epiTOC3 can directly estimate the
 cumulative number of stem cell divisions in a tissue.
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
-    "omniager_lung_inv",
-    verbose = FALSE
-)
-lungInvM <- lungInv$bmiq_m
-phenoDf <- lungInv$PhenoTypes
-epitoc3Out <- epiTOC3(betaM = lungInvM, age = phenoDf$Age)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# Example 1: Direct Matrix Input
+epiTOC3Out <- epiTOC3(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    epiTOC3Out <- epiTOC3(x = se_obj, verbose = FALSE)
+  }
+}
 }

@@ -5,8 +5,9 @@
 #' serves as a wrapper that loads the internal clock coefficients and computes
 #' the linear predictors for each clock using the helper function.
 #'
-#' @param betaM a matrix of methylation beta values.
-#' Needs to be rows = samples and columns = CpGs, with rownames and colnames.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -25,51 +26,38 @@
 #' exceptional longevity. \emph{GeroScience} 2023
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_centenarian_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' centenarian_res <- centenarianClock(x = beta_matrix, verbose = FALSE)
+#' head(centenarian_res$ENCen100)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' # 4. Run the age prediction
-#' centenarianClockOut <- centenarianClock(mockBetaM)
-
-centenarianClock <- function(betaM,
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     cent_se_res <- centenarianClock(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+centenarianClock <- function(x,
                              minCoverage = 0,
                              verbose = TRUE) {
-    # --- Step 1: Load Coefficients ---
-    CentenarianENCoef <- loadOmniAgeRdata(
-        "omniager_centenarian_coef",
-        verbose = verbose
-    )
-    # Define the specific names for the three sub-clocks
-    clockNames <- c("ENCen40", "ENCen100")
-
-    # --- Step 2: Calculate Scores for Each Clock ---
-    estLv <- list()
-
-    # Loop through the list of coefficients
-    for (i in seq_along(CentenarianENCoef)) {
-        # Call the internal helper to handle all calculation and logging
-        estLv[[i]] <- .calLinearClock(
-            betaM = betaM,
-            coefData = CentenarianENCoef[[i]],
-            clockLabel = clockNames[i],
-            minCoverage = minCoverage,
-            verbose = verbose
-        )
-    }
-
-    # Assign names to the result list
-    names(estLv) <- clockNames
-
-    return(estLv)
+  estLv <- .runMultiEpiClockPipeline(
+    x = x,
+    coefName = "omniager_centenarian_coef",
+    clockNames = c("ENCen40", "ENCen100"),
+    minCoverage = minCoverage,
+    verbose = verbose
+  )
+  
+  return(estLv)
 }

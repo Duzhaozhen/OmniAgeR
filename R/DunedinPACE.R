@@ -13,7 +13,9 @@
 #' * **Quantile Normalization**: Standardizes the data against a gold-standard reference to reduce batch effects and ensure comparability.
 #' * **Score Calculation**: Computes the final DunedinPACE score using the pre-trained model weights.
 #'
-#' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples)
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage for
 #'   imputation and calculation. Default is 0.
 #' @param verbose Logical. Whether to print progress messages.
@@ -31,14 +33,40 @@
 #' @importFrom preprocessCore normalize.quantiles.use.target
 #'
 #' @examples
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' 
+#' # Example 1: Direct Matrix Input
+#' dunedinPACEOut  <- dunedinPACE(x = beta_matrix, verbose = FALSE)
+#' 
+#' # Example 2: SummarizedExperiment Input
 #' \dontrun{
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' dunedinPACEOut <- dunedinPACE(hannumBmiqM)
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     dunedinPACEOut <- dunedinPACE(x = se_obj, verbose = FALSE)
+#'   }
 #' }
-dunedinPACE <- function(betaM, minCoverage = 0, verbose = TRUE) {
+#' 
+# -------------------------------------------------------------------------
+# CODE ATTRIBUTION NOTE:
+# The core logic of this function was adapted from the original script 
+# provided by https://github.com/danbelsky/DunedinPACE
+# under the GNU GENERAL PUBLIC LICENSE Version 3.
+# Modifications: Added generic object support (SummarizedExperiment), 
+# refactored the extraction pipeline, and standardized variable names.
+# -------------------------------------------------------------------------
+
+dunedinPACE <- function(x, minCoverage = 0, verbose = TRUE) {
+    # Universal Matrix Extraction
+    betaM <- .extractAssayMatrix(x)
     # Load model data
     modelName <- "DunedinPACE"
     modelSpecs <- loadOmniAgeRdata(

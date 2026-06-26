@@ -5,7 +5,7 @@
 \title{Estimate epigenetic marker}
 \usage{
 epiMarker(
-  betaM,
+  x,
   clockNames = "all",
   chronAge = NULL,
   sexVec = NULL,
@@ -15,8 +15,9 @@ epiMarker(
 )
 }
 \arguments{
-\item{betaM}{DNAm beta value matrix with rows labeling Illumina 450k/EPIC
-CpGs and columns labeling samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{clockNames}{A character vector specifying which clocks to calculate.
 This can include individual clock names (e.g., "Horvath2013") or special
@@ -341,20 +342,44 @@ Epigenetic Clocks.
 Each vector is named with the sample IDs from the \code{rownames} of \code{betaM}.
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
-    "omniager_lung_inv",
-    verbose = FALSE
-)
-lungInvM <- lungInv$bmiq_m
-phenoDf <- lungInv$PhenoTypes
-epiMarkerOut <- epiMarker(
-    betaM = lungInvM,
-    clockNames = "mitotic",
-    chronAge = phenoDf$Age,
-    minCoverage = 0
-)
-## Downloading "PCClocks_data" and "SystemsAge_data" will take a very long time.
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+phenoTypes_df <- dnamExample[[2]]
+
+age <- phenoTypes_df$Age
+sex <- ifelse(phenoTypes_df$Sex == "F", "Female", "Male")
+
+# Calculate GrimAge first
+epiMarkerOut <- epiMarker(x = beta_matrix, 
+   clockNames = c("Horvath2013", "Hannum","mitotic"), 
+   chronAge = age, minCoverage = 0)
+
 \dontrun{
+# ====================================================================
+# Example 2: SummarizedExperiment Input
+# ====================================================================
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    epiMarkerOut <- epiMarker(
+      x = se_obj,
+      age = se_obj$Age,
+      clockNames = c("Horvath2013", "Hannum","mitotic"), 
+      verbose = FALSE
+    )
+  }
+# ====================================================================
+# Example 3: The vast majority of aging biomarkers
+# ====================================================================
+## Downloading "PCClocks_data" and "SystemsAge_data" will take a very long time.  
 hannumExample <- loadOmniAgeRdata(
     "omniager_hannum_example",
     verbose = FALSE
@@ -379,7 +404,7 @@ clockNames <- c(
 )
 
 epiMarkerOut <- epiMarker(
-    betaM = hannumBmiqM,
+    x = hannumBmiqM,
     clockNames = clockNames,
     chronAge = age,
     sexVec = sex,
@@ -387,7 +412,9 @@ epiMarkerOut <- epiMarker(
     pcClockData = pcClockData,
     systemsAgeData = systemsAgeData
 )
+  
 }
+
 }
 \references{
 Yang Z, Wong A, Kuh D, et al.

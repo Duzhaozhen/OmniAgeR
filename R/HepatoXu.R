@@ -16,9 +16,9 @@
 #' controls or those with non-malignant liver diseases.
 #'
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -36,34 +36,48 @@
 #' \emph{Nature Mater} 2017
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_hepato_xu_coef", verbose = FALSE)
-#' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
-#' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' hepatoXuRiskO <- hepatoXuRisk(mockBetaM)
+#' # Load the included example data (a list containing a matrix and phenotypes)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#'
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#' predRes <- hepatoXuRisk(x = beta_matrix)
+#' head(predRes)
+#'
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     # Extract phenotype and ensure rownames match matrix colnames
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     # Construct the SummarizedExperiment object
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     # The function seamlessly accepts the Bioconductor object
+#'     predRes <- hepatoXuRisk(x = se_obj)
+#'     head(predRes)
+#'   }
+#' }
 
-hepatoXuRisk <- function(betaM,
-                         minCoverage = 0,
-                         verbose = TRUE) {
-    hepatoXuCoef <- loadOmniAgeRdata(
-        "omniager_hepato_xu_coef",
-        verbose = verbose
-    )
-    predAgev <- .calLinearClock(
-        betaM, hepatoXuCoef, "hepatoXuRisk",
-        minCoverage, verbose
-    )
-    return(predAgev)
+
+hepatoXuRisk <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_hepato_xu_coef", 
+    clockName = "hepatoXuRisk",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }
+

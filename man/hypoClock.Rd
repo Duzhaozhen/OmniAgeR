@@ -4,11 +4,12 @@
 \alias{hypoClock}
 \title{Estimate hypoClock score}
 \usage{
-hypoClock(betaM, minCoverage = 0, verbose = TRUE)
+hypoClock(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNAm beta values (probes as rows). Rows
-should be Illumina 450k/EPIC CpG identifiers and columns should be samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
 Default is 0.}
@@ -27,12 +28,27 @@ The hypoClock score is defined by Teschendorff (2020) and is calculated
 as 1 minus the average beta value of 678 solo-WCGW sites.
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
-    "omniager_lung_inv",
-    verbose = FALSE
-)
-lungInvM <- lungInv$bmiq_m
-hypoClockOut <- hypoClock(betaM = lungInvM)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# Example 1: Direct Matrix Input
+hypoClockOut  <- hypoClock(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    hypoClockOut <- hypoClock(x = se_obj, verbose = FALSE)
+  }
+}
 }
 \references{
 Teschendorff AE.

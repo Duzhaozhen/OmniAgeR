@@ -4,11 +4,12 @@
 \alias{causalClock}
 \title{Calculate Causal, Damage, and Adaptation Epigenetic Clocks}
 \usage{
-causalClock(betaM, minCoverage = 0, verbose = TRUE)
+causalClock(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{DNAm beta value matrix with rows labeling Illumina 450k/EPIC
-CpGs and columns labeling samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -34,23 +35,28 @@ Each score is calculated as a weighted linear sum of beta values from
 its specific set of CpG sites.
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_causal_clocks_coef", verbose = FALSE)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# Example 1: Direct Matrix Input
+causalClockO <- causalClock(x = beta_matrix, verbose = FALSE)
+head(causalClockO$CausalAge)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
-
-# 4. Run the age prediction
-causalClockO <- causalClock(mockBetaM, verbose = FALSE)
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    causal_se_res <- causalClock(x = se_obj, verbose = FALSE)
+  }
+}
 }
 \references{
 Ying K, Liu H, Tarkhov AE, et al.

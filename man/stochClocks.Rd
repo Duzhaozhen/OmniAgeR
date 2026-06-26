@@ -4,11 +4,12 @@
 \alias{stochClocks}
 \title{Calculate Stochastic Epigenetic Clocks (Tong et al., 2024)}
 \usage{
-stochClocks(betaM, minCoverage = 0, verbose = TRUE)
+stochClocks(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of beta values. Rows should be CpG probes and
-columns should be individual samples.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value (0-1). The minimum proportion of
 required CpGs that must be present. Default is 0.}
@@ -38,19 +39,30 @@ This may offer insights into the biological mechanisms of phenotypes
 linked to epigenetic age acceleration.
 }
 \examples{
-# 1. Fast runnable code to satisfy BiocCheck
-message("Ready to calculate Stochastic Epigenetic Clocks.")
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Real execution (wrapped to bypass 5-second limit in automated checks)
-if (interactive()) {
-# Load example data
-hannumExample <- loadOmniAgeRdata("omniager_hannum_example")
-stochClocksOut <- stochClocks(hannumExample[[1]])
+# Example 1: Direct Matrix Input
+predOut <- stochClocks(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    predOut <- stochClocks(x = se_obj, verbose = FALSE)
+  }
 }
-
 }
 \references{
 Tong, H., Dwaraka, V.B., Chen, Q. et al.
 Quantifying the stochastic component of epigenetic aging.
-\emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00636-6}
+\emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00600-8}
 }

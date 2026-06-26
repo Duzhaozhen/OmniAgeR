@@ -7,8 +7,9 @@
 #' This function computes PC-based versions of Horvath2013, Horvath2018, Hannum,
 #' PhenoAge, and GrimAge1, along with their principal components.
 #'
-#' @param betaM A numeric matrix of DNA methylation (beta) values.
-#'   **Samples must be in columns** and CpG probes in rows.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param age A numeric vector of chronological ages for each sample,
 #'   in the same order as the columns of `DNAm`.
 #' @param sex A character vector of biological sex for each sample, in the
@@ -36,28 +37,52 @@
 #' @export
 #'
 #' @examples
-#' # 1. Fast runnable code to satisfy BiocCheck
-#' message("Ready to initialize PC-based clock pipeline.")
-#' 
-#' ## Downloading "PCClocks_data" will take a very long time.
 #' \dontrun{
-#' pcClockData <- loadOmniAgeRdata(
-#'     "PCClocks_data",
-#'     verbose = FALSE
-#' )
-#' hannumExample <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )
-#' hannumBmiqM <- hannumExample[[1]]
-#' phenoTypesHannum <- hannumExample[[2]]
-#' age <- phenoTypesHannum$Age
-#' sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-#' pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
-#'}
-pcClocks <- function(betaM, age, sex, clockData, minCoverage = 0, verbose = TRUE) {
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input
+#' # ====================================================================
+#'   hannumExample <- loadOmniAgeRdata(
+#'       "omniager_hannum_example",
+#'       verbose = FALSE
+#'   )
+#'   
+#'   pcClockData <- loadOmniAgeRdata(
+#'       "PCClocks_data",
+#'       verbose = FALSE
+#'   )
+#'   
+#'   hannumBmiqM <- hannumExample[[1]]
+#'   phenoTypesHannum <- hannumExample[[2]]
+#'   age <- phenoTypesHannum$Age
+#'   sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
+#'   pcClocksOut <- pcClocks(hannumBmiqM, age, sex, pcClockData)
+#'   
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = hannumBmiqM),
+#'       colData = hannumExample[[2]]
+#'     )
+#'     
+#'     pcClocksOut <-  pcClocks(se_obj,age, sex, pcClockData)
+#'   }
+#' }
+#'
+# -------------------------------------------------------------------------
+# CODE ATTRIBUTION NOTE:
+# The core logic of this function was adapted from the original script 
+# provided by https://github.com/HigginsChenLab/methylCIPHER
+# under the BSD 3-Clause License.
+# Modifications: Added generic object support (SummarizedExperiment), 
+# refactored the extraction pipeline, and standardized variable names.
+# -------------------------------------------------------------------------
+pcClocks <- function(x, age, sex, clockData, minCoverage = 0, verbose = TRUE) {
     if (verbose) message("[PCClocks] Initializing PC-based clock pipeline...")
-
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Input Validation and Conversion ---
     if (!is.matrix(betaM)) stop("Input 'betaM' must be a matrix.")
 

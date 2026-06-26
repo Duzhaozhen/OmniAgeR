@@ -20,15 +20,14 @@
 #'
 #' Internally applies Horvath's (2013) log-linear age transformation.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
-#' @return A numeric vector of predicted biological ages. The vector is
-#' named using the sample IDs from the \code{rownames} of \code{betaM}.
+#' @return A numeric vector of predicted biological ages. 
 #'
 #' @export
 #'
@@ -38,39 +37,38 @@
 #' methylation array data. \emph{J Math Chem} 2023
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_pipek_elasticnet_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' predOut <- pipekElasticNet(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' pipekElasticNetOut <- pipekElasticNet(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- pipekElasticNet(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#'
 
-pipekElasticNet <- function(betaM,
-                            minCoverage = 0,
-                            verbose = TRUE) {
-    pipekElasticNetCoef <- loadOmniAgeRdata(
-        "omniager_pipek_elasticnet_coef",
-        verbose = verbose
-    )
-
-    predAgev <- .calLinearClock(
-        betaM, pipekElasticNetCoef, "pipekElasticNet",
-        minCoverage, verbose
-    )
-    # transformation
-    predAgev <- .antiTrafo(predAgev)
-    return(predAgev)
+pipekElasticNet <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_pipek_elasticnet_coef", 
+    clockName = "pipekElasticNet",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = TRUE
+  )
 }
 
 
@@ -104,15 +102,14 @@ pipekElasticNet <- function(betaM,
 #'
 #' Internally applies Horvath's (2013) log-linear age transformation.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
-#' @return A numeric vector of predicted biological ages. The vector is
-#' named using the sample IDs from the \code{rownames} of \code{betaM}.
+#' @return A numeric vector of predicted biological ages. 
 #'
 #' @export
 #'
@@ -122,39 +119,38 @@ pipekElasticNet <- function(betaM,
 #' methylation array data. \emph{J Math Chem} 2023
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_pipek_filteredh_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' predOut <- pipekFilteredh(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' pipekFilteredhOut <- pipekFilteredh(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- pipekFilteredh(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 #'
-pipekFilteredh <- function(betaM,
-                           minCoverage = 0,
-                           verbose = TRUE) {
-    pipekFilteredhCoef <- loadOmniAgeRdata(
-        "omniager_pipek_filteredh_coef",
-        verbose = verbose
-    )
 
-    predAgev <- .calLinearClock(
-        betaM, pipekFilteredhCoef, "pipekFilteredh",
-        minCoverage, verbose
-    )
-    # transformation
-    predAgev <- .antiTrafo(predAgev)
-    return(predAgev)
+pipekFilteredh <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_pipek_filteredh_coef", 
+    clockName = "pipekFilteredh",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = TRUE
+  )
 }
 
 
@@ -185,15 +181,14 @@ pipekFilteredh <- function(betaM,
 #'
 #' Internally applies Horvath's (2013) log-linear age transformation.
 #'
-#' @param betaM A numeric matrix of DNA methylation beta values.
-#'   `rownames` (CpG probe IDs) and `colnames` (Sample IDs) are required.
-#'   The matrix should not contain `NA` values.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
 #'
-#' @return A numeric vector of predicted biological ages. The vector is
-#' named using the sample IDs from the \code{rownames} of \code{betaM}.
+#' @return A numeric vector of predicted biological ages. 
 #'
 #' @export
 #'
@@ -203,37 +198,38 @@ pipekFilteredh <- function(betaM,
 #' methylation array data. \emph{J Math Chem} 2023
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_pipek_retrainedh_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' predOut <- pipekRetrainedh(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' pipekRetrainedhOut <- pipekRetrainedh(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- pipekRetrainedh(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 #'
-pipekRetrainedh <- function(betaM,
-                            minCoverage = 0,
-                            verbose = TRUE) {
-    pipekRetrainedhCoef <- loadOmniAgeRdata(
-        "omniager_pipek_retrainedh_coef",
-        verbose = verbose
-    )
 
-    predAgev <- .calLinearClock(
-        betaM, pipekRetrainedhCoef, "pipekRetrainedh",
-        minCoverage, verbose
-    )
-    # transformation
-    predAgev <- .antiTrafo(predAgev)
-    return(predAgev)
+
+pipekRetrainedh <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_pipek_retrainedh_coef", 
+    clockName = "pipekRetrainedh",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = TRUE
+  )
 }
+

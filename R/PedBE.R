@@ -15,8 +15,9 @@
 #' from Horvath, 2013) is then applied. This converts the transformed age into
 #' a final estimate of chronological age in years.
 #'
-#' @param betaM A matrix of beta values (CpGs in rows, samples in columns).
-#' This matrix must be pre-normalized (e.g., via BMIQ) and imputed.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -34,37 +35,38 @@
 #' \emph{Proc Natl Acad Sci U S A.} 2020
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_pedbe_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' pedBEClock3Out <- pedBEClock(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' pedBEClockOut <- pedBEClock(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     pedBEClock3Out <- pedBEClock(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#' @export
+#'
 
-pedBEClock <- function(betaM,
-                       minCoverage = 0,
-                       verbose = TRUE) {
-    pedBECoef <- loadOmniAgeRdata(
-        "omniager_pedbe_coef",
-        verbose = verbose
-    )
-
-    predAgev <- .calLinearClock(
-        betaM, pedBECoef, "pedBEClock",
-        minCoverage, verbose
-    )
-    # transformation
-    predAgev <- .antiTrafo(predAgev)
-    return(predAgev)
+pedBEClock <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_pedbe_coef", 
+    clockName = "pedBEClock",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = TRUE
+  )
 }
+

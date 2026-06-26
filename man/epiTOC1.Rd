@@ -4,10 +4,12 @@
 \alias{epiTOC1}
 \title{Estimate epiTOC1 score}
 \usage{
-epiTOC1(betaM, minCoverage = 0, verbose = TRUE)
+epiTOC1(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNAm beta values (probes as rows).}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{Numeric (0-1). Minimum required probe coverage.
 Default is 0.}
@@ -28,12 +30,27 @@ localize to Polycomb group target genes that are unmethylated in 11
 different fetal tissue types.
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
-    "omniager_lung_inv",
-    verbose = FALSE
-)
-lungInvM <- lungInv$bmiq_m
-epitoc1Out <- epiTOC1(betaM = lungInvM)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
+
+# Example 1: Direct Matrix Input
+epiTOC1Out  <- epiTOC1(x = beta_matrix, verbose = FALSE)
+
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    epiTOC1Out <- epiTOC1(x = se_obj, verbose = FALSE)
+  }
+}
 }
 \references{
 Yang Z, Wong A, Kuh D, et al.

@@ -4,12 +4,12 @@
 \alias{retroAge}
 \title{Calculate the Retro-age Epigenetic Clock}
 \usage{
-retroAge(betaM, minCoverage = 0, verbose = TRUE)
+retroAge(x, minCoverage = 0, verbose = TRUE)
 }
 \arguments{
-\item{betaM}{A numeric matrix of DNA methylation beta values.
-\code{rownames} (CpG probe IDs) and \code{colnames} (Sample IDs) are required.
-The matrix should not contain \code{NA} values.}
+\item{x}{A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment}
+object containing DNA methylation beta values. Rows should be CpG probes and
+columns individual samples.}
 
 \item{minCoverage}{A numeric value between 0 and 1 (default is 0).
 Specifies the minimum proportion of required CpGs that must be present
@@ -27,23 +27,27 @@ chronological age, based on the models developed by Ndhlovu et al. (2024).
 This function computes both Version 1 (V1) and Version 2 (V2) of the clock.
 }
 \examples{
-# 1. Load the lightweight clock coefficient table
-modelCoef <- loadOmniAgeRdata("omniager_retroage_coef", verbose = FALSE)
+data(dnamExample)
+beta_matrix <- dnamExample[[1]]
 
-# 2. Extract feature names and exclude potential intercept terms
-allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures # Fallback if features do not use 'cg' prefix
+# Example 1: Direct Matrix Input
+predOut <- retroAge(x = beta_matrix, verbose = FALSE)
 
-# 3. Generate a mock micro-beta matrix for 2 samples in memory
-mockBetaM <- matrix(
-    runif(length(requiredCpGs) * 2, min = 0, max = 1),
-    nrow = length(requiredCpGs),
-    dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-)
-
-# 4. Run the age prediction
-retroAgeRes <- retroAge(mockBetaM)
+# Example 2: SummarizedExperiment Input
+\dontrun{
+  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    library(SummarizedExperiment)
+    pheno_data <- dnamExample[[2]]
+    rownames(pheno_data) <- colnames(beta_matrix)
+    
+    se_obj <- SummarizedExperiment(
+      assays = list(beta = beta_matrix),
+      colData = pheno_data
+    )
+    
+    predOut <- retroAge(x = se_obj, verbose = FALSE)
+  }
+}
 
 }
 \references{

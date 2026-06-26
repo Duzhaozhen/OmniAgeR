@@ -1,7 +1,8 @@
 #' @title The Gestational Age (GA) clock based on 176 Illumina EPIC CpGs
 #'
-#' @param betaM A matrix of beta values (CpGs in rows, samples in columns).
-#' This matrix must be pre-normalized (e.g., via BMIQ) and imputed.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -15,38 +16,48 @@
 #' An EPIC predictor of gestational age and its application to newborns
 #' conceived by assisted reproductive technologies.
 #' \emph{Clin Epigenetics.} 2021
-#'
+#' 
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_epic_ga_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' epicGaOut <- epicGa(x = beta_matrix, verbose = FALSE)
+#' head(epicGaOut)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' epicGaOut <- epicGa(mockBetaM, minCoverage = 0)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     epicGaOut <- epicGa(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 
-epicGa <- function(betaM,
-                   minCoverage = 0,
-                   verbose = TRUE) {
-    epicGACoef <- loadOmniAgeRdata(
-        "omniager_epic_ga_coef",
-        verbose = verbose
-    )
-    predAgev <- .calLinearClock(
-        betaM, epicGACoef, "epicGa",
-        minCoverage, verbose
-    )
-    ## Convert the number of days into weeks
-    predAgev <- predAgev / 7
-    return(predAgev)
+
+
+epicGa <- function(x,
+                  minCoverage = 0,
+                  verbose = TRUE) {
+  
+  predAgeDays <- .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_epic_ga_coef", 
+    clockName = "epicGa",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE 
+  )
+  ## Convert the number of days into weeks
+  predAgeWeeks <- predAgeDays / 7
+  
+  return(predAgeWeeks)
 }
+

@@ -14,8 +14,9 @@
 #' The function automatically loads the required model coefficients,
 #' matches them with the CpGs in the input matrix, and computes the age.
 #'
-#' @param betaM A matrix of beta values (CpGs in rows, samples in columns).
-#' This matrix must be pre-normalized (e.g., via BMIQ) and imputed.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -31,35 +32,38 @@
 #' @export
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_phenoage_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures 
+#' # Example 1: Direct Matrix Input
+#' predOut <- phenoAge(x = beta_matrix, verbose = FALSE)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' phenoAgeOut <- phenoAge(mockBetaM)
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     predOut <- phenoAge(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+#'
 
-phenoAge <- function(betaM,
-                     minCoverage = 0,
-                     verbose = TRUE) {
-    phenoAgeCoef <- loadOmniAgeRdata(
-        "omniager_phenoage_coef",
-        verbose = verbose
-    )
 
-    predAgev <- .calLinearClock(
-        betaM, phenoAgeCoef, "phenoAge",
-        minCoverage, verbose
-    )
-    return(predAgev)
+phenoAge <- function(x, minCoverage = 0, verbose = TRUE) {
+  .runEpiClockPipeline(
+    x = x, 
+    coefName = "omniager_phenoage_coef", 
+    clockName = "phenoAge",
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    useHorvathTrafo = FALSE
+  )
 }
+

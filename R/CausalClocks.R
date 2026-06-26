@@ -4,8 +4,9 @@
 #' Calculates three related epigenetic clocks (Causal, Damage, Adaptation)
 #' from a DNA methylation beta value matrix. These clocks were developed to
 #' distinguish different aspects of aging.
-#' @param betaM DNAm beta value matrix with rows labeling Illumina 450k/EPIC
-#' CpGs and columns labeling samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage A numeric value (0-1). The minimum proportion of
 #'   required CpGs that must be present. Default is 0.
 #' @param verbose A logical flag. If `TRUE` (default), prints status messages.
@@ -30,52 +31,41 @@
 #' @export
 #'
 #' @examples
-#' # 1. Load the lightweight clock coefficient table
-#' modelCoef <- loadOmniAgeRdata("omniager_causal_clocks_coef", verbose = FALSE)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
 #' 
-#' # 2. Extract feature names and exclude potential intercept terms
-#' allFeatures <- unique(unlist(modelCoef, use.names = FALSE))
-#' requiredCpGs <- allFeatures[grep("^cg", allFeatures)]
-#' if (length(requiredCpGs) == 0) requiredCpGs <- allFeatures
+#' # Example 1: Direct Matrix Input
+#' causalClockO <- causalClock(x = beta_matrix, verbose = FALSE)
+#' head(causalClockO$CausalAge)
 #' 
-#' # 3. Generate a mock micro-beta matrix for 2 samples in memory
-#' mockBetaM <- matrix(
-#'     runif(length(requiredCpGs) * 2, min = 0, max = 1),
-#'     nrow = length(requiredCpGs),
-#'     dimnames = list(requiredCpGs, c("Sample1", "Sample2"))
-#' )
-#' 
-#' # 4. Run the age prediction
-#' causalClockO <- causalClock(mockBetaM, verbose = FALSE)
-
-causalClock <- function(betaM,
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     causal_se_res <- causalClock(x = se_obj, verbose = FALSE)
+#'   }
+#' }
+causalClock <- function(x,
                         minCoverage = 0,
                         verbose = TRUE) {
-    # --- Step 1: Load Coefficients ---
-    causalClockList <- loadOmniAgeRdata(
-        "omniager_causal_clocks_coef",
-        verbose = verbose
-    )
-    # Define the specific names for the three sub-clocks
-    clockNames <- c("CausalAge", "DamAge", "AdaptAge")
-
-    # --- Step 2: Calculate Scores for Each Clock ---
-    estLv <- list()
-
-    # Loop through the list of coefficients (causalClockList)
-    for (i in seq_along(causalClockList)) {
-        # Call the internal helper to handle all calculation and logging
-        estLv[[i]] <- .calLinearClock(
-            betaM = betaM,
-            coefData = causalClockList[[i]],
-            clockLabel = clockNames[i],
-            minCoverage = minCoverage,
-            verbose = verbose
-        )
-    }
-
-    # Assign names to the result list
-    names(estLv) <- clockNames
-
-    return(estLv)
+  
+  estLv <- .runMultiEpiClockPipeline(
+    x = x,
+    coefName = "omniager_causal_clocks_coef",
+    clockNames = c("CausalAge", "DamAge", "AdaptAge"),
+    minCoverage = minCoverage,
+    verbose = verbose
+  )
+  
+  
+  return(estLv)
 }
+

@@ -4,8 +4,9 @@
 #' This function takes as input an Illumina 450k/EPIC DNAm beta matrix and will
 #' return the HypoClock score.
 #'
-#' @param betaM A numeric matrix of DNAm beta values (probes as rows). Rows
-#' should be Illumina 450k/EPIC CpG identifiers and columns should be samples.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#' object containing DNA methylation beta values. Rows should be CpG probes and 
+#' columns individual samples.
 #' @param minCoverage Numeric (0-1). Minimum required probe coverage.
 #'   Default is 0.
 #' @param verbose Logical. Whether to print coverage statistics.
@@ -22,17 +23,32 @@
 #' \emph{Genome Med.} 2020
 #'
 #' @examples
-#' lungInv <- loadOmniAgeRdata(
-#'     "omniager_lung_inv",
-#'     verbose = FALSE
-#' )
-#' lungInvM <- lungInv$bmiq_m
-#' hypoClockOut <- hypoClock(betaM = lungInvM)
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' 
+#' # Example 1: Direct Matrix Input
+#' hypoClockOut  <- hypoClock(x = beta_matrix, verbose = FALSE)
+#' 
+#' # Example 2: SummarizedExperiment Input
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     pheno_data <- dnamExample[[2]]
+#'     rownames(pheno_data) <- colnames(beta_matrix)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix),
+#'       colData = pheno_data
+#'     )
+#'     
+#'     hypoClockOut <- hypoClock(x = se_obj, verbose = FALSE)
+#'   }
+#' }
 #' @export
 #'
 
-
-hypoClock <- function(betaM, minCoverage = 0, verbose = TRUE) {
+hypoClock <- function(x, minCoverage = 0, verbose = TRUE) {
+    betaM <- .extractAssayMatrix(x)
     hypoClockCpG <- loadOmniAgeRdata(
         "omniager_hypoclock_cpg",
         verbose = verbose

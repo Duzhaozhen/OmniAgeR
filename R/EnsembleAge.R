@@ -5,7 +5,9 @@
 #' (Haghani et al., 2025). This function computes one of the three available
 #' clock versions (Static, Dynamic, or HumanMouse).
 #'
-#' @param betaM A numeric matrix (Rows: CpGs, Cols: Samples) or \code{SummarizedExperiment}.
+#' @param x A numeric matrix, \code{data.frame}, or \code{SummarizedExperiment} 
+#'  object containing DNA methylation beta values. Rows should be CpG probes and 
+#'  columns individual samples.
 #' @param clockVersion Character. One of \code{"Dynamic"}, \code{"Static"}, or \code{"HumanMouse"}.
 #' @param minCoverage Numeric (0-1). Minimum required proportion of CpGs present. Default is 0.
 #' @param verbose Logical. Whether to print status messages.
@@ -41,19 +43,34 @@
 #' @importFrom utils data
 #'
 #' @examples
-#' \dontrun{ 
-#' hannumBmiqM <- loadOmniAgeRdata(
-#'     "omniager_hannum_example",
-#'     verbose = FALSE
-#' )[[1]]
-#' # Ensure it's CpGs=rows, Samples=cols
+#' # ====================================================================
+#' # Example 1: Direct Matrix Input 
+#' # ====================================================================
+#' data(dnamExample)
+#' beta_matrix <- dnamExample[[1]]
+#' 
 #' # Calculate the HumanMouse clock version
-#' ensembleAgeOut <- ensembleAge(hannumBmiqM, clockVersion = "HumanMouse")
-#'}
-ensembleAge <- function(betaM, clockVersion = c("HumanMouse", "Static", "Dynamic"),
+#' ensembleAgeOut <- ensembleAge(x = beta_matrix, clockVersion = "HumanMouse", verbose = FALSE)
+#' 
+#' # ====================================================================
+#' # Example 2: SummarizedExperiment Input
+#' # ====================================================================
+#' \dontrun{
+#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+#'     library(SummarizedExperiment)
+#'     
+#'     se_obj <- SummarizedExperiment(
+#'       assays = list(beta = beta_matrix)
+#'     )
+#'     
+#'     ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
+#'   }
+#' }
+
+ensembleAge <- function(x, clockVersion = c("HumanMouse", "Static", "Dynamic"),
                         minCoverage = 0, verbose = TRUE) {
     clockVersion <- match.arg(clockVersion)
-
+    betaM <- .extractAssayMatrix(x)
     # --- 1. Data Loading --
     ensembleAgeCoef <- loadOmniAgeRdata(
         "omniager_ensembleage_coef",
