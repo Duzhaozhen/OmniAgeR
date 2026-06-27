@@ -328,7 +328,7 @@ on cell-type composition.
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install(c("OmniAgeR", "OmniAgeRData"))
+BiocManager::install(c("OmniAgeR"))
 ```
 
 During package review or development, the development versions can be installed from GitHub:
@@ -337,7 +337,6 @@ During package review or development, the development versions can be installed 
 if (!requireNamespace("remotes", quietly = TRUE))
     install.packages("remotes")
 
-remotes::install_github("Duzhaozhen/OmniAgeRData")
 remotes::install_github("Duzhaozhen/OmniAgeR")
 ```
 
@@ -345,7 +344,6 @@ After installation, the packages can be loaded with:
 
 ```{r load-packages, message=FALSE}
 library(OmniAgeR)
-library(OmniAgeRData)
 ```
 
 
@@ -501,8 +499,8 @@ ggpubr::ggarrange(plotlist = gp, nrow = 1, ncol = 2)
 
 In this example, we showcase the application of the cell-type-specific clock, scImmuAging, to a PBMC scRNA-seq dataset. The dataset includes 5 samples, profiled to contain only CD4+ T cells.
 
-```{r scImmuAging, eval = FALSE}
-library(OmniAgeR))
+```{r scImmuAging}
+library(OmniAgeR)
 library(glmnet)
 library(ggplot2)
 library(patchwork)
@@ -520,7 +518,7 @@ scImmuAgingOut <- suppressPackageStartupMessages(scImmuAging(
 ))
 ```
 
-```{r scImmuAging-plot, eval = FALSE, fig.width=8, fig.height=4, out.width="100%"}
+```{r scImmuAging-plot, fig.width=8, fig.height=4, out.width="100%"}
 sc_gp <- list()
 
 for (i in seq_along(scImmuAgingOut)) {
@@ -650,7 +648,7 @@ ggpubr::ggarrange(plotlist = brainPlot, nrow = 1)
 
 # Tutorial Example 5: Apply Pasta to Pbmc scRNA-seq dataset
 
-```{r pasta, eval = FALSE}
+```{r pasta}
 # Load required libraries
 library(OmniAgeR)
 library(glmnet)
@@ -680,7 +678,7 @@ pastaRes <- suppressMessages(pastaScores(pseudobulkMatrix, filterGenes = TRUE,
                         rankNorm = TRUE))
 ```
 
-```{r pasta-plot, eval = FALSE, fig.width=4, fig.height=4, out.width="100%"}
+```{r pasta-plot, fig.width=4, fig.height=4, out.width="100%"}
 # Prepare the data frame for plotting
 plot_df <- data.frame(
     ActualAge = donorAges,

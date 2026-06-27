@@ -119,180 +119,6 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
 }
 
 
-#' Extract and standardize single-cell expression data
-#'
-#' @description
-#' This internal utility function processes various single-cell input formats,
-#' including \code{SingleCellExperiment}, \code{Seurat} objects, or raw matrices,
-#' into a standardized format. It performs necessary data coercion, column
-#' validation, and alignment between the expression matrix and cell metadata.
-#'
-#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment},
-#'   \code{Seurat} object, \code{matrix}, or \code{data.frame} containing
-#'   the single-cell expression data.
-#' @param metadata A \code{data.frame} containing cell-level metadata.
-#'   Required only if \code{x} is a \code{matrix} or \code{data.frame}.
-#'   Defaults to \code{NULL}.
-#' @param assayName A string specifying the assay name to extract if \code{x}
-#'   is a \code{SingleCellExperiment} or \code{SummarizedExperiment}.
-#'   Defaults to \code{"logcounts"}.
-#' @param donorCol A string specifying the column name in metadata representing
-#'   the donor identity. Defaults to \code{"donor_id"}.
-#' @param ageCol A string specifying the column name in metadata representing
-#'   the subject age. Defaults to \code{"age"}.
-#' @param cellTypeCol A string specifying the column name in metadata representing
-#'   the cell type. Defaults to \code{"celltype"}.
-#' @param seuratAssay A string specifying the assay to extract if \code{x}
-#'   is a \code{Seurat} object. Defaults to \code{"RNA"}.
-#' @param seuratLayer A string specifying the layer or slot to extract if \code{x}
-#'   is a \code{Seurat} object. Defaults to \code{"data"}.
-#'
-#' @return A \code{list} containing two elements:
-#' \itemize{
-#'   \item \code{expr}: A numeric matrix of gene expression values.
-#'   \item \code{metadata}: A \code{data.frame} of the aligned cell metadata.
-#' }
-#'
-#' @details
-#' This function performs strict input validation:
-#' \enumerate{
-#'   \item Ensures the expression values are numeric.
-#'   \item Verifies that row names (genes) and column names (cells) are present.
-#'   \item Matches the expression matrix columns with the metadata rows.
-#'   \item Checks for the presence of mandatory columns (\code{donorCol}, \code{ageCol}).
-#' }
-#'
-#' @importFrom SummarizedExperiment assay assayNames colData
-#' @keywords internal
-
-.extractScInput <- function(x,
-                            metadata = NULL,
-                            assayName = "logcounts",
-                            donorCol = "donor_id",
-                            ageCol = "age",
-                            cellTypeCol = "celltype",
-                            seuratAssay = "RNA",
-                            seuratLayer = "data") {
-  if (inherits(x, "SingleCellExperiment") ||
-      inherits(x, "SummarizedExperiment")) {
-    
-    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-      stop(
-        "The SummarizedExperiment package is required for ",
-        "SingleCellExperiment/SummarizedExperiment input."
-      )
-    }
-    
-    assayNames <- SummarizedExperiment::assayNames(x)
-    
-    if (!assayName %in% assayNames) {
-      stop(
-        "Assay '", assayName, "' was not found in 'x'. ",
-        "Available assays: ", paste(assayNames, collapse = ", ")
-      )
-    }
-    
-    expr <- SummarizedExperiment::assay(x, assayName)
-    metadata <- as.data.frame(SummarizedExperiment::colData(x))
-    
-  } else if (inherits(x, "Seurat")) {
-    
-    if (!requireNamespace("Seurat", quietly = TRUE)) {
-      stop(
-        "The Seurat package is required for Seurat input. ",
-        "For Bioconductor workflows, please use a ",
-        "SingleCellExperiment object."
-      )
-    }
-    
-    expr <- tryCatch(
-      Seurat::GetAssayData(
-        x,
-        assay = seuratAssay,
-        layer = seuratLayer
-      ),
-      error = function(e) {
-        Seurat::GetAssayData(
-          x,
-          assay = seuratAssay,
-          slot = seuratLayer
-        )
-      }
-    )
-    
-    metadata <- x[[]]
-    
-  } else if (is.matrix(x) || is.data.frame(x)) {
-    
-    if (is.null(metadata)) {
-      stop(
-        "When 'x' is a matrix or data.frame, 'metadata' must also ",
-        "be provided."
-      )
-    }
-    
-    expr <- as.matrix(x)
-    metadata <- as.data.frame(metadata)
-    
-  } else {
-    stop(
-      "'x' must be a SingleCellExperiment, SummarizedExperiment, ",
-      "Seurat object, matrix, or data.frame."
-    )
-  }
-  
-  expr <- as.matrix(expr)
-  
-  if (!is.numeric(expr)) {
-    stop("The selected assay must contain numeric expression values.")
-  }
-  
-  if (is.null(rownames(expr))) {
-    stop("The expression matrix must have gene names as row names.")
-  }
-  
-  if (is.null(colnames(expr))) {
-    stop("The expression matrix must have cell names as column names.")
-  }
-  
-  if (nrow(metadata) != ncol(expr)) {
-    stop(
-      "The number of rows in metadata must match the number of ",
-      "columns in the expression matrix."
-    )
-  }
-  
-  if (!is.null(rownames(metadata)) &&
-      all(colnames(expr) %in% rownames(metadata))) {
-    metadata <- metadata[colnames(expr), , drop = FALSE]
-  } else {
-    rownames(metadata) <- colnames(expr)
-  }
-  
-  requiredCols <- c(donorCol, ageCol)
-  if (!is.null(cellTypeCol)) {
-    requiredCols <- c(requiredCols, cellTypeCol)
-  }
-  
-  missingCols <- setdiff(requiredCols, colnames(metadata))
-  
-  if (length(missingCols) > 0L) {
-    stop(
-      "The metadata must contain the following columns: ",
-      paste(missingCols, collapse = ", ")
-    )
-  }
-  
-  list(
-    expr = expr,
-    metadata = metadata
-  )
-}
-
-
-
-
-
 
 
 #' Extract Phenotype Data from Various Object Types
@@ -339,7 +165,111 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
 
 
 
-
+#' @title Extract and validate single-cell expression input
+#'
+#' @description
+#' A shared internal utility to standardize the input of single-cell transcriptomic 
+#' data across different aging clocks. It seamlessly extracts expression matrices 
+#' and cell-level metadata from various container types while preserving sparse 
+#' matrix memory efficiency where applicable.
+#'
+#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, 
+#'   \code{Seurat} object, dense \code{matrix}, sparse \code{Matrix}, or 
+#'   \code{data.frame} containing the single-cell expression data.
+#' @param metadata A \code{data.frame} containing cell-level metadata. 
+#'   Required only if \code{x} is a matrix-like object. Defaults to \code{NULL}.
+#' @param assayName Character string specifying the assay name to extract if 
+#'   \code{x} is a Bioconductor object. Defaults to \code{"logcounts"}.
+#' @param donorCol Character string specifying the metadata column representing 
+#'   donor identity. Defaults to \code{"donor_id"}.
+#' @param ageCol Character string specifying the metadata column representing 
+#'   subject age. Defaults to \code{"age"}.
+#' @param cellTypeCol Character string specifying the metadata column representing 
+#'   cell type annotations. Defaults to \code{"celltype"}.
+#' @param seuratAssay Character string specifying the assay to extract if 
+#'   \code{x} is a \code{Seurat} object. Defaults to \code{"RNA"}.
+#' @param seuratLayer Character string specifying the layer or slot to extract 
+#'   if \code{x} is a \code{Seurat} object. Defaults to \code{"data"}.
+#'
+#' @return A named \code{list} containing:
+#' \itemize{
+#'   \item{\code{expr}: A numeric matrix-like object of gene expression values (dense or sparse).}
+#'   \item{\code{metadata}: A \code{data.frame} of the strictly aligned cell metadata.}
+#' }
+#'
+#' @importFrom methods is
+#' @keywords internal
+#' @noRd
+.extractSingleCellAssay <- function(x, metadata = NULL, assayName = "logcounts",
+                                    donorCol = "donor_id", ageCol = "age",
+                                    cellTypeCol = "celltype", seuratAssay = "RNA",
+                                    seuratLayer = "data") {
+  
+  # --- 1. Extract from Containers ---
+  if (inherits(x, "SingleCellExperiment") || inherits(x, "SummarizedExperiment")) {
+    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+      stop("The SummarizedExperiment package is required for this input type.")
+    }
+    assayNames <- SummarizedExperiment::assayNames(x)
+    if (!assayName %in% assayNames) {
+      stop(sprintf("Assay '%s' not found. Available assays: %s", 
+                   assayName, paste(assayNames, collapse = ", ")))
+    }
+    expr <- SummarizedExperiment::assay(x, assayName)
+    metadata <- as.data.frame(SummarizedExperiment::colData(x))
+    
+  } else if (inherits(x, "Seurat")) {
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+      stop("The Seurat package is required for Seurat input.")
+    }
+    expr <- tryCatch(
+      Seurat::GetAssayData(x, assay = seuratAssay, layer = seuratLayer),
+      error = function(e) Seurat::GetAssayData(x, assay = seuratAssay, slot = seuratLayer)
+    )
+    metadata <- x[[]]
+    
+  } else if (is.matrix(x) || is.data.frame(x) || methods::is(x, "Matrix")) {
+    if (is.null(metadata)) {
+      stop("When 'x' is matrix-like, 'metadata' must also be provided.")
+    }
+    expr <- x
+    metadata <- as.data.frame(metadata)
+  } else {
+    stop("'x' must be a SingleCellExperiment, Seurat object, Matrix, matrix, or data.frame.")
+  }
+  
+  # --- 2. Numeric Type Validation (Safe for Sparse Matrices) ---
+  if (methods::is(expr, "Matrix")) {
+    if (!is.numeric(expr@x)) stop("The selected sparse assay must contain numeric values.")
+  } else {
+    expr <- as.matrix(expr)
+    if (!is.numeric(expr)) stop("The selected assay must contain numeric values.")
+  }
+  
+  # --- 3. Dimension & Names Validation ---
+  if (is.null(rownames(expr))) stop("The expression matrix must have gene names as row names.")
+  if (is.null(colnames(expr))) stop("The expression matrix must have cell names as column names.")
+  if (nrow(metadata) != ncol(expr)) {
+    stop("The number of rows in metadata must match the number of columns in the expression matrix.")
+  }
+  
+  # --- 4. Alignment & Required Columns ---
+  if (!is.null(rownames(metadata)) && all(colnames(expr) %in% rownames(metadata))) {
+    metadata <- metadata[colnames(expr), , drop = FALSE]
+  } else {
+    rownames(metadata) <- colnames(expr)
+  }
+  
+  requiredCols <- c(donorCol, ageCol)
+  if (!is.null(cellTypeCol)) requiredCols <- c(requiredCols, cellTypeCol)
+  
+  missingCols <- setdiff(requiredCols, colnames(metadata))
+  if (length(missingCols) > 0L) {
+    stop("The metadata is missing required columns: ", paste(missingCols, collapse = ", "))
+  }
+  
+  return(list(expr = expr, metadata = metadata))
+}
 
 
 

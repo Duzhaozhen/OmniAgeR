@@ -1,6 +1,6 @@
 Package: OmniAgeR
 Title: Aging Omic Biomarkers from DNA Methylation and Transcriptomics
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: 
     c(person(given = "Zhaozhen",
              family = "Du",
@@ -22,8 +22,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 4.5.0)
-Suggests: BiocStyle, ggplot2, ggpubr, knitr, patchwork, rmarkdown,
-        Seurat, SingleCellExperiment, testthat (>= 3.0.0)
+Suggests: BiocStyle, ggplot2, ggpubr, knitr, patchwork, rmarkdown,OmniAgeRData,
+        Seurat, dplyr, SingleCellExperiment, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Imports: 

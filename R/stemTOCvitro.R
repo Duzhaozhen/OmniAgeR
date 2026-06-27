@@ -31,7 +31,7 @@
 #' beta_matrix <- dnamExample[[1]]
 #' 
 #' # Example 1: Direct Matrix Input
-#' predOut <- stemTOC(x = beta_matrix, verbose = FALSE)
+#' predOut <- stemTOCvitro(x = beta_matrix, verbose = FALSE)
 #' 
 #' # Example 2: SummarizedExperiment Input
 #' \dontrun{
@@ -45,43 +45,16 @@
 #'       colData = pheno_data
 #'     )
 #'     
-#'     predOut <- stemTOC(x = se_obj, verbose = FALSE)
+#'     predOut <- stemTOCvitro(x = se_obj, verbose = FALSE)
 #'   }
 #' }
-
+#' @export
 stemTOCvitro <- function(x, minCoverage = 0, verbose = TRUE) {
-    betaM <- .extractAssayMatrix(x)
-    stemTOCvitroCpG <- loadOmniAgeRdata(
-        "omniager_stemtocvitro_cpg",
-        verbose = verbose
-    )
-    # Prepare the reference probe
-    targetCpGs <- as.character(stemTOCvitroCpG)
-    clockWeights <- setNames(rep(1, length(targetCpGs)), targetCpGs)
-
-    # Perform coverage check
-    coverageResult <- .checkCpGCoverage(
-        betaM = betaM,
-        allWeights = clockWeights,
-        clockName = "stemTOCvitro",
-        minCoverage = minCoverage,
-        verbose = verbose
-    )
-
-    if (!coverageResult$pass) {
-        scores <- rep(NA_real_, ncol(betaM))
-        names(scores) <- colnames(betaM)
-        return(scores)
-    }
-
-    # 5. Calculate score
-    scores <- apply(
-        betaM[coverageResult$betaIdx, , drop = FALSE],
-        2,
-        quantile,
-        probs = 0.95,
-        na.rm = TRUE
-    )
-
-    return(scores)
+  .calculateStemTOC(
+    x = x, 
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    cpgDataName = "omniager_stemtocvitro_cpg",
+    clockName = "stemTOCvitro"
+  )
 }

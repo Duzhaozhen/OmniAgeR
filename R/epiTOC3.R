@@ -61,73 +61,14 @@
 #' }
 #' @export
 #'
-
 epiTOC3 <- function(x, age = NULL, minCoverage = 0, verbose = TRUE) {
-    betaM <- .extractAssayMatrix(x)
-    estParams <- loadOmniAgeRdata(
-        "omniager_epitoc3_model",
-        verbose = verbose
-    )
-
-    dummyWeights <- setNames(seq_len(nrow(estParams)), rownames(estParams))
-
-    # Perform coverage check
-    coverageResult <- .checkCpGCoverage(
-        betaM = betaM,
-        allWeights = dummyWeights,
-        clockName = "epiTOC3",
-        minCoverage = minCoverage,
-        verbose = verbose
-    )
-
-    if (!coverageResult$pass) {
-        return(list(
-            tnsc = rep(NA_real_, ncol(betaM)), tnsc2 = rep(NA_real_, ncol(betaM)),
-            irS = if (!is.null(age)) rep(NA_real_, ncol(betaM)) else NULL,
-            irS2 = if (!is.null(age)) rep(NA_real_, ncol(betaM)) else NULL,
-            irT = NA_real_, irT2 = NA_real_,
-            avETOC3 = rep(NA_real_, ncol(betaM))
-        ))
-    }
-
-    # Extract the matching data and parameters
-    matchedParams <- estParams[names(coverageResult$weightsSubset), , drop = FALSE]
-    subBeta <- betaM[coverageResult$betaIdx, , drop = FALSE]
-
-    deltaV <- matchedParams[, 1]
-    beta0V <- matchedParams[, 2]
-
-    # Core algorithm implementation
-    avETOC3 <- colMeans(subBeta, na.rm = TRUE)
-
-    # Full Model: 2 * Mean( (Beta - Beta0) / (delta * (1 - Beta0)) )
-    scalingFactor <- 2 / (deltaV * (1 - beta0V))
-    tnscV <- colMeans(sweep(subBeta, 1, beta0V, "-") * scalingFactor, na.rm = TRUE)
-
-    # Approximation (beta0 = 0)
-    scalingFactor2 <- 2 / deltaV
-    tnsc2V <- colMeans(subBeta * scalingFactor2, na.rm = TRUE)
-
-    # Intrinsic Rate
-    irS <- NULL
-    irS2 <- NULL
-    irT <- NULL
-    irT2 <- NULL
-
-    if (!is.null(age)) {
-        irS <- tnscV / age
-        irS2 <- tnsc2V / age
-        irT <- median(irS, na.rm = TRUE)
-        irT2 <- median(irS2, na.rm = TRUE)
-    }
-
-    return(list(
-        tnsc = tnscV,
-        tnsc2 = tnsc2V,
-        irS = irS,
-        irS2 = irS2,
-        irT = irT,
-        irT2 = irT2,
-        avETOC3 = avETOC3
-    ))
+  .calculateEpiTOC(
+    x = x, 
+    age = age, 
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    modelName = "omniager_epitoc3_model",
+    clockName = "epiTOC3",
+    calcAvETOC3 = TRUE
+  )
 }

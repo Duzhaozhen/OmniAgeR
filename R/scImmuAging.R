@@ -154,7 +154,7 @@ scImmuAging <- function(x,
     message("[scImmuAging] Extracting expression matrix and metadata...")
   }
   
-  input <- .extractScInput(
+  input <- .extractSingleCellAssay(
     x = x,
     metadata = metadata,
     assayName = assayName,
@@ -164,7 +164,6 @@ scImmuAging <- function(x,
     seuratAssay = seuratAssay,
     seuratLayer = seuratLayer
   )
-  
   expr <- input$expr
   metadata <- input$metadata
   

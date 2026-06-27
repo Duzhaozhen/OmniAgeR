@@ -32,7 +32,7 @@ data(dnamExample)
 beta_matrix <- dnamExample[[1]]
 
 # Example 1: Direct Matrix Input
-predOut <- stemTOC(x = beta_matrix, verbose = FALSE)
+predOut <- stemTOCvitro(x = beta_matrix, verbose = FALSE)
 
 # Example 2: SummarizedExperiment Input
 \dontrun{
@@ -46,7 +46,7 @@ predOut <- stemTOC(x = beta_matrix, verbose = FALSE)
       colData = pheno_data
     )
     
-    predOut <- stemTOC(x = se_obj, verbose = FALSE)
+    predOut <- stemTOCvitro(x = se_obj, verbose = FALSE)
   }
 }
 }

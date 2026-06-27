@@ -78,109 +78,16 @@
 #'   }
 #' }
 
-
-
-grimAge2 <- function(x, age, sex,
-                     minCoverage = 0, verbose = TRUE) {
-    # --- Step 0: Universal Matrix Extraction ---
-    betaM <- .extractAssayMatrix(x)
-    # 1. Load the model file
-    grimage2 <- loadOmniAgeRdata(
-        "omniager_grimage2_model",
-        verbose = verbose
-    )
-    # 2. Extract coefficients from model object (grimage2)
-    protCoefs <- grimage2[[1]] # CpG weights for proteins/biomarkers
-    finalModel <- grimage2[[2]] # Final weights for COX
-    calibParams <- grimage2[[3]] # Calibration parameters (gold standard)
-
-    uqCpgs <- unique(protCoefs$var[startsWith(protCoefs$var, "cg")])
-    fakeWeights <- setNames(rep(1, length(uqCpgs)), uqCpgs)
-    coverage <- .checkCpGCoverage(betaM, fakeWeights, "GrimAge2", minCoverage, verbose)
-    # 3. Handle Covariates
-    femaleVec <- ifelse(sex == "Female", 1, 0)
-
-    # 4. Phase 1: Predict Surrogate Biomarkers
-    # Identify available CpGs (no imputation used)
-    availableCpGs <- intersect(protCoefs$var, rownames(betaM))
-
-    if (verbose) {
-        nTotalCpGs <- length(setdiff(unique(protCoefs$var), c("Intercept", "Age")))
-        message(sprintf(
-            "[GrimAge2] Found %d / %d required CpGs (%.1f%%).",
-            length(availableCpGs), nTotalCpGs, (length(availableCpGs) / nTotalCpGs) * 100
-        ))
-    }
-
-    proteinNames <- unique(protCoefs$Y.pred)
-    protPredList <- list()
-
-    # Optimized matrix multiplication for protein prediction
-    for (pName in proteinNames) {
-        pSub <- protCoefs[protCoefs$Y.pred == pName, ]
-        presentVars <- intersect(pSub$var, c(availableCpGs, "Intercept", "Age"))
-        pSubValid <- pSub[pSub$var %in% presentVars, ]
-
-        # Calculate scores based on original logic: sum of available features
-        # Start with Intercept
-        score <- if ("Intercept" %in% pSubValid$var) pSubValid$beta[pSubValid$var == "Intercept"] else 0
-
-        # Add Age effect if model requires it
-        if ("Age" %in% pSubValid$var) {
-            score <- score + (pSubValid$beta[pSubValid$var == "Age"] * age)
-        }
-
-        # Add CpG effect (matrix multiplication)
-        cpgVars <- intersect(pSubValid$var, availableCpGs)
-        if (length(cpgVars) > 0) {
-            # Use crossprod or %*% for efficiency. t(betaM) matches samples to rows.
-            score <- score + as.vector(t(betaM[cpgVars, , drop = FALSE]) %*%
-                pSubValid$beta[match(cpgVars, pSubValid$var)])
-        }
-
-        protPredList[[pName]] <- score
-    }
-
-    protDf <- as.data.frame(protPredList)
-
-    # 5. Phase 2: Calculate Combined Risk Score (COX)
-    # Features: Age, Female, and predicted DNAm Biomarkers
-    finalInput <- cbind(Age = age, Female = femaleVec, protDf)
-    finalInput$Intercept <- 1
-
-    # Strictly follow original variable matching
-    availableFinalVars <- intersect(finalModel$var, colnames(finalInput))
-    finalWeightsSub <- finalModel[match(availableFinalVars, finalModel$var), ]
-
-    coxScore <- as.numeric(as.matrix(finalInput[, availableFinalVars]) %*% finalWeightsSub$beta)
-
-    # 6. Phase 3: Calibration to Chronological Age
-    #
-    coxParams <- calibParams[calibParams$var == "COX", ]
-    ageParams <- calibParams[calibParams$var == "Age", ]
-
-    zCox <- (coxScore - coxParams$mean) / coxParams$sd
-    grimAge2Score <- (zCox * ageParams$sd) + ageParams$mean
-
-    # 7. Final Formatting and Renaming
-    res <- data.frame(
-        SampleID = colnames(betaM),
-        protDf,
-        DNAmGrimAge2 = grimAge2Score,
-        stringsAsFactors = FALSE
-    )
-
-    # Rename according to original requirements
-    renameMap <- c(
-        "DNAmadm" = "DNAmADM", "DNAmCystatin_C" = "DNAmCystatinC",
-        "DNAmGDF_15" = "DNAmGDF15", "DNAmleptin" = "DNAmLeptin",
-        "DNAmpai_1" = "DNAmPAI1", "DNAmTIMP_1" = "DNAmTIMP1",
-        "DNAmlog.CRP" = "DNAmlogCRP", "DNAmlog.A1C" = "DNAmlogA1C"
-    )
-
-    names(res) <- ifelse(names(res) %in% names(renameMap),
-        renameMap[names(res)], names(res)
-    )
-
-    return(res)
+grimAge2 <- function(x, age, sex, minCoverage = 0, verbose = TRUE) {
+  .calculateGrimAge(
+    x = x, 
+    age = age, 
+    sex = sex, 
+    minCoverage = minCoverage, 
+    verbose = verbose,
+    modelName = "omniager_grimage2_model",
+    clockName = "GrimAge2",
+    outputColName = "DNAmGrimAge2",
+    applyRenameMap = TRUE
+  )
 }

@@ -243,7 +243,7 @@ brainCtClock <- function(x,
   
   bootstrapReps <- as.integer(bootstrapReps)
   
-  input <- .extractBrainCtInput(
+  input <- .extractSingleCellAssay(
     x = x,
     metadata = metadata,
     assayName = assayName,
@@ -253,7 +253,6 @@ brainCtClock <- function(x,
     seuratAssay = seuratAssay,
     seuratLayer = seuratLayer
   )
-  
   expr <- input$expr
   metadata <- input$metadata
   
@@ -689,190 +688,5 @@ brainCtClock <- function(x,
 
 
 
-
-## -------------------------------------------------------------------------
-## Internal helper: extract expression matrix and metadata
-## -------------------------------------------------------------------------
-#' Extract and validate brain single-cell expression input
-#'
-#' @description
-#' This internal utility function standardizes the input of brain single-cell 
-#' transcriptomic data. It accepts a variety of object types, extracts the 
-#' expression matrix and metadata, and performs strict validation to ensure 
-#' all mandatory columns (donor, age, and cell type) are present.
-#'
-#' @param x A \code{SingleCellExperiment}, \code{SummarizedExperiment}, 
-#'   \code{Seurat} object, dense \code{matrix}, sparse \code{Matrix}, or 
-#'   \code{data.frame} containing the single-cell expression data.
-#' @param metadata A \code{data.frame} containing cell-level metadata. 
-#'   Required only if \code{x} is a matrix-like object. Defaults to \code{NULL}.
-#' @param assayName A character string specifying the assay name to extract if 
-#'   \code{x} is a Bioconductor object. Defaults to \code{"logcounts"}.
-#' @param donorCol A character string specifying the column name in metadata 
-#'   representing the donor identity. Defaults to \code{"donor_id"}.
-#' @param ageCol A character string specifying the column name in metadata 
-#'   representing the subject age. Defaults to \code{"age"}.
-#' @param cellTypeCol A character string specifying the column name in metadata 
-#'   representing the cell type annotation. Defaults to \code{"celltype"}.
-#' @param seuratAssay A character string specifying the assay to extract if 
-#'   \code{x} is a \code{Seurat} object. Defaults to \code{"RNA"}.
-#' @param seuratLayer A character string specifying the layer or slot to extract 
-#'   if \code{x} is a \code{Seurat} object. Defaults to \code{"data"}.
-#'
-#' @return A named \code{list} containing two elements:
-#' \itemize{
-#'   \item \code{expr}: A numeric matrix-like object of gene expression values,
-#'   including dense matrix or sparse Matrix.
-#'   \item \code{metadata}: A \code{data.frame} of the aligned cell metadata.
-#' }
-#'
-#' @details
-#' The function enforces strict data integrity checks:
-#' \enumerate{
-#'   \item Verifies the presence of row names (features) and column names (cells).
-#'   \item Aligns metadata rows to match the columns of the expression matrix exactly.
-#'   \item Ensures the metadata contains the mandatory columns defined by 
-#'     \code{donorCol}, \code{ageCol}, and \code{cellTypeCol}.
-#' }
-#'
-#' @importFrom SummarizedExperiment assay assayNames colData
-#' @importFrom methods is
-#' @keywords internal
-#' @noRd
-.extractBrainCtInput <- function(x,
-                                 metadata = NULL,
-                                 assayName = "logcounts",
-                                 donorCol = "donor_id",
-                                 ageCol = "age",
-                                 cellTypeCol = "celltype",
-                                 seuratAssay = "RNA",
-                                 seuratLayer = "data") {
-  if (inherits(x, "SingleCellExperiment") ||
-      inherits(x, "SummarizedExperiment")) {
-    
-    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-      stop(
-        "The SummarizedExperiment package is required for ",
-        "SingleCellExperiment/SummarizedExperiment input."
-      )
-    }
-    
-    assayNames <- SummarizedExperiment::assayNames(x)
-    
-    if (!assayName %in% assayNames) {
-      stop(
-        "Assay '", assayName, "' was not found in 'x'. ",
-        "Available assays: ", paste(assayNames, collapse = ", ")
-      )
-    }
-    
-    expr <- SummarizedExperiment::assay(x, assayName)
-    metadata <- as.data.frame(SummarizedExperiment::colData(x))
-    
-  } else if (inherits(x, "Seurat")) {
-    
-    if (!requireNamespace("Seurat", quietly = TRUE)) {
-      stop(
-        "The Seurat package is required for Seurat input. ",
-        "For Bioconductor workflows, please use a ",
-        "SingleCellExperiment object."
-      )
-    }
-    
-    expr <- tryCatch(
-      Seurat::GetAssayData(
-        x,
-        assay = seuratAssay,
-        layer = seuratLayer
-      ),
-      error = function(e) {
-        Seurat::GetAssayData(
-          x,
-          assay = seuratAssay,
-          slot = seuratLayer
-        )
-      }
-    )
-    
-    metadata <- x[[]]
-    
-  } else if (
-    is.matrix(x) ||
-    is.data.frame(x) ||
-    methods::is(x, "Matrix")
-  ) {
-    
-    if (is.null(metadata)) {
-      stop(
-        "When 'x' is a matrix, sparse Matrix, or data.frame, ",
-        "'metadata' must also be provided."
-      )
-    }
-    
-    expr <- x
-    metadata <- as.data.frame(metadata)
-    
-  } else {
-    stop(
-      "'x' must be a SingleCellExperiment, SummarizedExperiment, ",
-      "Seurat object, matrix, sparse Matrix, or data.frame."
-    )
-  }
-  
-  # expr <- as.matrix(expr)
-  # 
-  # if (!is.numeric(expr)) {
-  #   stop("The selected assay must contain numeric expression values.")
-  # }
-  # 
-  if (methods::is(expr, "Matrix")) {
-    if (!is.numeric(expr@x)) {
-      stop("The selected sparse assay must contain numeric expression values.")
-    }
-  } else {
-    expr <- as.matrix(expr)
-    
-    if (!is.numeric(expr)) {
-      stop("The selected assay must contain numeric expression values.")
-    }
-  }
-  
-  if (is.null(rownames(expr))) {
-    stop("The expression matrix must have gene names as row names.")
-  }
-  
-  if (is.null(colnames(expr))) {
-    stop("The expression matrix must have cell names as column names.")
-  }
-  
-  if (nrow(metadata) != ncol(expr)) {
-    stop(
-      "The number of rows in metadata must match the number of ",
-      "columns in the expression matrix."
-    )
-  }
-  
-  if (!is.null(rownames(metadata)) &&
-      all(colnames(expr) %in% rownames(metadata))) {
-    metadata <- metadata[colnames(expr), , drop = FALSE]
-  } else {
-    rownames(metadata) <- colnames(expr)
-  }
-  
-  requiredCols <- c(donorCol, ageCol, cellTypeCol)
-  missingCols <- setdiff(requiredCols, colnames(metadata))
-  
-  if (length(missingCols) > 0L) {
-    stop(
-      "The metadata must contain the following columns: ",
-      paste(missingCols, collapse = ", ")
-    )
-  }
-  
-  list(
-    expr = expr,
-    metadata = metadata
-  )
-}
 
 
