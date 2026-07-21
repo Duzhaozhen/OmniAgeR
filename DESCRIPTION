@@ -1,6 +1,6 @@
 Package: OmniAgeR
 Title: Aging Omic Biomarkers from DNA Methylation and Transcriptomics
-Version: 0.99.9
+Version: 0.99.10
 Authors@R: 
     c(person(given = "Zhaozhen",
              family = "Du",
@@ -16,8 +16,8 @@ Authors@R:
              role = "fnd", 
              comment = c(NSFC = "W2431024, 32370699, 32570775")))
 Description: Provides a comprehensive suite of tools for calculating and evaluating a wide array of aging-related clocks and surrogate biomarkers from DNA methylation and transcriptomic data. 
-URL: https://github.com/Duzhaozhen/OmniAgeR
-BugReports: https://github.com/Duzhaozhen/OmniAgeR/issues
+URL: https://github.com/Duzhaozhen-BioC/OmniAgeR
+BugReports: https://github.com/Duzhaozhen-BioC/OmniAgeR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

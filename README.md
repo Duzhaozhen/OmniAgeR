@@ -1,56 +1,116 @@
 # OmniAgeR
 
-Provides a comprehensive suite of tools for calculating and evaluating various aging biomarkers from multi-omics data
+> [!IMPORTANT]
+> **This repository contains the version of OmniAgeR being developed for
+> Bioconductor submission.**
+>
+> In this Bioconductor version, the software functions and model data are
+> distributed separately as `OmniAgeR` and `OmniAgeRData`.
+>
+> Users following the publication
+> *OmniAge: a compendium of aging omic biomarkers links mitotic clocks to
+> clonal hematopoiesis and causality*
+> should use the complete version available from:
+>
+> https://github.com/Duzhaozhen/OmniAge
+
+OmniAgeR provides a comprehensive suite of tools for calculating and evaluating
+aging-related biomarkers from multi-omics data.
 
 ## Installation
 
-**Bioconductor Release Version** (Recommended)
-You can install the official release version of OmniAgeR from Bioconductor once it is available:
+### Complete version associated with the OmniAge publication
 
-```r, eval=FALSE
-if (!require("BiocManager", quietly = TRUE)) {
+Users following the publication
+*OmniAge: a compendium of aging omic biomarkers links mitotic clocks to
+clonal hematopoiesis and causality*
+should install the complete version from the `Duzhaozhen/OmniAge` repository:
+
+```r
+if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")
+}
+
+devtools::install_github(
+    "Duzhaozhen/OmniAge",
+    subdir = "OmniAgeR"
+)
+```
+
+This version contains most model coefficients directly within the package and
+corresponds to the implementation associated with the OmniAge publication.
+
+### Bioconductor version
+
+The Bioconductor version of OmniAgeR is currently under review. Once it becomes
+available through Bioconductor, it can be installed using:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
 BiocManager::install("OmniAgeR")
 ```
 
-**Development Version** (GitHub)
-You can install the latest development version directly from GitHub:
+The accompanying model and example data are provided through the
+`OmniAgeRData` package and Bioconductor ExperimentHub.
 
-```r, eval=FALSE
-if (!require("devtools", quietly = TRUE)) {
+### Bioconductor development version
+
+The latest Bioconductor development version can be installed from this GitHub
+repository:
+
+```r
+if (!requireNamespace("devtools", quietly = TRUE)) {
     install.packages("devtools")
 }
-devtools::install_github("Duzhaozhen/OmniAgeR")
+
+devtools::install_github("Duzhaozhen-BioC/OmniAgeR")
 ```
 
-## 📖 Quick Start
+The accompanying data package is maintained separately at:
 
-```r, eval=FALSE
+https://github.com/Duzhaozhen-BioC/OmniAgeRData
+
+## Quick Start
+
+```r
 library(OmniAgeR)
 
-# 1. Load example data (requires OmniAgeRData package installed)
-# Using the Hannum example dataset as a demonstration
-data_list <- loadOmniAgeRdata("omniager_hannum_example")
-beta_matrix <- data_list[[1]]
-
-# 2. Call the core function to calculate aging scores
-# You can specify multiple clocks of interest in the clockNames argument
-results <- epiMarker(
-    betaM = beta_matrix, 
-    clockNames = c("Horvath2013", "Hannum", "PhenoAge")
+# Load the Hannum example dataset.
+# This requires access to the accompanying OmniAgeRData resources.
+data_list <- loadOmniAgeRdata(
+    "omniager_hannum_example"
 )
 
-# 3. View the calculation results
+beta_matrix <- data_list[[1]]
+
+# Calculate selected aging biomarkers.
+results <- epiMarker(
+    betaM = beta_matrix,
+    clockNames = c(
+        "Horvath2013",
+        "Hannum",
+        "PhenoAge"
+    )
+)
+
 head(results)
 ```
 
-## 📖 Tutorials
-For comprehensive details on function usage, parameter specifications, and benchmarking case studies, please refer to the package vignette:
-* [OmniAgeR: User Guide and Tutorials](vignettes/OmniAgeR.Rmd) - Comprehensive guide for the R-based workflow.
+## Tutorials
 
+For detailed information on function usage, parameter specifications and
+benchmarking examples, please refer to the package vignette:
 
-## Acknowledgements / AI Usage Statement
+- [OmniAgeR: User Guide and Tutorials](vignettes/OmniAgeR.Rmd)
 
-During the development of the *OmniAgeR* package, AI-assisted technologies (specifically, Google Gemini) were utilized to aid in code refactoring, structural optimization, and the drafting of documentation. All AI-assisted contributions were strictly supervised, thoroughly reviewed, edited, and validated by the human authors to ensure scientific accuracy, code security, and compliance with Bioconductor standards.
+## Acknowledgements and AI Usage Statement
+
+During the development of the *OmniAgeR* package, AI-assisted technologies,
+specifically Google Gemini, were used to assist with code refactoring,
+structural optimization and the drafting of documentation. All AI-assisted
+contributions were supervised, reviewed, edited and validated by the human
+authors to ensure scientific accuracy, code security and compliance with
+Bioconductor standards.
