@@ -41,7 +41,6 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
 #'     library(SummarizedExperiment)
 #'     
 #'     # Extract phenotype and ensure rownames match matrix colnames
@@ -57,12 +56,11 @@
 #'     # The function seamlessly accepts the Bioconductor object
 #'     predAge <- bernabeuCAge(x = se_obj)
 #'     head(predAge)
-#'   }
 #' }
 
 bernabeuCAge <- function(x, minCoverage = 0, verbose = TRUE) {
     betaM <- .extractAssayMatrix(x)
-    bernabeuCAgeModel <- loadOmniAgeRdata(
+    bernabeuCAgeModel <- OmniAgeRData::getOmniAgeRData(
         "omniager_bernabeu_cage_coef",
         verbose = verbose
     )

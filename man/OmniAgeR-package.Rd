@@ -19,8 +19,8 @@ For detailed tutorials and pipeline workflows, please refer to the package vigne
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/Duzhaozhen/OmniAgeR}
-  \item Report bugs at \url{https://github.com/Duzhaozhen/OmniAgeR/issues}
+  \item \url{https://github.com/Duzhaozhen-BioC/OmniAgeR}
+  \item Report bugs at \url{https://github.com/Duzhaozhen-BioC/OmniAgeR/issues}
 }
 
 }

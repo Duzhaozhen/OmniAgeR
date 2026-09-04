@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' 
-#' ctfExample <- loadOmniAgeRdata(
+#' ctfExample <- OmniAgeRData::getOmniAgeRData(
 #'     "omniager_tzh_example_ctf",
 #'     verbose = FALSE
 #' )
@@ -25,25 +25,23 @@
 #'
 #' # Example 2: SummarizedExperiment Input
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     pheno_data <- ctfExample[[1]]
-#'     rownames(pheno_data) <- pheno_data[["Sample"]]
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(ctf=t(ctfExample[[2]])),
-#'       colData = pheno_data
-#'     )
-#'     
-#'     dnamCTFClockOut <- dnamCTFClock(x = se_obj, verbose = FALSE)
-#'   }
+#'   library(SummarizedExperiment)
+#'   pheno_data <- ctfExample[[1]]
+#'   rownames(pheno_data) <- pheno_data[["Sample"]]
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(ctf=t(ctfExample[[2]])),
+#'     colData = pheno_data
+#'   )
+#'
+#'   dnamCTFClockOut <- dnamCTFClock(x = se_obj, verbose = FALSE)
 #' }
 #' 
 
 dnamCTFClock <- function(x, verbose = TRUE) {
     # --- 1. Load the internal model ---
     ctfM <- t(.extractAssayMatrix(x))
-    dnamCtfModel <- loadOmniAgeRdata(
+    dnamCtfModel <- OmniAgeRData::getOmniAgeRData(
         "omniager_dnam_ctf_model",
         verbose = verbose
     )

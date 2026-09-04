@@ -68,23 +68,21 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     # Extract phenotype and ensure rownames match matrix colnames
-#'     pheno_data <- dnamExample[[2]]
-#'     rownames(pheno_data) <- colnames(beta_matrix)
-#'     
-#'     # Construct the SummarizedExperiment object
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = beta_matrix),
-#'       colData = pheno_data
-#'     )
-#'     
-#'     # The function seamlessly accepts the Bioconductor object
-#'     predRes <- mcCartneyTrait(x = se_obj)
-#'     head(predRes)
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   # Extract phenotype and ensure rownames match matrix colnames
+#'   pheno_data <- dnamExample[[2]]
+#'   rownames(pheno_data) <- colnames(beta_matrix)
+#'
+#'   # Construct the SummarizedExperiment object
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = beta_matrix),
+#'     colData = pheno_data
+#'   )
+#'
+#'   # The function seamlessly accepts the Bioconductor object
+#'   predRes <- mcCartneyTrait(x = se_obj)
+#'   head(predRes)
 #' }
 #' 
 
@@ -94,7 +92,7 @@ mcCartneyTrait <- function(x,
     # --- Step 0: Universal Matrix Extraction ---
     betaM <- .extractAssayMatrix(x)
     # --- Step 1: Load Coefficients ---
-    mcCartneyTraitCoef <- loadOmniAgeRdata(
+    mcCartneyTraitCoef <- OmniAgeRData::getOmniAgeRData(
         "omniager_mccartney_trait_coef",
         verbose = verbose
     )

@@ -36,7 +36,7 @@
 #' # ====================================================================
 #' # Example 1: Direct Matrix Input
 #' # ====================================================================
-#'   tursiopsExample <- loadOmniAgeRdata(
+#'   tursiopsExample <- OmniAgeRData::getOmniAgeRData(
 #'       "omniager_tursiops_example",
 #'       verbose = FALSE
 #'   )
@@ -52,20 +52,18 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = tursiopsExample$beta_m),
-#'       colData = tursiopsExample$PhenoTypes
-#'     )
-#'     
-#'     se_res <- panMammalianSkin(
-#'       x = se_obj,
-#'       speciesName = se_obj$SpeciesLatinName,
-#'       verbose = FALSE
-#'     )
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = tursiopsExample$beta_m),
+#'     colData = tursiopsExample$PhenoTypes
+#'   )
+#'
+#'   se_res <- panMammalianSkin(
+#'     x = se_obj,
+#'     speciesName = se_obj$SpeciesLatinName,
+#'     verbose = FALSE
+#'   )
 #' }
 # -------------------------------------------------------------------------
 # CODE ATTRIBUTION NOTE:

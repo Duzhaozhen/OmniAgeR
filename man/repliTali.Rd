@@ -27,7 +27,7 @@ The RepliTali model is described in Endicott et al. 2022. It is based on
 87 population doubling associated hypomethylated CpGs.
 }
 \examples{
-lungInv <- loadOmniAgeRdata(
+lungInv <- OmniAgeRData::getOmniAgeRData(
     "omniager_lung_inv",
     verbose = FALSE
 )

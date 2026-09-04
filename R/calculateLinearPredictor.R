@@ -31,7 +31,7 @@
   
   # --- Step 2: Dynamic Weight Retrieval ---
   # Fetch the pre-trained clock coefficients from ExperimentHub
-  coefData <- loadOmniAgeRdata(coefName, verbose = verbose)
+  coefData <- OmniAgeRData::getOmniAgeRData(coefName, verbose = verbose)
   
   # --- Step 3: Linear Predictor Calculation ---
   # Compute the core mathematical dot product of beta values and clock weights
@@ -70,7 +70,7 @@
   betaM <- .extractAssayMatrix(x)
   
   # --- Step 2: Load Multi-Model Coefficients ---
-  coefList <- loadOmniAgeRdata(coefName, verbose = verbose)
+  coefList <- OmniAgeRData::getOmniAgeRData(coefName, verbose = verbose)
   
   # Validation safeguard
   if (length(coefList) != length(clockNames)) {

@@ -35,18 +35,16 @@
 #' 
 #' # Example 2: SummarizedExperiment Input
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     pheno_data <- dnamExample[[2]]
-#'     rownames(pheno_data) <- colnames(beta_matrix)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = beta_matrix),
-#'       colData = pheno_data
-#'     )
-#'     
-#'     predOut <- stemTOC(x = se_obj, verbose = FALSE)
-#'   }
+#'   library(SummarizedExperiment)
+#'   pheno_data <- dnamExample[[2]]
+#'   rownames(pheno_data) <- colnames(beta_matrix)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = beta_matrix),
+#'     colData = pheno_data
+#'   )
+#'
+#'   predOut <- stemTOC(x = se_obj, verbose = FALSE)
 #' }
 #' @export
 stemTOC <- function(x, minCoverage = 0, verbose = TRUE) {
@@ -84,7 +82,7 @@ stemTOC <- function(x, minCoverage = 0, verbose = TRUE) {
 #' @noRd
 .calculateStemTOC <- function(x, minCoverage, verbose, cpgDataName, clockName) {
   betaM <- .extractAssayMatrix(x)
-  targetCpGsData <- loadOmniAgeRdata(cpgDataName, verbose = verbose)
+  targetCpGsData <- OmniAgeRData::getOmniAgeRData(cpgDataName, verbose = verbose)
   
   # Prepare the reference probe weights (all 1s for quantile calculation)
   targetCpGs <- as.character(targetCpGsData)

@@ -37,23 +37,21 @@ head(predRes)
 # Example 2: SummarizedExperiment Input
 # ====================================================================
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    
-    # Extract phenotype and ensure rownames match matrix colnames
-    pheno_data <- dnamExample[[2]]
-    rownames(pheno_data) <- colnames(beta_matrix)
-    
-    # Construct the SummarizedExperiment object
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = beta_matrix),
-      colData = pheno_data
-    )
-    
-    # The function seamlessly accepts the Bioconductor object
-    predRes <- knightGa(x = se_obj)
-    head(predRes)
-  }
+  library(SummarizedExperiment)
+
+  # Extract phenotype and ensure rownames match matrix colnames
+  pheno_data <- dnamExample[[2]]
+  rownames(pheno_data) <- colnames(beta_matrix)
+
+  # Construct the SummarizedExperiment object
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = beta_matrix),
+    colData = pheno_data
+  )
+
+  # The function seamlessly accepts the Bioconductor object
+  predRes <- knightGa(x = se_obj)
+  head(predRes)
 }
 }
 \references{

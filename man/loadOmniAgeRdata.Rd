@@ -27,7 +27,7 @@ package size, heavy data files are managed externally via ExperimentHub.
 \examples{
 \dontrun{
 # Load the Horvath2013 model weights
-horvath2013Model <- loadOmniAgeRdata("omniager_horvath2013_coef")
+horvath2013Model <- OmniAgeRData::getOmniAgeRData("omniager_horvath2013_coef")
 head(horvath2013Model)
 }
 }

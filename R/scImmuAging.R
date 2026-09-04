@@ -171,7 +171,7 @@ scImmuAging <- function(x,
     message("[scImmuAging] Loading scImmuAging model resources...")
   }
   
-  scimmuagingModel <- loadOmniAgeRdata(
+  scimmuagingModel <- OmniAgeRData::getOmniAgeRData(
     "omniager_scimmuaging_model",
     verbose = verbose
   )

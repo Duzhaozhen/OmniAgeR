@@ -20,17 +20,11 @@
 #' @examples
 #' \dontrun{
 #' # Load the Horvath2013 model weights
-#' horvath2013Model <- loadOmniAgeRdata("omniager_horvath2013_coef")
+#' horvath2013Model <- OmniAgeRData::getOmniAgeRData("omniager_horvath2013_coef")
 #' head(horvath2013Model)
 #' }
 loadOmniAgeRdata <- function(title, verbose = TRUE) {
-  # 1. Make sure that the underlying Hub dependency packages have been installed
-  if (!requireNamespace("ExperimentHub", quietly = TRUE) ||
-      !requireNamespace("AnnotationHub", quietly = TRUE)) {
-    stop("[OmniAgeR] 'ExperimentHub' and 'AnnotationHub' are required to load data.")
-  }
-  
-  # 2. Instantiate ExperimentHub and query
+  # 1. Instantiate ExperimentHub and query
   eh <- ExperimentHub::ExperimentHub()
   res <- AnnotationHub::query(eh, c("OmniAgeRData", title))
   
@@ -38,7 +32,7 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
     stop(sprintf("[OmniAgeR] Resource '%s' not found in ExperimentHub.", title))
   }
   
-  # 3. Instantiate ExperimentHub and query
+  # 2. Select the requested resource
   exact_idx <- which(res$title == title)
   if (length(exact_idx) == 0) {
     exact_idx <- 1
@@ -52,14 +46,11 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
     message("[OmniAgeR] Retrieving resource: ", hubTitle)
   }
   
-  # 4. Instantiate ExperimentHub and query
+  # 3. Retrieve the resource
   dataObjOrPath <- res[[exact_idx]]
   
-  # 5. Special parsing for the qs2 format
+  # 4. Special parsing for the qs2 format
   if (is.character(dataObjOrPath) && grepl("\\.qs2?$", hubTitle)) {
-    if (!requireNamespace("qs2", quietly = TRUE)) {
-      stop("[OmniAgeR] Package 'qs2' is required to read this resource.")
-    }
     dataObjOrPath <- qs2::qs_read(dataObjOrPath)
   }
   
@@ -97,10 +88,6 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
 .extractAssayMatrix <- function(x, assayName = NULL) {
   # 1. Bioconductor Object (SummarizedExperiment)
   if (inherits(x, "SummarizedExperiment")) {
-    # Ensure the package is available
-    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-      stop("Package 'SummarizedExperiment' is required to process this object.")
-    }
     if (is.null(assayName)) {
       return(SummarizedExperiment::assay(x)) # defaults to the first assay
     } else {
@@ -133,9 +120,6 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
 .extractPhenoData <- function(x) {
   # 1. Bioconductor Object (SummarizedExperiment / SingleCellExperiment)
   if (inherits(x, "SummarizedExperiment")) {
-    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-      stop("Package 'SummarizedExperiment' is required to process this object.")
-    }
     return(as.data.frame(SummarizedExperiment::colData(x)))
   } 
   
@@ -207,9 +191,6 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
   
   # --- 1. Extract from Containers ---
   if (inherits(x, "SingleCellExperiment") || inherits(x, "SummarizedExperiment")) {
-    if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-      stop("The SummarizedExperiment package is required for this input type.")
-    }
     assayNames <- SummarizedExperiment::assayNames(x)
     if (!assayName %in% assayNames) {
       stop(sprintf("Assay '%s' not found. Available assays: %s", 
@@ -270,6 +251,5 @@ loadOmniAgeRdata <- function(title, verbose = TRUE) {
   
   return(list(expr = expr, metadata = metadata))
 }
-
 
 

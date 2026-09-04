@@ -44,7 +44,7 @@ from Lu et al. (2023) to a given dataset of DNA methylation values.
 # ====================================================================
 # Example 1: Direct Matrix Input
 # ====================================================================
-  tursiopsExample <- loadOmniAgeRdata(
+  tursiopsExample <- OmniAgeRData::getOmniAgeRData(
       "omniager_tursiops_example",
       verbose = FALSE
   )
@@ -60,20 +60,18 @@ from Lu et al. (2023) to a given dataset of DNA methylation values.
 # Example 2: SummarizedExperiment Input
 # ====================================================================
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = tursiopsExample$beta_m),
-      colData = tursiopsExample$PhenoTypes
-    )
-    
-    se_res <- panMammalianBlood(
-      x = se_obj,
-      speciesName = se_obj$SpeciesLatinName,
-      verbose = FALSE
-    )
-  }
+  library(SummarizedExperiment)
+
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = tursiopsExample$beta_m),
+    colData = tursiopsExample$PhenoTypes
+  )
+
+  se_res <- panMammalianBlood(
+    x = se_obj,
+    speciesName = se_obj$SpeciesLatinName,
+    verbose = FALSE
+  )
 }
 }
 \references{

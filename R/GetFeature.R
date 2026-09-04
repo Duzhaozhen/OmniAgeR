@@ -45,7 +45,7 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
   
   pcClockData <- NULL
   if (length(pcRequested) > 0) {
-    pcClockData <- loadOmniAgeRdata("PCClocks_data", verbose = verbose)
+    pcClockData <- OmniAgeRData::getOmniAgeRData("PCClocks_data", verbose = verbose)
   }
   
   # 3. Dispatch and aggregate weights across requested clocks
@@ -85,20 +85,20 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
   ctsClockNames <- c("Neu-In", "Glia-In", "Brain", "Neu-Sin", 
                      "Glia-Sin", "Hep", "Liver")
   if(clockLabel %in% ctsClockNames){
-    ctsCoefs <- loadOmniAgeRdata("omniager_cts_clocks_coef", verbose = verbose)
+    ctsCoefs <- OmniAgeRData::getOmniAgeRData("omniager_cts_clocks_coef", verbose = verbose)
   }
   
   
   res <- switch(clockLabel,
-                "epiTOC1" = loadOmniAgeRdata("omniager_epitoc1_model", verbose),
-                "epiTOC2" = loadOmniAgeRdata("omniager_epitoc2_model", verbose),
-                "epiTOC3" = loadOmniAgeRdata("omniager_epitoc3_model", verbose),
-                "stemTOCvitro" = loadOmniAgeRdata("omniager_stemtocvitro_cpg", verbose),
-                "stemTOC" = loadOmniAgeRdata("omniager_stemtoc_cpg", verbose),
-                "HypoClock" = loadOmniAgeRdata("omniager_hypoclock_cpg", verbose),
-                "RepliTali" = loadOmniAgeRdata("omniager_replitali_coef", verbose),
+                "epiTOC1" = OmniAgeRData::getOmniAgeRData("omniager_epitoc1_model", verbose),
+                "epiTOC2" = OmniAgeRData::getOmniAgeRData("omniager_epitoc2_model", verbose),
+                "epiTOC3" = OmniAgeRData::getOmniAgeRData("omniager_epitoc3_model", verbose),
+                "stemTOCvitro" = OmniAgeRData::getOmniAgeRData("omniager_stemtocvitro_cpg", verbose),
+                "stemTOC" = OmniAgeRData::getOmniAgeRData("omniager_stemtoc_cpg", verbose),
+                "HypoClock" = OmniAgeRData::getOmniAgeRData("omniager_hypoclock_cpg", verbose),
+                "RepliTali" = OmniAgeRData::getOmniAgeRData("omniager_replitali_coef", verbose),
                 "EpiCMIT_Hyper" = {
-                  epiCMITdf <- loadOmniAgeRdata("omniager_epicmit_model", verbose)
+                  epiCMITdf <- OmniAgeRData::getOmniAgeRData("omniager_epicmit_model", verbose)
                   hyperProbes <- epiCMITdf[grep("hyper", epiCMITdf$epiCMIT.class), 1]
                   
                   n_probes <- length(hyperProbes)
@@ -111,7 +111,7 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                 },
                 
                 "EpiCMIT_Hypo" = {
-                  epiCMITdf <- loadOmniAgeRdata("omniager_epicmit_model", verbose)
+                  epiCMITdf <- OmniAgeRData::getOmniAgeRData("omniager_epicmit_model", verbose)
                   hypoProbes <- epiCMITdf[grep("hypo", epiCMITdf$epiCMIT.class), 1]
                   
                   n_probes <- length(hypoProbes)
@@ -123,38 +123,38 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                   )
                 },
 
-                "DNAmTL" = loadOmniAgeRdata("omniager_dnamtl_coef", verbose),
-                "Horvath2013" = loadOmniAgeRdata("omniager_horvath2013_coef", verbose),
-                "Hannum" = loadOmniAgeRdata("omniager_hannum", verbose),
-                "Lin" = loadOmniAgeRdata("omniager_lin_coef", verbose),
-                "VidalBralo" = loadOmniAgeRdata("omniager_vidalbralo_coef", verbose),
-                "ZhangClock" = loadOmniAgeRdata("omniager_zhang_clock_coef", verbose),
-                "Horvath2018" = loadOmniAgeRdata("omniager_horvath2013_coef", verbose),
-                "Bernabeu_cAge" = loadOmniAgeRdata("omniager_bernabeu_cage_coef", verbose),
-                "PedBE"  = loadOmniAgeRdata("omniager_pedbe_coef", verbose),
-                "CorticalClock" = loadOmniAgeRdata("omniager_cortical_clock_coef", verbose),
+                "DNAmTL" = OmniAgeRData::getOmniAgeRData("omniager_dnamtl_coef", verbose),
+                "Horvath2013" = OmniAgeRData::getOmniAgeRData("omniager_horvath2013_coef", verbose),
+                "Hannum" = OmniAgeRData::getOmniAgeRData("omniager_hannum", verbose),
+                "Lin" = OmniAgeRData::getOmniAgeRData("omniager_lin_coef", verbose),
+                "VidalBralo" = OmniAgeRData::getOmniAgeRData("omniager_vidalbralo_coef", verbose),
+                "ZhangClock" = OmniAgeRData::getOmniAgeRData("omniager_zhang_clock_coef", verbose),
+                "Horvath2018" = OmniAgeRData::getOmniAgeRData("omniager_horvath2013_coef", verbose),
+                "Bernabeu_cAge" = OmniAgeRData::getOmniAgeRData("omniager_bernabeu_cage_coef", verbose),
+                "PedBE"  = OmniAgeRData::getOmniAgeRData("omniager_pedbe_coef", verbose),
+                "CorticalClock" = OmniAgeRData::getOmniAgeRData("omniager_cortical_clock_coef", verbose),
                 
-                "CentenarianClock" = loadOmniAgeRdata("omniager_centenarian_coef", verbose),
-                "Retro_age" = loadOmniAgeRdata("omniager_retroage_coef", verbose),
-                "ABEC" = loadOmniAgeRdata("omniager_abec_coef", verbose),
-                "eABEC" = loadOmniAgeRdata("omniager_eabec_coef", verbose),
-                "cABEC" = loadOmniAgeRdata("omniager_cabec_coef", verbose),
-                "PipekElasticNet" = loadOmniAgeRdata("omniager_pipek_elasticnet_coef", verbose),
-                "PipekFilteredh"  = loadOmniAgeRdata("omniager_pipek_filteredh_coef", verbose),
-                "PipekRetrainedh" = loadOmniAgeRdata("omniager_pipek_retrainedh_coef", verbose),
-                "WuClock" = loadOmniAgeRdata("omniager_wu_clock_coef", verbose),
-                "Weidner" = loadOmniAgeRdata("omniager_weidner_coef", verbose),
-                "IntrinClock" = loadOmniAgeRdata("omniager_intrin_clock_coef", verbose),
-                "Garagnani" = loadOmniAgeRdata("omniager_garagnani_coef", verbose),
+                "CentenarianClock" = OmniAgeRData::getOmniAgeRData("omniager_centenarian_coef", verbose),
+                "Retro_age" = OmniAgeRData::getOmniAgeRData("omniager_retroage_coef", verbose),
+                "ABEC" = OmniAgeRData::getOmniAgeRData("omniager_abec_coef", verbose),
+                "eABEC" = OmniAgeRData::getOmniAgeRData("omniager_eabec_coef", verbose),
+                "cABEC" = OmniAgeRData::getOmniAgeRData("omniager_cabec_coef", verbose),
+                "PipekElasticNet" = OmniAgeRData::getOmniAgeRData("omniager_pipek_elasticnet_coef", verbose),
+                "PipekFilteredh"  = OmniAgeRData::getOmniAgeRData("omniager_pipek_filteredh_coef", verbose),
+                "PipekRetrainedh" = OmniAgeRData::getOmniAgeRData("omniager_pipek_retrainedh_coef", verbose),
+                "WuClock" = OmniAgeRData::getOmniAgeRData("omniager_wu_clock_coef", verbose),
+                "Weidner" = OmniAgeRData::getOmniAgeRData("omniager_weidner_coef", verbose),
+                "IntrinClock" = OmniAgeRData::getOmniAgeRData("omniager_intrin_clock_coef", verbose),
+                "Garagnani" = OmniAgeRData::getOmniAgeRData("omniager_garagnani_coef", verbose),
                 
-                "Zhang10" = loadOmniAgeRdata("omniager_zhang10_coef", verbose),
-                "PhenoAge" = loadOmniAgeRdata("omniager_phenoage_coef", verbose),
-                "DunedinPACE" = loadOmniAgeRdata("omniager_dunedinpace_model", verbose),
-                "GrimAge1" = loadOmniAgeRdata("omniager_grimage1_model", verbose),
-                "GrimAge2" = loadOmniAgeRdata("omniager_grimage2_model", verbose),
-                "IC_Clock" = loadOmniAgeRdata("omniager_ic_clock_coef", verbose),
+                "Zhang10" = OmniAgeRData::getOmniAgeRData("omniager_zhang10_coef", verbose),
+                "PhenoAge" = OmniAgeRData::getOmniAgeRData("omniager_phenoage_coef", verbose),
+                "DunedinPACE" = OmniAgeRData::getOmniAgeRData("omniager_dunedinpace_model", verbose),
+                "GrimAge1" = OmniAgeRData::getOmniAgeRData("omniager_grimage1_model", verbose),
+                "GrimAge2" = OmniAgeRData::getOmniAgeRData("omniager_grimage2_model", verbose),
+                "IC_Clock" = OmniAgeRData::getOmniAgeRData("omniager_ic_clock_coef", verbose),
                 
-                "DNAmFitAge" = loadOmniAgeRdata("omniager_dnamfitage_coef", verbose), 
+                "DNAmFitAge" = OmniAgeRData::getOmniAgeRData("omniager_dnamfitage_coef", verbose),
                 # --- PC Clocks ---
                 "PCHorvath2013" = pcClockData$CalcPCHorvath1,
                 "PCHorvath2018" = pcClockData$CalcPCHorvath2,
@@ -162,24 +162,24 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                 "PCPhenoAge" = pcClockData$CalcPCPhenoAge,
                 "PCDNAmTL" = pcClockData$CalcPCDNAmTL,
                 "PCGrimAge1" = pcClockData$CalcPCGrimAge,
-                "SystemsAge" = loadOmniAgeRdata("SystemsAge_data", verbose),
+                "SystemsAge" = OmniAgeRData::getOmniAgeRData("SystemsAge_data", verbose),
 
-                "CausalAge" = .formatLinearWeights(loadOmniAgeRdata("omniager_causal_clocks_coef", FALSE)[[1]]),
-                "DamAge" = .formatLinearWeights(loadOmniAgeRdata("omniager_causal_clocks_coef", FALSE)[[2]]),
-                "AdaptAge" = .formatLinearWeights(loadOmniAgeRdata("omniager_causal_clocks_coef", FALSE)[[3]]),
+                "CausalAge" = .formatLinearWeights(OmniAgeRData::getOmniAgeRData("omniager_causal_clocks_coef", FALSE)[[1]]),
+                "DamAge" = .formatLinearWeights(OmniAgeRData::getOmniAgeRData("omniager_causal_clocks_coef", FALSE)[[2]]),
+                "AdaptAge" = .formatLinearWeights(OmniAgeRData::getOmniAgeRData("omniager_causal_clocks_coef", FALSE)[[3]]),
                 
                 "StocH" = {
-                  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks", verbose)
+                  stocAll <- OmniAgeRData::getOmniAgeRData("omniager_stoch_clocks", verbose)
                   .extractGlmnetWeights(stocAll[["H"]])
                 },
                 
                 "StocP" = {
-                  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks", verbose)
+                  stocAll <- OmniAgeRData::getOmniAgeRData("omniager_stoch_clocks", verbose)
                   .extractGlmnetWeights(stocAll[["P"]])
                 },
                 
                 "StocZ" = {
-                  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks", verbose)
+                  stocAll <- OmniAgeRData::getOmniAgeRData("omniager_stoch_clocks", verbose)
                   .extractGlmnetWeights(stocAll[["Z"]])
                 },
     
@@ -192,17 +192,17 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                 "Liver" = ctsCoefs[["Liver"]],
                 
                 "StocP" = {
-                  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks", verbose)
+                  stocAll <- OmniAgeRData::getOmniAgeRData("omniager_stoch_clocks", verbose)
                   .extractGlmnetWeights(stocAll[["P"]])
                 },
                 
                 "StocZ" = {
-                  stocAll <- loadOmniAgeRdata("omniager_stoch_clocks", verbose)
+                  stocAll <- OmniAgeRData::getOmniAgeRData("omniager_stoch_clocks", verbose)
                   .extractGlmnetWeights(stocAll[["Z"]])
                 },
                 
                 "scImmuAging" = {
-                  scModelData <- loadOmniAgeRdata("omniager_scimmuaging_model", verbose)
+                  scModelData <- OmniAgeRData::getOmniAgeRData("omniager_scimmuaging_model", verbose)
                   scWeightsList <- list()
 
                   for (ct in names(scModelData$model_set)) {
@@ -214,48 +214,48 @@ getMarkerWeights <- function(clockNames = "all", verbose = FALSE) {
                   return(scWeightsList)
                 },
                 
-                "Brain_CT_Clock" = loadOmniAgeRdata("omniager_brain_celltype_specific_clocks_coef", verbose),
+                "Brain_CT_Clock" = OmniAgeRData::getOmniAgeRData("omniager_brain_celltype_specific_clocks_coef", verbose),
 
                 "PASTA" = {
                       list(
-                      REG = .extractGlmnetWeights(loadOmniAgeRdata("omniager_cvfit_reg", verbose)),
-                      PASTA = .extractGlmnetWeights(loadOmniAgeRdata("omniager_cvfit_pasta", verbose)),
-                      CT46 = .extractGlmnetWeights(loadOmniAgeRdata("omniager_cvfit_c46", verbose))
+                      REG = .extractGlmnetWeights(OmniAgeRData::getOmniAgeRData("omniager_cvfit_reg", verbose)),
+                      PASTA = .extractGlmnetWeights(OmniAgeRData::getOmniAgeRData("omniager_cvfit_pasta", verbose)),
+                      CT46 = .extractGlmnetWeights(OmniAgeRData::getOmniAgeRData("omniager_cvfit_c46", verbose))
                     )
                 },
                 
-                "BohlinGA" = loadOmniAgeRdata("omniager_bohlin_ga_coef", verbose),
-                "EPICGA" = loadOmniAgeRdata("omniager_epic_ga_coef", verbose),
-                "KnightGA" = loadOmniAgeRdata("omniager_knight_ga_coef", verbose),
-                "LeeGA" = loadOmniAgeRdata("omniager_lee_ga_coef", verbose),
-                "MayneGA" = loadOmniAgeRdata("omniager_mayne_ga_coef", verbose),
+                "BohlinGA" = OmniAgeRData::getOmniAgeRData("omniager_bohlin_ga_coef", verbose),
+                "EPICGA" = OmniAgeRData::getOmniAgeRData("omniager_epic_ga_coef", verbose),
+                "KnightGA" = OmniAgeRData::getOmniAgeRData("omniager_knight_ga_coef", verbose),
+                "LeeGA" = OmniAgeRData::getOmniAgeRData("omniager_lee_ga_coef", verbose),
+                "MayneGA" = OmniAgeRData::getOmniAgeRData("omniager_mayne_ga_coef", verbose),
                 
-                "CRP" = loadOmniAgeRdata("omniager_crp_cpg", verbose),
-                "CHIP" = loadOmniAgeRdata("omniager_chip_cpg", verbose),
-                "IL6" = loadOmniAgeRdata("omniager_il6_coef", verbose),
-                "EpiScores" = loadOmniAgeRdata("omniager_episcores_coef", verbose),
-                "McCartney_Trait" = loadOmniAgeRdata("omniager_mccartney_trait_coef", verbose),
-                "SmokeIndex" = loadOmniAgeRdata("omniager_coeff_smk_idx", verbose),
-                "HepatoXuRisk" = loadOmniAgeRdata("omniager_hepato_xu_coef", verbose),
+                "CRP" = OmniAgeRData::getOmniAgeRData("omniager_crp_cpg", verbose),
+                "CHIP" = OmniAgeRData::getOmniAgeRData("omniager_chip_cpg", verbose),
+                "IL6" = OmniAgeRData::getOmniAgeRData("omniager_il6_coef", verbose),
+                "EpiScores" = OmniAgeRData::getOmniAgeRData("omniager_episcores_coef", verbose),
+                "McCartney_Trait" = OmniAgeRData::getOmniAgeRData("omniager_mccartney_trait_coef", verbose),
+                "SmokeIndex" = OmniAgeRData::getOmniAgeRData("omniager_coeff_smk_idx", verbose),
+                "HepatoXuRisk" = OmniAgeRData::getOmniAgeRData("omniager_hepato_xu_coef", verbose),
                 
                 "EnsembleAge_HumanMouse" = {
-                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll <- OmniAgeRData::getOmniAgeRData("omniager_ensembleage_coef", verbose)
                   ensembleAgeAll$HumanMouse
                 },
                 
                 "EnsembleAge_Static" = {
-                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll <- OmniAgeRData::getOmniAgeRData("omniager_ensembleage_coef", verbose)
                   ensembleAgeAll$Static
                 },
                 
                 "EnsembleAge_Dynamic" = {
-                  ensembleAgeAll <- loadOmniAgeRdata("omniager_ensembleage_coef", verbose)
+                  ensembleAgeAll <- OmniAgeRData::getOmniAgeRData("omniager_ensembleage_coef", verbose)
                   ensembleAgeAll$Dynamic
                 },
                 
-                "UniversalPanMammalianClocks" = loadOmniAgeRdata("omniager_pan_mammalian_clock_coef", verbose),
-                "PanMammalianBlood" = loadOmniAgeRdata("omniager_pan_mammalian_blood_coef", verbose),
-                "PanMammalianSkin" = loadOmniAgeRdata("omniager_pan_mammalian_skin_coef", verbose),
+                "UniversalPanMammalianClocks" = OmniAgeRData::getOmniAgeRData("omniager_pan_mammalian_clock_coef", verbose),
+                "PanMammalianBlood" = OmniAgeRData::getOmniAgeRData("omniager_pan_mammalian_blood_coef", verbose),
+                "PanMammalianSkin" = OmniAgeRData::getOmniAgeRData("omniager_pan_mammalian_skin_coef", verbose),
                 {
                   NULL
                 }

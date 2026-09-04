@@ -82,7 +82,7 @@ Required for \code{"Intrinsic"} CTS clocks (e.g., \code{"Neu-In"}) when \code{ct
 \item{\code{speciesName}}{Character string (e.g., "Mus musculus") for cross-species clocks.}
 \item{\code{anageData}}{A data.frame containing mammalian lifespan information.
 Required for panMammalian clocks. It is recommended to use the internal database:
-\code{anageData = loadOmniAgeRdata("omniager_anage_data")}.
+\code{anageData = OmniAgeRData::getOmniAgeRData("omniager_anage_data")}.
 If providing custom data, it must include columns: \code{SpeciesLatinName},
 \code{GestationTimeInYears}, \code{averagedMaturity.yrs}, and \code{maxAge}.}
 }}
@@ -358,29 +358,27 @@ epiMarkerOut <- epiMarker(x = beta_matrix,
 # ====================================================================
 # Example 2: SummarizedExperiment Input
 # ====================================================================
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    
-    pheno_data <- dnamExample[[2]]
-    rownames(pheno_data) <- colnames(beta_matrix)
-    
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = beta_matrix),
-      colData = pheno_data
-    )
-    
-    epiMarkerOut <- epiMarker(
-      x = se_obj,
-      age = se_obj$Age,
-      clockNames = c("Horvath2013", "Hannum","mitotic"), 
-      verbose = FALSE
-    )
-  }
+  library(SummarizedExperiment)
+
+  pheno_data <- dnamExample[[2]]
+  rownames(pheno_data) <- colnames(beta_matrix)
+
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = beta_matrix),
+    colData = pheno_data
+  )
+
+  epiMarkerOut <- epiMarker(
+    x = se_obj,
+    age = se_obj$Age,
+    clockNames = c("Horvath2013", "Hannum","mitotic"),
+    verbose = FALSE
+  )
 # ====================================================================
 # Example 3: The vast majority of aging biomarkers
 # ====================================================================
 ## Downloading "PCClocks_data" and "SystemsAge_data" will take a very long time.  
-hannumExample <- loadOmniAgeRdata(
+hannumExample <- OmniAgeRData::getOmniAgeRData(
     "omniager_hannum_example",
     verbose = FALSE
 )
@@ -389,11 +387,11 @@ phenoTypesHannum <- hannumExample[[2]]
 age <- phenoTypesHannum$Age
 sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
 
-pcClockData <- loadOmniAgeRdata(
+pcClockData <- OmniAgeRData::getOmniAgeRData(
     "PCClocks_data",
     verbose = FALSE
 )
-systemsAgeData <- loadOmniAgeRdata(
+systemsAgeData <- OmniAgeRData::getOmniAgeRData(
     "SystemsAge_data",
     verbose = FALSE
 )
@@ -510,7 +508,7 @@ across 11 physiological systems.
 
 Tong, H., Dwaraka, V.B., Chen, Q. et al.
 Quantifying the stochastic component of epigenetic aging.
-\emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00636-6}
+\emph{Nat Aging} (2024). \doi{10.1038/s43587-024-00600-8}
 
 Fuentealba M, Rouch L, Guyonnet S, et al.
 A blood-based epigenetic clock for intrinsic capacity predicts mortality and

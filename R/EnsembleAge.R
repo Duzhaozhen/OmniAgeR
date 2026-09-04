@@ -56,15 +56,13 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = beta_matrix)
-#'     )
-#'     
-#'     ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = beta_matrix)
+#'   )
+#'
+#'   ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
 #' }
 
 ensembleAge <- function(x, clockVersion = c("HumanMouse", "Static", "Dynamic"),
@@ -72,7 +70,7 @@ ensembleAge <- function(x, clockVersion = c("HumanMouse", "Static", "Dynamic"),
     clockVersion <- match.arg(clockVersion)
     betaM <- .extractAssayMatrix(x)
     # --- 1. Data Loading --
-    ensembleAgeCoef <- loadOmniAgeRdata(
+    ensembleAgeCoef <- OmniAgeRData::getOmniAgeRData(
         "omniager_ensembleage_coef",
         verbose = verbose
     )

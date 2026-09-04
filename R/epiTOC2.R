@@ -55,18 +55,16 @@
 #' 
 #' # Example 2: SummarizedExperiment Input
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     pheno_data <- dnamExample[[2]]
-#'     rownames(pheno_data) <- colnames(beta_matrix)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = beta_matrix),
-#'       colData = pheno_data
-#'     )
-#'     
-#'     epiTOC2Out <- epiTOC2(x = se_obj, verbose = FALSE)
-#'   }
+#'   library(SummarizedExperiment)
+#'   pheno_data <- dnamExample[[2]]
+#'   rownames(pheno_data) <- colnames(beta_matrix)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = beta_matrix),
+#'     colData = pheno_data
+#'   )
+#'
+#'   epiTOC2Out <- epiTOC2(x = se_obj, verbose = FALSE)
 #' }
 #' @export
 #'
@@ -123,7 +121,7 @@ epiTOC2 <- function(x, age = NULL, minCoverage = 0, verbose = TRUE) {
 
 .calculateEpiTOC <- function(x, age, minCoverage, verbose, modelName, clockName, calcAvETOC3 = FALSE) {
   betaM <- .extractAssayMatrix(x)
-  estParams <- loadOmniAgeRdata(modelName, verbose = verbose)
+  estParams <- OmniAgeRData::getOmniAgeRData(modelName, verbose = verbose)
   
   dummyWeights <- setNames(seq_len(nrow(estParams)), rownames(estParams))
   

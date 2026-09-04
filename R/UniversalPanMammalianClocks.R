@@ -41,7 +41,7 @@
 #' # ====================================================================
 #' # Example 1: Direct Matrix Input
 #' # ====================================================================
-#'   tursiopsExample <- loadOmniAgeRdata(
+#'   tursiopsExample <- OmniAgeRData::getOmniAgeRData(
 #'       "omniager_tursiops_example",
 #'       verbose = FALSE
 #'   )
@@ -57,20 +57,18 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = tursiopsExample$beta_m),
-#'       colData = tursiopsExample$PhenoTypes
-#'     )
-#'     
-#'     se_res <- universalPanMammalianClocks(
-#'       x = se_obj,
-#'       speciesName = se_obj$SpeciesLatinName,
-#'       verbose = FALSE
-#'     )
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = tursiopsExample$beta_m),
+#'     colData = tursiopsExample$PhenoTypes
+#'   )
+#'
+#'   se_res <- universalPanMammalianClocks(
+#'     x = se_obj,
+#'     speciesName = se_obj$SpeciesLatinName,
+#'     verbose = FALSE
+#'   )
 #' }
 # -------------------------------------------------------------------------
 # CODE ATTRIBUTION NOTE:
@@ -109,7 +107,7 @@ universalPanMammalianClocks <- function(x, speciesName, anageData = NULL, minCov
 #' @param anageData A \code{data.frame} containing the AnAge database information. 
 #'   Must include columns: \code{'SpeciesLatinName'}, \code{'GestationTimeInYears'}, 
 #'   \code{'averagedMaturity.yrs'}, and \code{'maxAge'}. If \code{NULL}, the default 
-#'   database is loaded internally via \code{loadOmniAgeRdata}.
+#'   database is loaded internally via \code{OmniAgeRData::getOmniAgeRData}.
 #' @param minCoverage Numeric value between 0 and 1. The minimum required proportion 
 #'   of overlapping CpGs present for clock estimation. Default is 0.
 #' @param verbose Logical. Whether to print diagnostic messages and progress status.
@@ -144,11 +142,11 @@ universalPanMammalianClocks <- function(x, speciesName, anageData = NULL, minCov
   
   # --- Step 0 & 1: Extraction & Load Internal Data ---
   betaM <- .extractAssayMatrix(x)
-  modelCoefs <- loadOmniAgeRdata(coefDataName, verbose = verbose)
+  modelCoefs <- OmniAgeRData::getOmniAgeRData(coefDataName, verbose = verbose)
   
   if (is.null(anageData)) {
     if (verbose) message(sprintf("[%s] Loading default AnAge database...", functionName))
-    anageData <- loadOmniAgeRdata("omniager_anage_data", verbose = FALSE)
+    anageData <- OmniAgeRData::getOmniAgeRData("omniager_anage_data", verbose = FALSE)
   }
   
   # --- Step 2: Data Preparation & Merging ---

@@ -89,7 +89,7 @@ These clocks are trained to measure aging in specific cell populations.
 # ====================================================================
 # Example 1: Direct Matrix Input (Bulk Tissue)
 # ====================================================================
-murphyBetaM <- loadOmniAgeRdata(
+murphyBetaM <- OmniAgeRData::getOmniAgeRData(
     "omniager_cts_murphy_gse88890",
     verbose = FALSE
 )[[1]]
@@ -106,7 +106,7 @@ agePred_df <- ctsClocks(
 # Example 2: Direct Matrix Input (Sorted Cells)
 # ====================================================================
 \dontrun{
-paiBetaM <- loadOmniAgeRdata(
+paiBetaM <- OmniAgeRData::getOmniAgeRData(
     "omniager_cts_pai_gse112179",
     verbose = FALSE
 )[[1]]
@@ -123,22 +123,19 @@ agePred_df_sorted <- ctsClocks(
 # ====================================================================
 # Example 3: SummarizedExperiment Input
 # ====================================================================
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
+library(SummarizedExperiment)
+se_obj <- SummarizedExperiment(
+  assays = list(beta = murphyBetaM)
+)
     
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = murphyBetaM)
-    )
-    
-    agePred_se <- ctsClocks(
-      x = se_obj,
-      compClocks = c("Neu-In", "Neu-Sin"),
-      dataType = "bulk",
-      ctfM = NULL,
-      tissue = "brain",
-      verbose = FALSE
-    )
-  }
+agePred_se <- ctsClocks(
+   x = se_obj,
+   compClocks = c("Neu-In", "Neu-Sin"),
+   dataType = "bulk",
+   ctfM = NULL,
+   tissue = "brain",
+   verbose = FALSE
+)
 }
 }
 \references{

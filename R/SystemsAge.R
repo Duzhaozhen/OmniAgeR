@@ -46,13 +46,13 @@
 #' # ====================================================================
 #' # Example 1: Direct Matrix Input
 #' # ====================================================================
-#'   hannumExample <- loadOmniAgeRdata(
+#'   hannumExample <- OmniAgeRData::getOmniAgeRData(
 #'       "omniager_hannum_example",
 #'       verbose = FALSE
 #'   )
 #'   hannumBmiqM <- hannumExample[[1]]
 #'   
-#'   systemsAgeData <- loadOmniAgeRdata(
+#'   systemsAgeData <- OmniAgeRData::getOmniAgeRData(
 #'     "SystemsAge_data",
 #'     verbose = FALSE
 #' )
@@ -62,16 +62,14 @@
 #' # ====================================================================
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = hannumBmiqM),
-#'       colData = hannumExample[[2]]
-#'     )
-#'     
-#'     se_res <- systemsAge(x = se_obj, clockData=systemsAgeData, verbose = FALSE)
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = hannumBmiqM),
+#'     colData = hannumExample[[2]]
+#'   )
+#'
+#'   se_res <- systemsAge(x = se_obj, clockData=systemsAgeData, verbose = FALSE)
 #' }
 #'
 # -------------------------------------------------------------------------

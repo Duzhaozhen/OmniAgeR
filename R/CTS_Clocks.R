@@ -72,7 +72,7 @@
 #' # ====================================================================
 #' # Example 1: Direct Matrix Input (Bulk Tissue)
 #' # ====================================================================
-#' murphyBetaM <- loadOmniAgeRdata(
+#' murphyBetaM <- OmniAgeRData::getOmniAgeRData(
 #'     "omniager_cts_murphy_gse88890",
 #'     verbose = FALSE
 #' )[[1]]
@@ -89,7 +89,7 @@
 #' # Example 2: Direct Matrix Input (Sorted Cells)
 #' # ====================================================================
 #' \dontrun{
-#' paiBetaM <- loadOmniAgeRdata(
+#' paiBetaM <- OmniAgeRData::getOmniAgeRData(
 #'     "omniager_cts_pai_gse112179",
 #'     verbose = FALSE
 #' )[[1]]
@@ -106,22 +106,19 @@
 #' # ====================================================================
 #' # Example 3: SummarizedExperiment Input
 #' # ====================================================================
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
+#' library(SummarizedExperiment)
+#' se_obj <- SummarizedExperiment(
+#'   assays = list(beta = murphyBetaM)
+#' )
 #'     
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = murphyBetaM)
-#'     )
-#'     
-#'     agePred_se <- ctsClocks(
-#'       x = se_obj,
-#'       compClocks = c("Neu-In", "Neu-Sin"),
-#'       dataType = "bulk",
-#'       ctfM = NULL,
-#'       tissue = "brain",
-#'       verbose = FALSE
-#'     )
-#'   }
+#' agePred_se <- ctsClocks(
+#'    x = se_obj,
+#'    compClocks = c("Neu-In", "Neu-Sin"),
+#'    dataType = "bulk",
+#'    ctfM = NULL,
+#'    tissue = "brain",
+#'    verbose = FALSE
+#' )
 #' }
 # -------------------------------------------------------------------------
 # CODE ATTRIBUTION NOTE:
@@ -145,7 +142,7 @@ ctsClocks <- function(x,
   # --- Step 0: Universal Matrix Extraction ---
   betaM <- .extractAssayMatrix(x)
   
-  ctsClocksCoef <- loadOmniAgeRdata(
+  ctsClocksCoef <- OmniAgeRData::getOmniAgeRData(
     "omniager_cts_clocks_coef",
     verbose = verbose
   )
@@ -155,10 +152,6 @@ ctsClocks <- function(x,
   
   if (needsIntrinsic && dataType == "bulk" && is.null(ctfM)) {
     if (tissue == "brain") {
-
-      if (!requireNamespace("HiBED", quietly = TRUE)) {
-        stop("The 'HiBED' package is required for brain deconvolution. Please install it.")
-      }
       if (verbose) message("[CTS] Deconvolving brain tissue fractions using full matrix...")
       estF <- HiBED::HiBED_deconvolution(betaM, h = 1) / 100
       ctfM <- as.matrix(estF[, c(3, 2, 1)]) # Neu, Glia, EndoStrom

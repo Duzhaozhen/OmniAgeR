@@ -337,7 +337,7 @@ During package review or development, the development versions can be installed 
 if (!requireNamespace("remotes", quietly = TRUE))
     install.packages("remotes")
 
-remotes::install_github("Duzhaozhen/OmniAgeR")
+remotes::install_github("Duzhaozhen-BioC/OmniAgeR")
 ```
 
 After installation, the packages can be loaded with:
@@ -363,7 +363,7 @@ library(ggplot2)
 library(patchwork)
 library(ggpubr)
 library(SummarizedExperiment)
-lungInv <- loadOmniAgeRdata(
+lungInv <- OmniAgeRData::getOmniAgeRData(
     "omniager_lung_inv",
     verbose = FALSE
 )
@@ -386,7 +386,7 @@ listEpiMarker()
 Mitotic age estimation of all the clocks is implemented in a general function *EpiMitClocks*. The required input is a DNAm beta value matrix with rows labeling Illumina 450k/EPIC CpGs and columns labeling samples.
 
 ```{r run-mototic-clock}
-epiMarkerRes <- suppressPackageStartupMessages(epiMarker(
+epiMarkerRes <- suppressMessages(epiMarker(
     x = lungInvSeObj,
     clockNames = "mitotic",
     chronAge = phenoDf$Age,
@@ -444,7 +444,7 @@ hannumBmiqM <- dnamExample[[1]]
 phenoTypesHannum <- dnamExample[[2]]
 age <- phenoTypesHannum$Age
 sex <- ifelse(phenoTypesHannum$Sex == "F", "Female", "Male")
-epiMarkerOut <- suppressPackageStartupMessages(epiMarker(hannumBmiqM,
+epiMarkerOut <- suppressMessages(epiMarker(hannumBmiqM,
     clockNames = c("Horvath2013", "ZhangClock"),
     minCoverage = 0, verbose = FALSE
 ))
@@ -507,7 +507,7 @@ library(patchwork)
 library(ggpubr)
 data("ScPbmcExample")
 set.seed(42)
-scImmuAgingOut <- suppressPackageStartupMessages(scImmuAging(
+scImmuAgingOut <- suppressMessages(scImmuAging(
    x = ScPbmcExample,
    cellTypes = c("CD4T"),
    assayName = "logcounts",
@@ -569,7 +569,7 @@ ggpubr::ggarrange(plotlist = sc_gp, nrow = 1)
 In this example, we showcase the application of the brain cell-type-specific aging Clocks to a brain snRNA-seq dataset. The dataset includes 5 donors, profiled to contain only Oligodendrocytes.
 
 ```{r brain-ct-clock}
-suppressPackageStartupMessages(library(OmniAgeR))
+suppressMessages(library(OmniAgeR))
 library(glmnet)
 library(ggplot2)
 library(patchwork)
@@ -578,7 +578,7 @@ library(dplyr)
 data("ScBrainExample")
 
 # Recommended Bioconductor workflow: SingleCellExperiment input
-clockResults <- suppressPackageStartupMessages(brainCtClock(
+clockResults <- suppressMessages(brainCtClock(
     x = ScBrainExample,
     cellTypes = "Oligodendrocytes",
     modelNames = "SC",
@@ -747,7 +747,7 @@ library(ggplot2)
 library(patchwork)
 library(ggpubr)
 library(SummarizedExperiment)
-ctfExample <- loadOmniAgeRdata(
+ctfExample <- OmniAgeRData::getOmniAgeRData(
     "omniager_tzh_example_ctf",
     verbose = FALSE
 )

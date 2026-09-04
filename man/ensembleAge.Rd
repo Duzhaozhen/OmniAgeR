@@ -66,15 +66,13 @@ ensembleAgeOut <- ensembleAge(x = beta_matrix, clockVersion = "HumanMouse", verb
 # Example 2: SummarizedExperiment Input
 # ====================================================================
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = beta_matrix)
-    )
-    
-    ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
-  }
+  library(SummarizedExperiment)
+
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = beta_matrix)
+  )
+
+  ensemble_se_res <- ensembleAge(x = se_obj, clockVersion = "Static", verbose = FALSE)
 }
 }
 \references{

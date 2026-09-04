@@ -24,7 +24,7 @@
 #' \emph{Nat Commun.} 2022
 #'
 #' @examples
-#' lungInv <- loadOmniAgeRdata(
+#' lungInv <- OmniAgeRData::getOmniAgeRData(
 #'     "omniager_lung_inv",
 #'     verbose = FALSE
 #' )
@@ -35,7 +35,7 @@
 
 
 repliTali <- function(betaM, minCoverage = 0, verbose = TRUE) {
-    replitaliCoef <- loadOmniAgeRdata(
+    replitaliCoef <- OmniAgeRData::getOmniAgeRData(
         "omniager_replitali_coef",
         verbose = verbose
     )

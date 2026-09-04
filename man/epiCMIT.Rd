@@ -42,18 +42,16 @@ epicmitOut  <- epiCMIT(x = beta_matrix, verbose = FALSE)
 
 # Example 2: SummarizedExperiment Input
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    pheno_data <- dnamExample[[2]]
-    rownames(pheno_data) <- colnames(beta_matrix)
-    
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = beta_matrix),
-      colData = pheno_data
-    )
-    
-    epicmitOut <- epiCMIT(x = se_obj, verbose = FALSE)
-  }
+  library(SummarizedExperiment)
+  pheno_data <- dnamExample[[2]]
+  rownames(pheno_data) <- colnames(beta_matrix)
+
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = beta_matrix),
+    colData = pheno_data
+  )
+
+  epicmitOut <- epiCMIT(x = se_obj, verbose = FALSE)
 }
 }
 \references{

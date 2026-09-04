@@ -46,7 +46,6 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
 #'     library(SummarizedExperiment)
 #'     
 #'     # Extract phenotype and ensure rownames match matrix colnames
@@ -62,7 +61,6 @@
 #'     # The function seamlessly accepts the Bioconductor object
 #'     predAge <- leeABEC(x = se_obj)
 #'     head(predAge)
-#'   }
 #' }
 
 leeABEC <- function(x,
@@ -111,7 +109,6 @@ leeABEC <- function(x,
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
 #'     library(SummarizedExperiment)
 #'     
 #'     # Extract phenotype and ensure rownames match matrix colnames
@@ -127,7 +124,6 @@ leeABEC <- function(x,
 #'     # The function seamlessly accepts the Bioconductor object
 #'     predAge <- leeExtendedABEC(x = se_obj)
 #'     head(predAge)
-#'   }
 #' }
 leeExtendedABEC <- function(x,
                             minCoverage = 0,
@@ -173,7 +169,6 @@ leeExtendedABEC <- function(x,
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
 #'     library(SummarizedExperiment)
 #'     
 #'     # Extract phenotype and ensure rownames match matrix colnames
@@ -189,7 +184,6 @@ leeExtendedABEC <- function(x,
 #'     # The function seamlessly accepts the Bioconductor object
 #'     predAge <- leeCommonABEC(x = se_obj)
 #'     head(predAge)
-#'   }
 #' }
 
 

@@ -61,24 +61,22 @@ GrimAge2O <- grimAge2(x = beta_matrix, age = age, sex = sex, verbose = FALSE)
 # ====================================================================
 # Example 2: SummarizedExperiment Input
 # ====================================================================
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-    library(SummarizedExperiment)
-    
-    pheno_data <- dnamExample[[2]]
-    rownames(pheno_data) <- colnames(beta_matrix)
-    
-    se_obj <- SummarizedExperiment(
-      assays = list(beta = beta_matrix),
-      colData = pheno_data
-    )
-    
-    GrimAge2O <- grimAge2(
-      x = se_obj,
-      age = se_obj$Age,
-      sex = ifelse(se_obj$Sex == "F", "Female", "Male"),
-      verbose = FALSE
-    )
-  }
+  library(SummarizedExperiment)
+
+  pheno_data <- dnamExample[[2]]
+  rownames(pheno_data) <- colnames(beta_matrix)
+
+  se_obj <- SummarizedExperiment(
+    assays = list(beta = beta_matrix),
+    colData = pheno_data
+  )
+
+  GrimAge2O <- grimAge2(
+    x = se_obj,
+    age = se_obj$Age,
+    sex = ifelse(se_obj$Sex == "F", "Female", "Male"),
+    verbose = FALSE
+  )
 }
 }
 \references{

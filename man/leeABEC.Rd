@@ -46,7 +46,6 @@ head(predAge)
 # Example 2: SummarizedExperiment Input
 # ====================================================================
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
     library(SummarizedExperiment)
     
     # Extract phenotype and ensure rownames match matrix colnames
@@ -62,7 +61,6 @@ head(predAge)
     # The function seamlessly accepts the Bioconductor object
     predAge <- leeABEC(x = se_obj)
     head(predAge)
-  }
 }
 }
 \references{

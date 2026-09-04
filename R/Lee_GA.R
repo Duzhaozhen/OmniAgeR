@@ -63,29 +63,26 @@
 #' # Example 2: SummarizedExperiment Input
 #' # ====================================================================
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
-#'     library(SummarizedExperiment)
-#'     
-#'     # Extract phenotype and ensure rownames match matrix colnames
-#'     pheno_data <- dnamExample[[2]]
-#'     rownames(pheno_data) <- colnames(beta_matrix)
-#'     
-#'     # Construct the SummarizedExperiment object
-#'     se_obj <- SummarizedExperiment(
-#'       assays = list(beta = beta_matrix),
-#'       colData = pheno_data
-#'     )
-#'     
-#'     # The function seamlessly accepts the Bioconductor object
-#'     predRes <- LeeGa(x = se_obj)
-#'     head(predRes)
-#'   }
+#'   library(SummarizedExperiment)
+#'
+#'   # Extract phenotype and ensure rownames match matrix colnames
+#'   pheno_data <- dnamExample[[2]]
+#'   rownames(pheno_data) <- colnames(beta_matrix)
+#'
+#'   # Construct the SummarizedExperiment object
+#'   se_obj <- SummarizedExperiment(
+#'     assays = list(beta = beta_matrix),
+#'     colData = pheno_data
+#'   )
+#'
+#'   # The function seamlessly accepts the Bioconductor object
+#'   predRes <- LeeGa(x = se_obj)
+#'   head(predRes)
 #' }
 
 
-
 LeeGa <- function(x,
-                  minCoverage = 0,
+                  minCoverage = 0.5,
                   verbose = TRUE) {
   
   # Delegate the entire calculation to the unified multi-model pipeline

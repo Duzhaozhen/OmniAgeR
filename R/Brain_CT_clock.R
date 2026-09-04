@@ -601,7 +601,7 @@ brainCtClock <- function(x,
     )
   }
   
-  brainCtResource <- loadOmniAgeRdata(
+  brainCtResource <- OmniAgeRData::getOmniAgeRData(
     "omniager_brain_celltype_specific_clocks_coef",
     verbose = verbose
   )

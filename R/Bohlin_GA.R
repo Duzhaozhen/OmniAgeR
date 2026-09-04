@@ -33,7 +33,6 @@
 #' 
 #' # Example 2: SummarizedExperiment Input
 #' \dontrun{
-#'   if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
 #'     library(SummarizedExperiment)
 #'     pheno_data <- dnamExample[[2]]
 #'     rownames(pheno_data) <- colnames(beta_matrix)
@@ -44,7 +43,6 @@
 #'     )
 #'     
 #'     bohlinGaOut <- bohlinGa(x = se_obj, verbose = FALSE)
-#'   }
 #' }
 
 bohlinGa <- function(x,

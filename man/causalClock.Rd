@@ -44,7 +44,6 @@ head(causalClockO$CausalAge)
 
 # Example 2: SummarizedExperiment Input
 \dontrun{
-  if (requireNamespace("SummarizedExperiment", quietly = TRUE)) {
     library(SummarizedExperiment)
     pheno_data <- dnamExample[[2]]
     rownames(pheno_data) <- colnames(beta_matrix)
@@ -55,7 +54,6 @@ head(causalClockO$CausalAge)
     )
     
     causal_se_res <- causalClock(x = se_obj, verbose = FALSE)
-  }
 }
 }
 \references{

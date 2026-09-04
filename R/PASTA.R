@@ -60,7 +60,7 @@ pastaScores <- function(x, filterGenes = TRUE, rankNorm = TRUE,
                         reg = FALSE, pasta = TRUE, ct46 = FALSE, verbose = TRUE) {
     mat <- .extractAssayMatrix(x)
     # 1. Load model data
-    pastaGenesModel <- loadOmniAgeRdata(
+    pastaGenesModel <- OmniAgeRData::getOmniAgeRData(
         "omniager_pasta_gene",
         verbose = verbose
     )
@@ -182,7 +182,7 @@ applyRankNormalization <- function(mat) {
         stop("Invalid modelType. Choose PASTA, REG, or CT46.")
     )
     # Obtain the current model object
-    curModel <- loadOmniAgeRdata(
+    curModel <- OmniAgeRData::getOmniAgeRData(
         dataName,
         verbose = verbose
     )
@@ -195,13 +195,13 @@ applyRankNormalization <- function(mat) {
 
     # 3. Scaled
     if (modelType == "PASTA") {
-        betaPASTA <- loadOmniAgeRdata(
+        betaPASTA <- OmniAgeRData::getOmniAgeRData(
             "omniager_beta_pasta",
             verbose = verbose
         )
         vAgeScores <- vAgeScores * betaPASTA
     } else if (modelType == "CT46") {
-        betaC46 <- loadOmniAgeRdata(
+        betaC46 <- OmniAgeRData::getOmniAgeRData(
             "omniager_beta_c46",
             verbose = verbose
         )
