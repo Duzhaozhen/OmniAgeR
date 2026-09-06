@@ -14,8 +14,21 @@ Key metadata columns include:
 }
 }
 \source{
-The original dataset is hosted on the Gene Expression Omnibus (GEO).
-\strong{GEO Accession:} \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE254569}
+Fröhlich, A. S. et al. (2024).
+\emph{Single-nucleus transcriptomic profiling of human orbitofrontal cortex
+reveals convergent effects of aging and psychiatric disease}.
+\emph{Nature Neuroscience}, 27, 2021--2032.
+\doi{10.1038/s41593-024-01742-z}
+
+Original snRNA-seq data, including the processed AnnData object, are
+available from NCBI GEO under accession GSE254569:
+\url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE254569}
+
+\strong{Data-use terms:}
+NCBI places no restrictions on the use or distribution of data deposited in
+GEO, while noting that submitters may retain applicable patent, copyright,
+or other intellectual-property rights. See the GEO disclaimer:
+\url{https://www.ncbi.nlm.nih.gov/geo/info/disclaimer.html}.
 
 \strong{License:}
 The original data was deposited in GEO as a public resource.

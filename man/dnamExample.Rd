@@ -12,11 +12,26 @@ This resource is a \code{list} of length 2, containing:
 }
 }
 \source{
-The original data is derived from the Hannum et al. study (GEO Accession: GSE40279).
-Preprocessing pipelines reference: Luo, Q. et al. \emph{Genome Med} 15, 59 (2023).
+Hannum, G. et al. (2013).
+\emph{Genome-wide methylation profiles reveal quantitative views of human
+aging rates}. \emph{Molecular Cell}, 49, 359--367.
+\doi{10.1016/j.molcel.2012.10.016}
+
+Original data: NCBI Gene Expression Omnibus, accession GSE40279:
+\url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40279}
+
+The preprocessing procedure followed Luo, Q. et al. (2023),
+\emph{Genome Medicine}, 15, 59.
+\doi{10.1186/s13073-023-01211-5}
+
+\strong{Data-use terms:}
+NCBI places no restrictions on the use or distribution of data deposited in
+GEO, while noting that submitters may retain applicable patent, copyright,
+or other intellectual-property rights. See the GEO disclaimer:
+\url{https://www.ncbi.nlm.nih.gov/geo/info/disclaimer.html}.
 
 \strong{License:}
-The original data was deposited in GEO as a public resource. de
+The original data was deposited in GEO as a public resource.
 }
 \usage{
 data(dnamExample)

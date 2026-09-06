@@ -23,11 +23,27 @@
 #' to seamlessly interface with the \code{OmniAgeR} pipeline.
 #'
 #' @source
-#' The original data is derived from the Hannum et al. study (GEO Accession: GSE40279).
-#' Preprocessing pipelines reference: Luo, Q. et al. \emph{Genome Med} 15, 59 (2023).
+#' Hannum, G. et al. (2013).
+#' \emph{Genome-wide methylation profiles reveal quantitative views of human
+#' aging rates}. \emph{Molecular Cell}, 49, 359--367.
+#' \doi{10.1016/j.molcel.2012.10.016}
+#'
+#' Original data: NCBI Gene Expression Omnibus, accession GSE40279:
+#' \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE40279}
+#'
+#' The preprocessing procedure followed Luo, Q. et al. (2023),
+#' \emph{Genome Medicine}, 15, 59.
+#' \doi{10.1186/s13073-023-01211-5}
+#'
+#' \strong{Data-use terms:}
+#' NCBI places no restrictions on the use or distribution of data deposited in
+#' GEO, while noting that submitters may retain applicable patent, copyright,
+#' or other intellectual-property rights. See the GEO disclaimer:
+#' \url{https://www.ncbi.nlm.nih.gov/geo/info/disclaimer.html}.
+#'
 #'
 #' \strong{License:}
-#' The original data was deposited in GEO as a public resource. de
+#' The original data was deposited in GEO as a public resource. 
 "dnamExample"
 
 
@@ -61,14 +77,13 @@
 #' \code{SingleCellExperiment} format to preserve both raw counts and normalized data layers.
 #'
 #' @source
-#' The original comprehensive dataset is hosted on the CZ CELLxGENE Discover portal.
-#' \strong{Collection URL:} \url{https://cellxgene.cziscience.com/collections/dde06e0f-ab3b-46be-96a2-a8082383c4a1}
-#'
-#' \strong{License:}
-#' Data hosted on CELLxGENE are generally distributed under permissive open-access
-#' licenses. This highly subsetted and downsampled \code{SingleCellExperiment}
-#' object is distributed here strictly for academic testing and reproducibility.
-#'
+#' The original dataset is derived from:
+#' \itemize{
+#'   \item \strong{Title:} Single-cell eQTL mapping identifies cell type–specific genetic control of autoimmune disease
+#'   \item \strong{Authors:} Seyhan Yazar et al. (\emph{Science}, 2022)
+#'   \item \strong{Source Portal:} CZ CELLxGENE Discover (\url{https://cellxgene.cziscience.com/collections/dde06e0f-ab3b-46be-96a2-a8082383c4a1})
+#'   \item \strong{License:} Creative Commons Attribution 4.0 International (CC BY 4.0) (\url{https://creativecommons.org/licenses/by/4.0/})
+#' }
 #'
 "ScPbmcExample"
 
@@ -102,8 +117,21 @@
 #' environment and the \code{OmniAgeR} analytical pipeline.
 #'
 #' @source
-#' The original dataset is hosted on the Gene Expression Omnibus (GEO).
-#' \strong{GEO Accession:} \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE254569}
+#' Fröhlich, A. S. et al. (2024).
+#' \emph{Single-nucleus transcriptomic profiling of human orbitofrontal cortex
+#' reveals convergent effects of aging and psychiatric disease}.
+#' \emph{Nature Neuroscience}, 27, 2021--2032.
+#' \doi{10.1038/s41593-024-01742-z}
+#'
+#' Original snRNA-seq data, including the processed AnnData object, are
+#' available from NCBI GEO under accession GSE254569:
+#' \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE254569}
+#'
+#' \strong{Data-use terms:}
+#' NCBI places no restrictions on the use or distribution of data deposited in
+#' GEO, while noting that submitters may retain applicable patent, copyright,
+#' or other intellectual-property rights. See the GEO disclaimer:
+#' \url{https://www.ncbi.nlm.nih.gov/geo/info/disclaimer.html}.
 #'
 #' \strong{License:}
 #' The original data was deposited in GEO as a public resource. 
